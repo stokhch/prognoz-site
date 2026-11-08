@@ -338,7 +338,7 @@ export function chart(series, opts = {}) {
   const clip = 'c' + Math.random().toString(36).slice(2);
   const d = se('defs', {}); const cp = se('clipPath', { id: clip }); cp.append(se('rect', { x: P.l, y: P.t, width: W - P.l - P.r, height: H - P.t - P.b })); d.append(cp); svg.append(d);
   const t = (x, y, s, a = {}) => { const e = se('text', { x, y, 'font-size': 12, fill: '#4A5668', 'font-family': 'JetBrains Mono, monospace', ...a }); e.textContent = s; svg.append(e); };
-  if (opts.bg) sunBackground(svg, opts.bg, X, kxBg, (P.t + H - P.b) / 2, clip, P.t, H - P.b);
+  const bgCanvas = opts.bg ? sunBackground(svg, opts.bg, X, kxBg, (P.t + H - P.b) / 2, clip, P.t, H - P.b, W, H, P.l, W - P.r) : null;
   for (const v of niceTicks(y0, y1, 6)) { svg.append(se('line', { x1: P.l, x2: W - P.r, y1: Y(v), y2: Y(v), stroke: '#E3E8EF' })); if (opts.yTicks !== false) t(P.l - 6, Y(v) + 4, fmt(v), { 'text-anchor': 'end' }); }
   const xt = opts.logX ? [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000].filter(v => v >= x0 && v <= x1) : niceTicks(x0, x1, 8);
   for (const v of xt) { svg.append(se('line', { x1: X(v), x2: X(v), y1: P.t, y2: H - P.b, stroke: '#F0F3F7' })); t(X(v), H - P.b + 16, String(v), { 'text-anchor': 'middle' }); }
@@ -376,39 +376,77 @@ export function chart(series, opts = {}) {
       else if (opts.onClick && p >= P.l && p <= W - P.r) opts.onClick(inv(p));
     });
   }
+  if (bgCanvas) {
+    svg.style.position = 'relative';
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative';
+    wrap.append(bgCanvas, svg);
+    return wrap;
+  }
   return svg;
 }
 
-// Sun image behind a chart: centre of the disk at x = 0 (plus the fitted centre shift), same arcsec scale as the
-// x axis, turned by P + q (+ correction), optionally mirrored; the beam strip at the picked point on top.
-// bg: {urls: [...], R, turn, q, flip, pos, beam, onStatus(state, url, log)}
-function sunBackground(svg, bg, X, k, cy, clip, yTop, yBot) {
-  const g = se('g', { 'clip-path': `url(#${clip})` });
+// Sun image behind a chart: centre of the disk at x = 0, same arcsec scale as the x axis, turned by P + q
+// (+ correction), optionally mirrored. The picture is loaded ONCE per URL set (plain Image, like the first
+// version that worked) and cached; it is painted on a canvas under the SVG, so re-drawing the chart does not
+// ask Helioviewer again. The limb, the beam strip and a light veil are drawn in the SVG on top.
+// bg: {urls: [...], R, sizeArcsec, turn, q, flip, pos, beam, onStatus(state, url, log)}
+const sunCache = new Map();
+export function sunImage(urls) {
+  const key = urls.join('|');
+  if (sunCache.has(key)) return sunCache.get(key);
+  const pr = new Promise((resolve, reject) => {
+    const log = [];
+    const tryNext = k => {
+      if (k >= urls.length) { reject(Object.assign(new Error('снимок не загрузился'), { log, url: urls[0] })); return; }
+      const img = new Image(), t0 = Date.now();
+      img.onload = () => resolve({ img, url: urls[k], log });
+      img.onerror = () => { log.push(urls[k] + ' — ошибка (' + Math.round((Date.now() - t0) / 1000) + ' с)'); tryNext(k + 1); };
+      img.src = urls[k];
+    };
+    tryNext(0);
+  });
+  pr.catch(() => sunCache.delete(key));       // a failed load may be retried on the next draw
+  sunCache.set(key, pr);
+  return pr;
+}
+
+function sunBackground(svg, bg, X, k, cy, clip, yTop, yBot, W, H, xL, xR) {
   const cx = X(0), size = bg.sizeArcsec * k;
-  const tf = `rotate(${-bg.turn} ${cx} ${cy})` + (bg.flip ? ` translate(${2 * cx} 0) scale(-1 1)` : '');
-  g.append(se('rect', { x: 0, y: yTop, width: 4000, height: yBot - yTop, fill: '#0B1220' }));
-  const img = se('image', { x: cx - size / 2, y: cy - size / 2, width: size, height: size, opacity: 0.9, transform: tf, preserveAspectRatio: 'none' });
+  // canvas under the svg
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  cv.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none';
+  const g2 = cv.getContext('2d'); g2.scale(dpr, dpr);
+  const paint = img => {
+    g2.clearRect(0, 0, W, H);
+    g2.save(); g2.beginPath(); g2.rect(xL, yTop, xR - xL, yBot - yTop); g2.clip();
+    g2.fillStyle = '#0B1220'; g2.fillRect(xL, yTop, xR - xL, yBot - yTop);
+    if (img) {
+      g2.translate(cx, cy); g2.rotate(-bg.turn * Math.PI / 180); if (bg.flip) g2.scale(-1, 1);
+      g2.globalAlpha = 0.9; g2.drawImage(img, -size / 2, -size / 2, size, size);
+    }
+    g2.restore();
+  };
+  paint(null);
+  // vector overlays in the svg
+  const g = se('g', { 'clip-path': `url(#${clip})` });
   const limb = se('circle', { cx, cy, r: bg.R * k, fill: 'none', stroke: '#F5C451', 'stroke-opacity': 0.7, 'stroke-dasharray': '4 4' });
-  g.append(img, limb);
+  g.append(limb);
   if (bg.pos !== null && bg.pos !== undefined) {
-    const w = Math.max(1.5, (bg.beam || 30) * k), tq = Math.tan((bg.q || 0) * Math.PI / 180), L = 1.5 * bg.R * k;
-    const xp = X(bg.pos);
+    const w = Math.max(1.5, (bg.beam || 30) * k), tq = Math.tan((bg.q || 0) * Math.PI / 180), L = 1.5 * bg.R * k, xp = X(bg.pos);
     g.append(se('polygon', { points: `${xp - w / 2 - L * tq},${cy - L} ${xp + w / 2 - L * tq},${cy - L} ${xp + w / 2 + L * tq},${cy + L} ${xp - w / 2 + L * tq},${cy + L}`, fill: '#F97316', 'fill-opacity': 0.35, stroke: '#F97316', 'stroke-width': 1 }));
   }
-  // translucent veil so the curves stay readable
   g.append(se('rect', { x: 0, y: yTop, width: 4000, height: yBot - yTop, fill: '#FFFFFF', 'fill-opacity': 0.42 }));
   svg.append(g);
-  const log = [];
-  let k2 = 0;
-  const tryNext = () => {
-    if (k2 >= bg.urls.length) { img.remove(); bg.onStatus && bg.onStatus('error', bg.urls[0], log); return; }
-    const u = bg.urls[k2++], t0 = Date.now();
-    img.onload = () => { limb.setAttribute('stroke-opacity', 0.35); bg.onStatus && bg.onStatus('ok', u, log); };
-    img.onerror = () => { log.push(u + ' — ошибка (' + Math.round((Date.now() - t0) / 1000) + ' с)'); tryNext(); };
-    img.setAttribute('href', u);
-    bg.onStatus && bg.onStatus('loading', u, log);
-  };
-  if (bg.urls && bg.urls.length) tryNext(); else bg.onStatus && bg.onStatus('none');
+  if (bg.urls && bg.urls.length) {
+    let t0 = Date.now(), done = false;
+    bg.onStatus && bg.onStatus('loading', bg.urls[0], [], t0);
+    sunImage(bg.urls).then(r => { done = true; paint(r.img); limb.setAttribute('stroke-opacity', 0.35); bg.onStatus && bg.onStatus('ok', r.url, r.log); })
+      .catch(e => { done = true; bg.onStatus && bg.onStatus('error', e.url || bg.urls[0], e.log || []); });
+  }
+  return cv;
 }
 
 // colour by frequency on a white background: blue (low) -> orange (high), equal lightness steps

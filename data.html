@@ -499,6 +499,7 @@ function sunBg(sel) {
     clearInterval(timer);
     if (state === 'loading') {
       const t0 = Date.now();
+      msg.textContent = 'Снимок Солнца: загрузка с Helioviewer…';
       timer = setInterval(() => { if (!msg.isConnected) return clearInterval(timer); msg.textContent = 'Снимок Солнца: загрузка с Helioviewer… ' + Math.round((Date.now() - t0) / 1000) + ' с (сервер собирает снимок, бывает до минуты)'; }, 1000);
     } else if (state === 'error') msg.replaceChildren('Снимок не загрузился — показан только контур диска. ', el('a', { href: url, text: 'Открыть запрос к Helioviewer' }), ' — по нему видно, что отвечает сервер.' + (log && log.length ? ' Попытки: ' + log.join('; ') : ''));
     else if (state === 'ok') msg.replaceChildren(`Фон: ${V.SUN_LAYERS[st.sunLayer][0]}, Helioviewer.org (SDO/NASA), ${sc.obs.date} ${sc.obs.time.slice(0, 5)} UT; повёрнут на P + q = ${(P + q + st.sunRot).toFixed(1)}°, положительное x — запад; оранжевая полоса — диаграмма в точке ${st.pos}″. Масштаб по вертикали — как без снимка. `, el('a', { href: url, text: 'исходный снимок' }));
