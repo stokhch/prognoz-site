@@ -323,8 +323,11 @@ export function percentileRange(arrs, lo = 0.5, hi = 99.5) {
 // series: [{x, y, color, dash, width, name}]; opts: {height, xLabel, yLabel, yr, guides:[{x,label}], labels:[{y,text,color}],
 //   onClick(x), onZoom(x0,x1), mark: x, yTicks: true, logX}
 export function chart(series, opts = {}) {
-  const W = opts.width || 900, H = opts.height || 380, P = { l: 66, r: 16, t: 14, b: 40 };
+  const W = opts.width || 900, P = { l: 66, r: 16, t: 14, b: 40 };
   const xs = series.flatMap(s => s.x), x0 = opts.xr ? opts.xr[0] : Math.min(...xs), x1 = opts.xr ? opts.xr[1] : Math.max(...xs);
+  // a background Sun image only makes the plot taller (to fit the disk); the data range of Y is not touched
+  const kxBg = (W - P.l - P.r) / (x1 - x0);
+  const H = opts.bg ? Math.max(opts.height || 380, Math.min(1400, 2.15 * opts.bg.R * kxBg + P.t + P.b)) : (opts.height || 380);
   const [y0, y1] = opts.yr || percentileRange(series.map(s => s.y), 0, 100);
   const tx = v => opts.logX ? Math.log10(v) : v;
   const X = v => P.l + (tx(v) - tx(x0)) / (tx(x1) - tx(x0)) * (W - P.l - P.r);
@@ -333,6 +336,7 @@ export function chart(series, opts = {}) {
   const clip = 'c' + Math.random().toString(36).slice(2);
   const d = se('defs', {}); const cp = se('clipPath', { id: clip }); cp.append(se('rect', { x: P.l, y: P.t, width: W - P.l - P.r, height: H - P.t - P.b })); d.append(cp); svg.append(d);
   const t = (x, y, s, a = {}) => { const e = se('text', { x, y, 'font-size': 12, fill: '#4A5668', 'font-family': 'JetBrains Mono, monospace', ...a }); e.textContent = s; svg.append(e); };
+  if (opts.bg) sunBackground(svg, opts.bg, X, kxBg, (P.t + H - P.b) / 2, clip, P.t, H - P.b);
   for (const v of niceTicks(y0, y1, 6)) { svg.append(se('line', { x1: P.l, x2: W - P.r, y1: Y(v), y2: Y(v), stroke: '#E3E8EF' })); if (opts.yTicks !== false) t(P.l - 6, Y(v) + 4, fmt(v), { 'text-anchor': 'end' }); }
   const xt = opts.logX ? [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000].filter(v => v >= x0 && v <= x1) : niceTicks(x0, x1, 8);
   for (const v of xt) { svg.append(se('line', { x1: X(v), x2: X(v), y1: P.t, y2: H - P.b, stroke: '#F0F3F7' })); t(X(v), H - P.b + 16, String(v), { 'text-anchor': 'middle' }); }
@@ -366,6 +370,38 @@ export function chart(series, opts = {}) {
     });
   }
   return svg;
+}
+
+// Sun image behind a chart: centre of the disk at x = 0 (plus the fitted centre shift), same arcsec scale as the
+// x axis, turned by P + q (+ correction), optionally mirrored; the beam strip at the picked point on top.
+// bg: {urls: [...], R, turn, q, flip, pos, beam, onStatus(state, url, log)}
+function sunBackground(svg, bg, X, k, cy, clip, yTop, yBot) {
+  const g = se('g', { 'clip-path': `url(#${clip})` });
+  const cx = X(0), size = bg.sizeArcsec * k;
+  const tf = `rotate(${-bg.turn} ${cx} ${cy})` + (bg.flip ? ` translate(${2 * cx} 0) scale(-1 1)` : '');
+  g.append(se('rect', { x: 0, y: yTop, width: 4000, height: yBot - yTop, fill: '#0B1220' }));
+  const img = se('image', { x: cx - size / 2, y: cy - size / 2, width: size, height: size, opacity: 0.9, transform: tf, preserveAspectRatio: 'none' });
+  const limb = se('circle', { cx, cy, r: bg.R * k, fill: 'none', stroke: '#F5C451', 'stroke-opacity': 0.7, 'stroke-dasharray': '4 4' });
+  g.append(img, limb);
+  if (bg.pos !== null && bg.pos !== undefined) {
+    const w = Math.max(1.5, (bg.beam || 30) * k), tq = Math.tan((bg.q || 0) * Math.PI / 180), L = 1.5 * bg.R * k;
+    const xp = X(bg.pos);
+    g.append(se('polygon', { points: `${xp - w / 2 - L * tq},${cy - L} ${xp + w / 2 - L * tq},${cy - L} ${xp + w / 2 + L * tq},${cy + L} ${xp - w / 2 + L * tq},${cy + L}`, fill: '#F97316', 'fill-opacity': 0.35, stroke: '#F97316', 'stroke-width': 1 }));
+  }
+  // translucent veil so the curves stay readable
+  g.append(se('rect', { x: 0, y: yTop, width: 4000, height: yBot - yTop, fill: '#FFFFFF', 'fill-opacity': 0.42 }));
+  svg.append(g);
+  const log = [];
+  let k2 = 0;
+  const tryNext = () => {
+    if (k2 >= bg.urls.length) { img.remove(); bg.onStatus && bg.onStatus('error', bg.urls[0], log); return; }
+    const u = bg.urls[k2++], t0 = Date.now();
+    img.onload = () => { limb.setAttribute('stroke-opacity', 0.35); bg.onStatus && bg.onStatus('ok', u, log); };
+    img.onerror = () => { log.push(u + ' — ошибка (' + Math.round((Date.now() - t0) / 1000) + ' с)'); tryNext(); };
+    img.setAttribute('href', u);
+    bg.onStatus && bg.onStatus('loading', u, log);
+  };
+  if (bg.urls && bg.urls.length) tryNext(); else bg.onStatus && bg.onStatus('none');
 }
 
 // colour by frequency on a white background: blue (low) -> orange (high), equal lightness steps
