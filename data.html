@@ -104,7 +104,7 @@
 
     <section class="card main stack" aria-label="Результат" style="gap: 12px; padding: 18px">
       <div role="tablist" aria-label="Режим просмотра" id="tabs" class="tabs-compact" style="display: flex; flex-direction: column; gap: 6px">
-        <div class="chips"><span class="muted" style="align-self: center; font-size: 12px; width: 56px">Сканы</span><button type="button" class="chip" role="tab" data-v="plot" aria-selected="true">Прогноз</button><button type="button" class="chip" role="tab" data-v="group" aria-selected="false">Наложение</button><button type="button" class="chip" role="tab" data-v="vertical" aria-selected="false">Разнесение</button><button type="button" class="chip" role="tab" data-v="grid" aria-selected="false">Сетка</button><button type="button" class="chip" role="tab" data-v="map" aria-selected="false">Карта</button><button type="button" class="chip" role="tab" data-v="contour" aria-selected="false">Контуры</button><button type="button" class="chip" role="tab" data-v="waterfall" aria-selected="false">3D</button><button type="button" class="chip" role="tab" data-v="sun" aria-selected="false">Снимок Солнца</button></div>
+        <div class="chips"><span class="muted" style="align-self: center; font-size: 12px; width: 56px">Сканы</span><button type="button" class="chip" role="tab" data-v="plot" aria-selected="true">Прогноз</button><button type="button" class="chip" role="tab" data-v="single" aria-selected="false">Одиночный скан</button><button type="button" class="chip" role="tab" data-v="group" aria-selected="false">Наложение</button><button type="button" class="chip" role="tab" data-v="vertical" aria-selected="false">Разнесение</button><button type="button" class="chip" role="tab" data-v="grid" aria-selected="false">Сетка</button><button type="button" class="chip" role="tab" data-v="map" aria-selected="false">Карта</button><button type="button" class="chip" role="tab" data-v="contour" aria-selected="false">Контуры</button><button type="button" class="chip" role="tab" data-v="waterfall" aria-selected="false">3D</button><button type="button" class="chip" role="tab" data-v="sun" aria-selected="false">Снимок Солнца</button></div>
         <div class="chips"><span class="muted" style="align-self: center; font-size: 12px; width: 56px">Анализ</span><button type="button" class="chip" role="tab" data-v="point" aria-selected="false">Спектр в точке</button><button type="button" class="chip" role="tab" data-v="qsview" aria-selected="false">Спокойное Солнце</button><button type="button" class="chip" role="tab" data-v="near" aria-selected="false">Соседние волны</button><button type="button" class="chip" role="tab" data-v="gauss" aria-selected="false">Гаусс-анализ</button><button type="button" class="chip" role="tab" data-v="fft" aria-selected="false">Фурье</button><button type="button" class="chip" role="tab" data-v="wavelet" aria-selected="false">Вейвлет</button><button type="button" class="chip" role="tab" data-v="azim" aria-selected="false">Азимуты дня</button></div>
       </div>
       <div>
@@ -144,9 +144,10 @@ import { render } from './assets/scanplot.js';
 
 const TABS = {
   plot: ['Картинка прогноза', 'Все каналы от 3 ГГц, I (сплошные) и V (штрихпунктир), цвет — по частоте; как sunsao1.jpg прогноза. Параметры слева на неё не влияют.'],
+  single: ['Одиночный скан', 'Один канал крупно со вписанным шаблоном спокойного Солнца (пунктир) и остатком «скан − шаблон» под ним. Стрелки — соседние каналы.'],
   group: ['Наложение каналов', 'Выбранные каналы на одном графике, цвет — от синего (низкие частоты) к оранжевому (высокие). Щелчок — спектр в точке.'],
   vertical: ['Разнесение по вертикали', 'Каждый канал в своей шкале (1–98-й процентили), подписаны частоты.'],
-  grid: ['Сетка каналов', 'Отдельный маленький график на каждый выбранный канал.'],
+  grid: ['Сетка каналов', 'Отдельный маленький график на каждый выбранный канал, со вписанным шаблоном спокойного Солнца (пунктир).'],
   map: ['Цветная карта', 'Частота × положение на скане; ось частот в ГГц. Щелчок — спектр в точке.'],
   contour: ['Контурная карта', 'Изолинии на плоскости частота × положение.'],
   waterfall: ['Трёхмерный вид', 'Каналы друг за другом: низкие частоты спереди.'],
@@ -160,7 +161,7 @@ const TABS = {
   azim: ['Азимуты дня', 'Все наблюдения этого дня на первом выбранном канале, сверху вниз по времени.']
 };
 const $ = id => document.getElementById(id);
-const st = { sunLayer: 'aia193', sunEvents: true, sunRot: 0, sunFlip: false, arc: null, path: null, level2: null, param: 'I', range: 'sun2', qs: 'none', scale: 'auto', tab: 'plot', freqOn: null, pos: null, zoom: null, buttons: new Map(), dayCache: new Map() };
+const st = { qsOverlay: true, single: null, sunLayer: 'aia193', sunEvents: true, sunRot: 0, sunFlip: false, arc: null, path: null, level2: null, param: 'I', range: 'sun2', qs: 'none', scale: 'auto', tab: 'plot', freqOn: null, pos: null, zoom: null, buttons: new Map(), dayCache: new Map() };
 
 // ---------- archive tree ----------
 function wantedPath() { return decodeURIComponent(location.hash.slice(1)); }
@@ -344,15 +345,23 @@ function draw() {
     return;
   }
   if (st.tab === 'grid') {
-    const list = sel.slice(0, 36);
+    const list = sel.slice(0, 36), withQs = st.qsOverlay && canQs();
     const wrap = el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px' });
-    const rows = list.map(c => ser(c, g)), same = yr(rows, g);
-    list.forEach((c, k) => wrap.append(el('div', {}, el('div', { class: 'mono', style: 'font-size:12px;color:var(--muted)', text: sc.freq[c].toFixed(3) + ' ГГц' }),
-      V.chart([{ x: g.x, y: rows[k], color: colorOf(c), width: 1.4 }], { ...common, width: 420, height: 220, yr: $('scale').value === 'full' ? same : yr([rows[k]], g), yLabel: '', xLabel: '' }))));
-    box.replaceChildren(wrap);
+    const rows = list.map(c => withQs ? V.stokes(sc, c, st.param, g.idx) : ser(c, g)), same = yr(rows, g);
+    list.forEach((c, k) => {
+      const sr = [{ x: g.x, y: rows[k], color: colorOf(c), width: 1.4 }];
+      if (withQs) sr.push({ x: g.x, y: qsCurve(c, g), color: '#0F1B2D', dash: '5 4', width: 1.2 });
+      const card = el('div', { style: 'cursor:pointer', title: 'Открыть одиночный скан' },
+        el('div', { class: 'mono', style: 'font-size:12px;color:var(--muted)', text: sc.freq[c].toFixed(3) + ' ГГц' }),
+        V.chart(sr, { width: 420, height: 220, guides: guides(), yr: st.scale === 'full' ? same : yr0([rows[k]], g), yLabel: '', xLabel: '', xr: st.zoom || undefined, onClick: () => { st.single = c; selectTab('single'); } }));
+      wrap.append(card);
+    });
+    box.replaceChildren(qsToolbar(), wrap);
     if (sel.length > 36) extra.append(el('p', { class: 'muted', text: 'Показаны первые 36 из ' + sel.length + ' выбранных каналов.' }));
+    extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Щелчок по графику — открыть канал крупно. ' + qsNote() }));
     return;
   }
+  if (st.tab === 'single') { drawSingle(g, sel); return; }
   if (st.tab === 'map' || st.tab === 'contour' || st.tab === 'waterfall') {
     const gg = G(st.tab === 'waterfall' ? 500 : 700), all = sc.freq.map((_, c) => c);
     const rows = all.map(c => ser(c, gg));
@@ -401,6 +410,45 @@ function draw() {
     return;
   }
   if (st.tab === 'azim') { drawAzimuths(sel[0]); return; }
+}
+
+function yr0(rows, g) { const r = yr(rows, g); if (st.param !== 'V' && st.param !== 'p') r[0] = Math.min(r[0], -0.03 * Math.abs(r[1])); return r; }
+function canQs() { return st.param === 'I' || st.param === 'R' || st.param === 'L'; }
+function qsMethod() { return ['model', 'touch', 'modeltq', 'env', 'median'].includes(st.qs) ? st.qs : 'model'; }
+// quiet-Sun template on grid g (for R and L the quiet Sun is the same as for I, since V = 0 there)
+function qsCurve(c, g) { return V.quietTemplate(st.level2, c, { x: g.x, idx: g.idx }, g.step, qsMethod()); }
+function qsNote() { return canQs() ? 'Пунктир — шаблон спокойного Солнца: ' + V.QUIET[qsMethod()] + '. Скан показан без вычитания.' : 'Для V и p шаблона нет: у спокойного Солнца V = 0.'; }
+function qsToolbar() {
+  const cb = el('input', { type: 'checkbox', id: 'qs-ov' }); cb.checked = st.qsOverlay; cb.disabled = !canQs();
+  cb.onchange = () => { st.qsOverlay = cb.checked; draw(); };
+  const sel = el('select', { id: 'qs-m', 'aria-label': 'Шаблон' }, ...['model', 'touch', 'modeltq', 'env', 'median'].map(k => el('option', { value: k, text: V.QUIET[k] })));
+  sel.value = qsMethod(); sel.disabled = !canQs();
+  sel.onchange = () => { st.qs = sel.value; $('qs').value = st.qs; draw(); };
+  return el('div', { class: 'toolbar' }, el('label', { class: 'check' }, cb, ' шаблон спокойного Солнца'), sel);
+}
+
+function drawSingle(g, sel) {
+  const sc = st.level2, box = $('plot'), extra = $('extra');
+  if (st.single === null || st.single >= sc.nChan) st.single = sel[0];
+  const c = st.single, withQs = st.qsOverlay && canQs();
+  const y = withQs ? V.stokes(sc, c, st.param, g.idx) : ser(c, g);
+  const chSel = el('select', { id: 'single-ch', 'aria-label': 'Канал', style: 'font-family:var(--mono)' }, ...sc.freq.map((f, i) => el('option', { value: String(i), text: f.toFixed(3) + ' ГГц' })));
+  chSel.value = String(c); chSel.onchange = () => { st.single = +chSel.value; draw(); };
+  const prev = el('button', { type: 'button', class: 'btn', 'aria-label': 'Предыдущий канал', text: '◀', onclick: () => { st.single = Math.max(0, c - 1); draw(); } });
+  const next = el('button', { type: 'button', class: 'btn', 'aria-label': 'Следующий канал', text: '▶', onclick: () => { st.single = Math.min(sc.nChan - 1, c + 1); draw(); } });
+  for (const b of [prev, next]) b.style.cssText = 'min-height:32px;padding:0 10px';
+  const tb = qsToolbar(); tb.prepend(prev, chSel, next);
+  const sr = [{ name: sc.freq[c].toFixed(3) + ' ГГц, ' + st.param, x: g.x, y, color: '#C2410C', width: 1.8 }];
+  let t = null;
+  if (withQs) { t = qsCurve(c, g); sr.push({ name: 'спокойное Солнце', x: g.x, y: t, color: '#0F1B2D', dash: '6 4', width: 1.5 }); }
+  box.replaceChildren(tb, V.chart(sr, { xLabel: 'угл. с от центра диска', yLabel: st.param + ', ' + unit(), guides: guides(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, height: 360, yr: yr0(sr.map(s => s.y), g) }), legend(sr));
+  if (withQs) {
+    const res = y.map((v, i) => v - t[i]);
+    extra.append(el('div', { class: 'plot' }, el('div', { style: 'font-size:13px;font-weight:600;margin-bottom:4px', text: 'Остаток: скан − шаблон (локальные источники)' }),
+      V.chart([{ x: g.x, y: res, color: '#1E4FB8', width: 1.5 }], { xLabel: 'угл. с от центра диска', yLabel: 'K', guides: guides(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, height: 220, yr: yr([res], g) })));
+    const q = fitQuietSun(sc).ch[c];
+    extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: `Модель канала: центр ${Math.round(q.A)} K (TQSUN ${Math.round(q.tq)} K, отношение ${(q.A / q.tq).toFixed(2)}), ρ = ${q.rho.toFixed(3)}, θгор = ${q.th.toFixed(0)}″, θверт = ${(q.tv / 60).toFixed(1)}′, сдвиг центра ${q.dx.toFixed(0)}″. ` + qsNote() }));
+  } else extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: qsNote() }));
 }
 
 function drawSun(g, sel) {
