@@ -204,7 +204,10 @@ figure.photo img { max-width: 820px; }
 .compact { gap: 10px !important; padding: 14px !important; }
 .compact .field { gap: 4px; }
 .compact .field label, .compact .field legend { font-size: 12px; font-weight: 600; color: var(--muted); }
-.compact .field input, .compact .field select { min-height: 34px; padding: 0 8px; font-size: 13px; border-radius: 8px; }
+.compact .field input:not([type=checkbox]), .compact .field select { min-height: 34px; padding: 0 8px; font-size: 13px; border-radius: 8px; max-width: 100%; }
+.compact .field select { width: 100%; }
+.compact .field input[type=number] { width: 70px; }
+.compact input[type=checkbox] { width: 16px; height: 16px; margin: 0; }
 .compact .chips { gap: 4px; }
 .compact .chip, .tabs-compact .chip { min-height: 32px; padding: 0 10px; font-size: 13px; }
 .compact .btn { min-height: 32px; padding: 0 10px; font-size: 12px; }

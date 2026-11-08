@@ -424,7 +424,7 @@ export function sunOverlay(s, opts, done) {
   const S = 900, scale = 2.8, cx = S / 2, cy = S / 2, k = 1 / scale;      // px per arcsec
   const cv = document.createElement('canvas');
   const dpr = Math.min(2, window.devicePixelRatio || 1);
-  cv.width = S * dpr; cv.height = S * dpr; cv.style.width = '100%'; cv.style.height = 'auto'; cv.style.display = 'block'; cv.style.maxWidth = '760px'; cv.style.margin = '0 auto';
+  cv.width = S * dpr; cv.height = S * dpr; cv.style.width = '100%'; cv.style.height = 'auto'; cv.style.display = 'block'; cv.style.maxWidth = '600px'; cv.style.margin = '0 auto';
   const g = cv.getContext('2d'); g.scale(dpr, dpr);
   const P = s.header.SOLAR_P || 0, q = transitAngle(s), turn = P + q + (opts.rot || 0);
   const sgn = opts.flip ? -1 : 1, R = s.solarR;
