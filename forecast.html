@@ -122,7 +122,7 @@ try {
     const ls = f.last_scan;
     document.getElementById('fc-plot').append(el('img', { src: 'data/scans/' + ls.id + '.jpg', width: '663', height: '450', alt: 'Скан Солнца на РАТАН-600 за последний день наблюдений: параметры Стокса I и V по всем каналам', style: 'display:block;width:100%;max-width:663px;height:auto;margin:0 auto' }));
     document.getElementById('fc-cap').textContent = 'Скан ' + fmtDate(f.data_day) + ', ' + ls.time_ut + ' UT, ' + fmtAz(ls.az) + ' · I и V · все каналы';
-    document.getElementById('fc-open').href = obsHref(ls.id);
+    document.getElementById('fc-open').href = obsHref(ls);
   }
 } catch (e) { showError(document.getElementById('rows'), e); }
 

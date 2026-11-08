@@ -9,6 +9,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="assets/site.css">
+<style>
+.tree { display: flex; flex-direction: column; gap: 2px; font-size: 14px; max-height: 560px; overflow: auto; }
+.tree details > summary { cursor: pointer; padding: 8px 6px; border-radius: 8px; font-weight: 600; list-style-position: inside; min-height: 36px; }
+.tree details > summary:hover { background: var(--ground); }
+.tree .kids { margin-left: 14px; padding-left: 8px; border-left: 2px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
+.tree .file { display: flex; justify-content: space-between; gap: 8px; width: 100%; text-align: left; min-height: 36px; padding: 6px 8px; border: 0; border-radius: 8px; background: transparent; font: inherit; color: var(--ink); cursor: pointer; }
+.tree .file:hover { background: var(--ground); }
+.tree .file[aria-current="true"] { background: var(--ink); color: #fff; }
+.tree .file small { color: inherit; opacity: .7; font-family: var(--mono); }
+.tree .note { padding: 6px 8px; color: var(--muted); font-size: 13px; }
+.scan-canvas { display: block; width: 100%; max-width: 663px; height: auto; margin: 0 auto; background: #000; }
+</style>
 </head>
 <body>
 <a class="skip" href="#content">К содержанию</a>
@@ -27,37 +39,37 @@
     </nav>
   </div>
 </header>
-<div class="demo-banner" role="note"><div class="wrap"><b>Демонстрационные данные.</b> Данные условные.</div></div>
 
 <main class="wrap stack" id="content">
   <div>
     <h1 class="page-title">Анализ данных</h1>
-    <p class="lead" style="margin-top: 6px">Выберите дату и азимут наблюдения, затем действие над сканом</p>
+    <p class="lead" style="margin-top: 6px">Выберите скан в архиве level2 РАТАН-600 (год → месяц → день), затем действие над ним</p>
   </div>
 
   <div class="row" style="align-items: flex-start">
-    <form class="card side stack" id="params" aria-label="Параметры наблюдения" style="gap: 18px; flex-basis: 300px">
-      <div class="field">
-        <label for="date">Дата наблюдения</label>
-        <select id="date"></select>
-      </div>
-      <div class="field">
-        <label for="az">Азимут</label>
-        <select id="az"></select>
-      </div>
-      <fieldset class="field">
-        <legend>Параметр Стокса</legend>
-        <div class="chips" id="stokes">
-          <button type="button" class="chip" data-v="I" aria-pressed="true">I · интенсивность</button>
-          <button type="button" class="chip" data-v="V" aria-pressed="false">V · поляризация</button>
+    <div class="side stack" style="gap: 16px; flex-basis: 320px">
+      <nav class="card stack" aria-labelledby="tree-h" style="gap: 10px; padding: 18px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
+          <h2 id="tree-h" style="font-size: 17px">Архив</h2>
+          <button class="btn" type="button" id="reload" style="min-height: 36px; padding: 0 12px; font-size: 13px">Обновить</button>
         </div>
-      </fieldset>
-      <div class="field">
-        <label for="freqs">Частоты, ГГц <span class="muted" style="font-weight: 400">(для вкладок с графиками; несколько — Ctrl или Shift)</span></label>
-        <select id="freqs" multiple size="8" style="padding: 6px; font-family: var(--mono)"></select>
-      </div>
-      <p class="muted" style="margin: 0; font-size: 13px">Ссылка на график сохраняет выбранное наблюдение.</p>
-    </form>
+        <p class="muted" id="src" role="status" style="margin: 0; font-size: 13px">Чтение каталога…</p>
+        <div class="tree" id="tree"></div>
+      </nav>
+      <form class="card stack" id="params" aria-label="Параметры графика" style="gap: 16px; padding: 18px">
+        <fieldset class="field">
+          <legend>Параметр Стокса</legend>
+          <div class="chips" id="stokes">
+            <button type="button" class="chip" data-v="I" aria-pressed="true">I · интенсивность</button>
+            <button type="button" class="chip" data-v="V" aria-pressed="false">V · поляризация</button>
+          </div>
+        </fieldset>
+        <div class="field">
+          <label for="freqs">Частоты, ГГц <span class="muted" style="font-weight: 400">(несколько — Ctrl или Shift)</span></label>
+          <select id="freqs" multiple size="8" style="padding: 6px; font-family: var(--mono)"></select>
+        </div>
+      </form>
+    </div>
 
     <section class="card main stack" aria-label="Результат" style="gap: 18px">
       <div class="chips" role="tablist" aria-label="Действия" id="tabs">
@@ -73,14 +85,13 @@
       </div>
       <div class="field" id="pos-box" hidden>
         <label for="pos">Положение на скане, угл. с: <span class="mono" id="pos-v">0</span></label>
-        <input id="pos" type="range" min="-1200" max="1200" step="10" value="0" style="min-height: 44px; padding: 0">
+        <input id="pos" type="range" min="-1900" max="1900" step="10" value="0" style="min-height: 44px; padding: 0">
       </div>
-      <div class="plot" id="plot" aria-live="polite"></div>
-      <div style="display: flex; flex-wrap: wrap; gap: 10px">
-        <a class="btn" id="fits-l1" href="#">Level1 FITS</a>
-        <a class="btn" id="fits-l2" href="#">Level2 FITS</a>
+      <div class="plot" id="plot" aria-live="polite"><div class="empty">Выберите скан в архиве слева.</div></div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+        <a class="btn" id="fits" href="#">Скачать FITS</a>
         <button class="btn" type="button" id="copy-link">Скопировать ссылку</button>
-        <span class="muted" id="copy-msg" role="status" style="align-self: center; font-size: 13px"></span>
+        <span class="muted" id="msg" role="status" style="font-size: 13px"></span>
       </div>
     </section>
   </div>
@@ -94,97 +105,175 @@
 </footer>
 
 <script type="module">
-import { getJSON, fmtDate, fmtAz, el, showError } from './assets/app.js';
+import { fmtDate, el } from './assets/app.js';
 import { linePlot, legend, xs, quietSun, PALETTE } from './assets/plot.js';
+import { openArchive, listLevel, parseName } from './assets/archive.js';
+import { readLevel2, clean, toScan } from './assets/fits.js';
+import { render } from './assets/scanplot.js';
 
 const TABS = {
-  plot: ['Скан Солнца', 'Все каналы от 3 ГГц, I (сплошные) и V (штрихпунктир), цвет — по частоте; картинка та же, что в прогнозе.'],
+  plot: ['Скан Солнца', 'Все каналы от 3 ГГц, I (сплошные) и V (штрихпунктир), цвет — по частоте; как картинка прогноза.'],
   chans: ['Скан по каналам', 'Обработанные данные (level2) по выбранным каналам.'],
   quiet: ['Вычитание спокойного Солнца', 'Из скана вычитается нижняя огибающая — оценка уровня спокойного Солнца; остаются локальные источники.'],
   near: ['Вычитание соседних волн', 'Разность соседних частотных каналов подчёркивает спектральные особенности источников.'],
   spectrum: ['Спектр в точке скана', 'Поток по всем каналам в выбранном положении (после вычитания спокойного Солнца).']
 };
-const st = { obs: [], id: null, scan: null, stokes: 'I', tab: 'plot', freqOn: null, pos: 0 };
 const $ = id => document.getElementById(id);
+const st = { arc: null, path: null, level2: null, scan: null, stokes: 'I', tab: 'plot', freqOn: null, pos: 0, buttons: new Map() };
 
-function idFromHash() { const h = location.hash.slice(1); return h.startsWith('obs-') ? h.slice(4) : null; }
+// ---------- archive tree ----------
+function wantedPath() { return decodeURIComponent(location.hash.slice(1)); }
 
-function fillAz(date) {
-  const list = st.obs.filter(o => o.date === date);
-  $('az').replaceChildren(...list.map(o => el('option', { value: o.id, text: fmtAz(o.az) + ' · ' + o.time_ut + ' UT' })));
-  $('az').value = list.some(o => o.id === st.id) ? st.id : list[0].id;
+function group(files) {
+  const days = new Map();
+  for (const f of files) {
+    const p = parseName(f);
+    if (!p) continue;
+    if (!days.has(p.day)) days.set(p.day, []);
+    days.get(p.day).push({ name: f, ...p });
+  }
+  return [...days.entries()].sort((a, b) => a[0] < b[0] ? 1 : -1);
 }
 
-async function load(id) {
-  st.id = id;
-  st.scan = await getJSON('data/scans/' + id + '.json');
-  if (!st.freqOn || st.freqOn.length !== st.scan.channels.length) {
-    const fr = st.scan.channels.map(c => c.freq_ghz);
-    const pick = new Set([3, 6, 10, 15].map(t => fr.reduce((b, f, i) => Math.abs(f - t) < Math.abs(fr[b] - t) ? i : b, 0)));
-    st.freqOn = fr.map((_, i) => pick.has(i));
+function lazyDetails(label, loader, open = false) {
+  const kids = el('div', { class: 'kids' });
+  const d = el('details', {}, el('summary', { text: label }), kids);
+  let done = false;
+  const load = async () => {
+    if (done) return; done = true;
+    kids.replaceChildren(el('div', { class: 'note', text: 'Загрузка…' }));
+    try { await loader(kids); } catch (e) { done = false; kids.replaceChildren(el('div', { class: 'note', role: 'alert', text: 'Ошибка: ' + e.message })); }
+  };
+  d.addEventListener('toggle', () => { if (d.open) load(); });
+  d._load = load;
+  if (open) d.open = true;
+  return d;
+}
+
+async function buildTree() {
+  st.buttons.clear();
+  $('tree').replaceChildren();
+  $('src').textContent = 'Чтение каталога…';
+  try {
+    st.arc = await openArchive();
+  } catch (e) {
+    $('src').textContent = 'Архив недоступен.';
+    $('tree').append(el('div', { class: 'note', role: 'alert', text: e.message }));
+    return;
   }
-  $('freqs').replaceChildren(...st.scan.channels.map((c, i) => {
-    const o = el('option', { value: String(i), text: c.freq_ghz.toFixed(3) });
-    o.selected = st.freqOn[i];
-    return o;
-  }));
-  if (location.hash !== '#obs-' + id) history.replaceState(null, '', '#obs-' + id);
-  $('fits-l1').href = 'https://solar.sao.ru/data/';
-  $('fits-l2').href = 'https://solar.sao.ru/data/';
+  const a = st.arc;
+  $('src').replaceChildren('Источник: ', el('a', { href: a.url, text: a.name }),
+    a.errors.length ? el('span', { text: ' (основной адрес недоступен из браузера: http-страницу нельзя читать с https-сайта без CORS)' }) : '');
+  const want = wantedPath().split('/');
+  const years = a.top.dirs.filter(d => /^\d{4}\/$/.test(d)).sort().reverse();
+  let first = true;
+  for (const y of years) {
+    const yOpen = want[0] ? want[0] + '/' === y : first;
+    const yd = lazyDetails(y.slice(0, 4), async kids => {
+      const lv = await listLevel(a.url, a.url + y);
+      const months = lv.dirs.filter(d => /^\d{2}\/$/.test(d)).sort().reverse();
+      if (!months.length) { kids.replaceChildren(el('div', { class: 'note', text: 'Нет месяцев' })); return; }
+      kids.replaceChildren();
+      months.forEach((m, mi) => {
+        const mOpen = want[1] ? (yOpen && want[1] + '/' === m) : (yOpen && mi === 0);
+        kids.append(lazyDetails(y.slice(0, 4) + '-' + m.slice(0, 2), async mk => {
+          const lm = await listLevel(a.url, a.url + y + m);
+          const days = group(lm.files);
+          if (!days.length) { mk.replaceChildren(el('div', { class: 'note', text: 'Нет файлов *_out.fits' })); return; }
+          mk.replaceChildren();
+          days.forEach(([day, files], di) => {
+            const dk = el('div', { class: 'kids' });
+            for (const f of files) {
+              const path = y + m + f.name;
+              const b = el('button', { type: 'button', class: 'file', 'aria-current': 'false', onclick: () => openFile(path) },
+                el('span', { text: f.time.slice(0, 5) + ' ' + f.tag }), el('small', { text: 'местн.' }));
+              st.buttons.set(path, b);
+              dk.append(b);
+            }
+            const dOpen = wantedPath() ? files.some(f => y + m + f.name === wantedPath()) : (mOpen && di === 0);
+            mk.append(el('details', dOpen ? { open: '' } : {}, el('summary', { text: fmtDate(day) + ' · ' + files.length }), dk));
+          });
+          const target = wantedPath() && st.buttons.has(wantedPath()) ? wantedPath() : (!wantedPath() && mOpen ? y + m + days[0][1][days[0][1].length - 1].name : null);
+          if (target && target !== st.path) openFile(target);
+        }, mOpen));
+      });
+    }, yOpen);
+    $('tree').append(yd);
+    first = false;
+  }
+}
+
+// ---------- scan ----------
+async function openFile(path) {
+  st.path = path;
+  for (const [p, b] of st.buttons) b.setAttribute('aria-current', String(p === path));
+  if (decodeURIComponent(location.hash.slice(1)) !== path) history.replaceState(null, '', '#' + path);
+  const url = st.arc.url + path;
+  $('fits').href = url;
+  $('plot').replaceChildren(el('div', { class: 'empty', text: 'Загрузка ' + path.split('/').pop() + '…' }));
+  try {
+    const r = await fetch(url, { signal: AbortSignal.timeout(60000) });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const raw = readLevel2(await r.arrayBuffer());
+    st.level2 = clean(raw);
+    st.scan = toScan(st.level2, path);
+  } catch (e) {
+    $('plot').replaceChildren(el('div', { class: 'empty', role: 'alert', text: 'Не удалось прочитать ' + path + ': ' + e.message }));
+    return;
+  }
+  const fr = st.scan.channels.map(c => c.freq_ghz);
+  const pick = new Set([3, 6, 10, 15].map(t => fr.reduce((b, f, i) => Math.abs(f - t) < Math.abs(fr[b] - t) ? i : b, 0)));
+  st.freqOn = fr.map((_, i) => pick.has(i));
+  $('freqs').replaceChildren(...fr.map((f, i) => { const o = el('option', { value: String(i), text: f.toFixed(3) }); o.selected = st.freqOn[i]; return o; }));
   draw();
 }
 
+function describe() {
+  const s = st.scan;
+  let t = TABS[st.tab][1] + ' ' + fmtDate(s.date) + ', ' + s.time_ut + ' UT, ' + s.channels.length + ' каналов';
+  if (s.dropped.length) t += '; отброшен испорченный канал ' + s.dropped.map(f => f.toFixed(3)).join(', ') + ' ГГц';
+  return t + (st.tab === 'plot' ? '.' : ', Стокс ' + st.stokes + '.');
+}
+
 function draw() {
-  const sc = st.scan, x = xs(sc), box = $('plot');
+  const sc = st.scan, box = $('plot');
+  if (!sc) return;
   $('t-title').textContent = TABS[st.tab][0];
-  $('t-text').textContent = TABS[st.tab][1] + ' ' + fmtDate(sc.date) + ', ' + sc.time_ut + ' UT, ' + fmtAz(sc.az) + (st.tab === 'plot' ? '.' : ', Стокс ' + st.stokes + '.');
+  $('t-text').textContent = describe();
   $('pos-box').hidden = st.tab !== 'spectrum';
   if (st.tab === 'plot') {
-    const img = el('img', { src: 'data/scans/' + sc.id + '.jpg', width: '663', height: '450', alt: 'Скан Солнца на РАТАН-600 ' + fmtDate(sc.date) + ', ' + sc.time_ut + ' UT: параметры Стокса I и V по всем каналам', style: 'display:block;width:100%;max-width:663px;height:auto;margin:0 auto' });
-    box.replaceChildren(img);
+    const cv = render(st.level2, { big: true });
+    cv.className = 'scan-canvas';
+    cv.setAttribute('role', 'img');
+    cv.setAttribute('aria-label', 'Скан Солнца ' + fmtDate(sc.date) + ', ' + sc.time_ut + ' UT: параметры Стокса I и V по всем каналам от 3 ГГц');
+    box.replaceChildren(cv);
     return;
   }
+  const x = xs(sc);
   const chans = sc.channels.map((c, i) => ({ c, i })).filter(o => st.freqOn[o.i]).map((o, k) => ({ c: o.c, i: k }));
+  const qs = y => st.stokes === 'I' ? quietSun(y) : y.map(() => 0);
   let series = [];
   if (st.tab === 'chans') {
-    series = chans.map(({ c, i }) => ({ name: c.freq_ghz + ' ГГц', color: PALETTE[i % 10], x, y: c[st.stokes] }));
+    series = chans.map(({ c, i }) => ({ name: c.freq_ghz.toFixed(3) + ' ГГц', color: PALETTE[i % 10], x, y: c[st.stokes] }));
   } else if (st.tab === 'quiet') {
-    series = chans.map(({ c, i }) => {
-      const y = c[st.stokes], q = st.stokes === 'I' ? quietSun(y) : y.map(() => 0);
-      return { name: c.freq_ghz + ' ГГц', color: PALETTE[i % 10], x, y: y.map((v, k) => v - q[k]) };
-    });
+    series = chans.map(({ c, i }) => { const y = c[st.stokes], q = qs(y); return { name: c.freq_ghz.toFixed(3) + ' ГГц', color: PALETTE[i % 10], x, y: y.map((v, k) => v - q[k]) }; });
   } else if (st.tab === 'near') {
     for (let k = 1; k < chans.length; k++) {
       const a = chans[k - 1], b = chans[k];
-      series.push({ name: a.c.freq_ghz + '−' + b.c.freq_ghz, color: PALETTE[a.i % 10], x, y: a.c[st.stokes].map((v, j) => v - b.c[st.stokes][j]) });
+      series.push({ name: a.c.freq_ghz.toFixed(2) + '−' + b.c.freq_ghz.toFixed(2), color: PALETTE[a.i % 10], x, y: a.c[st.stokes].map((v, j) => v - b.c[st.stokes][j]) });
     }
   } else {
-    const j = Math.round((st.pos - sc.x_arcsec.start) / sc.x_arcsec.step);
-    const f = sc.channels.map(c => c.freq_ghz);
-    const y = sc.channels.map(c => { const yy = c[st.stokes], q = st.stokes === 'I' ? quietSun(yy) : yy.map(() => 0); return yy[j] - q[j]; });
-    series = [{ name: 'поток в точке ' + st.pos + '″', color: '#F97316', x: f, y }];
+    const j = Math.min(Math.max(Math.round((st.pos - sc.x_arcsec.start) / sc.x_arcsec.step), 0), sc.x_arcsec.n - 1);
+    const y = sc.channels.map(c => { const yy = c[st.stokes]; return yy[j] - qs(yy)[j]; });
+    series = [{ name: 'поток в точке ' + st.pos + '″, K', color: '#C2410C', x: sc.channels.map(c => c.freq_ghz), y }];
     box.replaceChildren(linePlot(series, { height: 340, xLabel: 'частота, ГГц', yLabel: st.stokes }), legend(series));
     return;
   }
   if (!series.length) { box.replaceChildren(el('div', { class: 'empty', text: 'Выберите хотя бы ' + (st.tab === 'near' ? 'два канала.' : 'один канал.') })); return; }
-  box.replaceChildren(linePlot(series, { height: 380, xLabel: 'угл. с', yLabel: st.stokes }), legend(series));
+  box.replaceChildren(linePlot(series, { height: 380, xLabel: 'угл. с', yLabel: st.stokes + ', K' }), legend(series));
 }
 
-try {
-  const idx = await getJSON('data/observations.json');
-  st.obs = idx.observations;
-  const dates = [...new Set(st.obs.map(o => o.date))].reverse();
-  $('date').replaceChildren(...dates.map(d => el('option', { value: d, text: fmtDate(d) })));
-  const want = idFromHash();
-  const start = st.obs.find(o => o.id === want) || st.obs.filter(o => o.date === dates[0])[0];
-  st.id = start.id;
-  $('date').value = start.date;
-  fillAz(start.date);
-  await load(start.id);
-} catch (e) { showError($('plot'), e); }
-
-$('date').addEventListener('change', e => { fillAz(e.target.value); load($('az').value); });
-$('az').addEventListener('change', e => load(e.target.value));
+// ---------- events ----------
 $('stokes').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   st.stokes = b.dataset.v;
@@ -197,19 +286,19 @@ $('tabs').addEventListener('click', e => {
   for (const x of $('tabs').children) x.setAttribute('aria-selected', String(x === b));
   draw();
 });
-$('freqs').addEventListener('change', e => {
-  st.freqOn = [...e.target.options].map(o => o.selected);
-  draw();
-});
+$('freqs').addEventListener('change', e => { st.freqOn = [...e.target.options].map(o => o.selected); draw(); });
 $('pos').addEventListener('input', e => { st.pos = +e.target.value; $('pos-v').textContent = st.pos; draw(); });
-window.addEventListener('hashchange', () => {
-  const id = idFromHash(), o = st.obs.find(x => x.id === id);
-  if (o && id !== st.id) { $('date').value = o.date; st.id = id; fillAz(o.date); load(id); }
+$('reload').addEventListener('click', () => {
+  try { for (const k of Object.keys(sessionStorage)) if (k.startsWith('ls:')) sessionStorage.removeItem(k); } catch (e) { /* ignore */ }
+  buildTree();
 });
+window.addEventListener('hashchange', () => { const p = wantedPath(); if (p && p !== st.path && st.arc) openFile(p); });
 $('copy-link').addEventListener('click', async () => {
-  try { await navigator.clipboard.writeText(location.href); $('copy-msg').textContent = 'Ссылка скопирована.'; }
-  catch (e) { $('copy-msg').textContent = 'Браузер не дал доступа к буферу обмена.'; }
+  try { await navigator.clipboard.writeText(location.href); $('msg').textContent = 'Ссылка скопирована.'; }
+  catch (e) { $('msg').textContent = 'Браузер не дал доступа к буферу обмена.'; }
 });
+
+buildTree();
 </script>
 </body>
 </html>

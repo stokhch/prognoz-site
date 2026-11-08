@@ -66,7 +66,7 @@ def export(path: Path, out: Path) -> dict:
                         "V": [round(float(v)) for v in d[i, 1, idx]]} for i, f in enumerate(scan.freq)]}
     (out / f"{oid}.json").write_text(json.dumps(js, separators=(",", ":")))
     print(f"{path.name} -> {oid}: {scan.n_chan} channels, dropped {dropped or 'none'}")
-    return {"id": oid, "date": js["date"], "time_ut": js["time_ut"][:5], "az": int(round(scan.azimuth)),
+    return {"id": oid, "path": f"{path.name[:4]}/{path.name[4:6]}/{path.name}", "date": js["date"], "time_ut": js["time_ut"][:5], "az": int(round(scan.azimuth)),
             "channels": int(scan.n_chan), "removed": int(N_CHANNELS_FULL - scan.n_chan)}
 
 

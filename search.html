@@ -83,7 +83,7 @@ function apply() {
     el('td', { class: 'mono num', text: String(o.channels) }),
     el('td', { class: 'mono num', text: String(o.removed) }),
     el('td', { class: 'mono num', text: String(o.n_per_day) }),
-    el('td', {}, el('a', { href: obsHref(o.id), style: 'font-weight:600;text-decoration:none', text: 'Открыть →' })))));
+    el('td', {}, el('a', { href: obsHref(o), style: 'font-weight:600;text-decoration:none', text: 'Открыть →' })))));
   $('count').textContent = 'Найдено: ' + shown.length;
   if (!shown.length) $('rows').append(el('tr', {}, el('td', { colspan: '7', class: 'muted', text: 'Ничего не найдено — измените фильтры.' })));
 }

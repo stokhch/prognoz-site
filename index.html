@@ -165,7 +165,7 @@ try {
   const obs = idx.observations.filter(o => o.az === 0).slice(-9).reverse();
   const box = document.getElementById('latest');
   obs.forEach(o => {
-    const card = el('a', { class: 'card day-card tile', href: obsHref(o.id) },
+    const card = el('a', { class: 'card day-card tile', href: obsHref(o) },
       el('img', { src: 'data/scans/' + o.id + '-small.jpg', width: '221', height: '150', alt: 'Скан ' + fmtDate(o.date), loading: 'lazy', style: 'display:block;width:100%;height:auto;border-radius:8px;background:#000' }),
       el('span', { style: 'display:flex;justify-content:space-between;color:var(--ink)' },
         el('span', { class: 'mono', text: fmtDate(o.date) }),

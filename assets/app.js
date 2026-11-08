@@ -47,8 +47,9 @@ export function setText(id, value) {
   if (n) n.textContent = value;
 }
 
-export function obsHref(id) {
-  return 'data.html#obs-' + id;
+// Link to an observation on the analysis page: by its archive path (YYYY/MM/<file>_out.fits).
+export function obsHref(o) {
+  return o && o.path ? 'data.html#' + o.path : 'data.html';
 }
 
 export function showError(container, err) {

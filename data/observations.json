@@ -7,7 +7,8 @@
    "az": 0,
    "channels": 76,
    "removed": 14,
-   "n_per_day": 1
+   "n_per_day": 1,
+   "path": "2026/11/20261106_115716_sun0_out.fits"
   }
  ]
 }
