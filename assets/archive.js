@@ -42,19 +42,23 @@ export function parseName(name) {
   return m ? { day: `${m[1]}-${m[2]}-${m[3]}`, time: `${m[4]}:${m[5]}:${m[6]}`, tag: m[7] } : null;
 }
 
-// Archive sources, tried in order: the server itself (when the site is served from it), the public URL,
-// and the copy shipped with the site (GitHub Pages cannot load http:// from an https page).
-export function sources() {
+// Archive sources, tried in order: the server itself (when the site is served from it), the list in
+// data/config.json ("archives": [{name, url}], e.g. an https address on solar.sao.ru), and the copy shipped
+// with the site. A remote archive needs Apache autoindex and, for another site, https and CORS.
+export async function sources() {
   const list = [];
   if (location.hostname === 'spbf.sao.ru') list.push({ name: 'spbf.sao.ru', url: location.origin + '/data/ratan/' });
-  list.push({ name: 'spbf.sao.ru', url: 'http://spbf.sao.ru/data/ratan/' });
+  try {
+    const r = await fetch('data/config.json', { cache: 'no-cache' });
+    if (r.ok) for (const a of (await r.json()).archives || []) if (a && a.url) list.push({ name: a.name || a.url, url: a.url.endsWith('/') ? a.url : a.url + '/' });
+  } catch (e) { /* no config: defaults below */ }
   list.push({ name: 'копия на сайте', url: new URL('data/ratan/', location.href).href });
   return list;
 }
 
 export async function openArchive() {
   const errors = [];
-  for (const s of sources()) {
+  for (const s of await sources()) {
     try {
       const top = await listLevel(s.url, s.url);
       if (top.dirs.length || top.files.length) return { ...s, top, errors };

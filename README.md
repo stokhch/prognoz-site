@@ -47,8 +47,10 @@
 
 Источники перебираются по порядку (`assets/archive.js`):
 1. `/data/ratan/` того же сервера, если сайт открыт с spbf.sao.ru;
-2. `http://spbf.sao.ru/data/ratan/`;
+2. адреса из `data/config.json` (`"archives": [{"name": …, "url": …}]`), сейчас `http://spbf.sao.ru/data/ratan/`;
 3. `data/ratan/` — копия на сайте (листинги в формате autoindex делает `tools/make_mirror_index.py`).
+
+Чтобы читать архив с хранилища через solar.sao.ru, добавьте в `data/config.json` первым элементом его https-адрес (каталог, внутри которого `ГГГГ/ММ/…_out.fits`), например `{"name": "solar.sao.ru", "url": "https://solar.sao.ru/data/<каталог level2>/"}`. На стороне solar для этого каталога нужны: листинг каталогов (Apache `Options +Indexes` или nginx `autoindex on`) и заголовок CORS (`Access-Control-Allow-Origin: https://stokhch.github.io` или `*`; Apache — `Header set …` с mod_headers, nginx — `add_header … always`).
 
 С GitHub Pages (https) браузер не даёт читать http-адрес, а Apache на prognoz не отдаёт заголовок CORS, поэтому там работает копия. Чтобы читать архив spbf напрямую с другого сайта, нужны https на spbf и `Header set Access-Control-Allow-Origin "*"` для `/data/ratan/`; проще всего разместить сайт на самом spbf.sao.ru.
 

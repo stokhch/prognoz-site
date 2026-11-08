@@ -33,9 +33,11 @@
     <nav class="nav" aria-label="Основное меню">
       <a href="forecast.html">Прогноз</a>
       <a href="data.html" aria-current="page">Анализ данных</a>
-      <a href="search.html">Поиск в базе</a>
-      <a href="index.html#tools">Вычисления</a>
-      <a href="index.html#about">О проекте</a>
+      <a href="search.html">Поиск</a>
+      <a href="observations.html">Наблюдения</a>
+      <a href="instrument.html">Инструмент</a>
+      <a href="tools.html">Вычисления</a>
+      <a href="about.html">О проекте</a>
     </nav>
   </div>
 </header>
@@ -163,7 +165,7 @@ async function buildTree() {
   }
   const a = st.arc;
   $('src').replaceChildren('Источник: ', el('a', { href: a.url, text: a.name }),
-    a.errors.length ? el('span', { text: ' (основной адрес недоступен из браузера: http-страницу нельзя читать с https-сайта без CORS)' }) : '');
+    a.errors.length ? el('span', { text: ' — основной архив недоступен из браузера (нужны https и CORS), показана копия' }) : '');
   const want = wantedPath().split('/');
   const years = a.top.dirs.filter(d => /^\d{4}\/$/.test(d)).sort().reverse();
   let first = true;
