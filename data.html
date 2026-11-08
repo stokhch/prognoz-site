@@ -27,7 +27,7 @@
     </nav>
   </div>
 </header>
-<div class="demo-banner" role="note"><div class="wrap"><b>Демонстрационные данные.</b> Сканы синтетические: форма похожа на настоящую, значения условные.</div></div>
+<div class="demo-banner" role="note"><div class="wrap"><b>Демонстрационные данные.</b> Данные условные.</div></div>
 
 <main class="wrap stack" id="content">
   <div>
@@ -52,10 +52,10 @@
           <button type="button" class="chip" data-v="V" aria-pressed="false">V · поляризация</button>
         </div>
       </fieldset>
-      <fieldset class="field">
-        <legend>Частоты, ГГц</legend>
-        <div class="chips" id="freqs"></div>
-      </fieldset>
+      <div class="field">
+        <label for="freqs">Частоты, ГГц <span class="muted" style="font-weight: 400">(для вкладок с графиками; несколько — Ctrl или Shift)</span></label>
+        <select id="freqs" multiple size="8" style="padding: 6px; font-family: var(--mono)"></select>
+      </div>
       <p class="muted" style="margin: 0; font-size: 13px">Ссылка на график сохраняет выбранное наблюдение.</p>
     </form>
 
@@ -118,11 +118,16 @@ function fillAz(date) {
 async function load(id) {
   st.id = id;
   st.scan = await getJSON('data/scans/' + id + '.json');
-  if (!st.freqOn || st.freqOn.length !== st.scan.channels.length) st.freqOn = st.scan.channels.map((_, i) => i < 4);
-  $('freqs').replaceChildren(...st.scan.channels.map((c, i) => el('button', {
-    type: 'button', class: 'chip', 'aria-pressed': String(st.freqOn[i]), text: String(c.freq_ghz),
-    onclick: () => { st.freqOn[i] = !st.freqOn[i]; load(st.id); }
-  })));
+  if (!st.freqOn || st.freqOn.length !== st.scan.channels.length) {
+    const fr = st.scan.channels.map(c => c.freq_ghz);
+    const pick = new Set([3, 6, 10, 15].map(t => fr.reduce((b, f, i) => Math.abs(f - t) < Math.abs(fr[b] - t) ? i : b, 0)));
+    st.freqOn = fr.map((_, i) => pick.has(i));
+  }
+  $('freqs').replaceChildren(...st.scan.channels.map((c, i) => {
+    const o = el('option', { value: String(i), text: c.freq_ghz.toFixed(3) });
+    o.selected = st.freqOn[i];
+    return o;
+  }));
   if (location.hash !== '#obs-' + id) history.replaceState(null, '', '#obs-' + id);
   $('fits-l1').href = 'https://solar.sao.ru/data/';
   $('fits-l2').href = 'https://solar.sao.ru/data/';
@@ -139,7 +144,7 @@ function draw() {
     box.replaceChildren(img);
     return;
   }
-  const chans = sc.channels.map((c, i) => ({ c, i })).filter(o => st.freqOn[o.i]);
+  const chans = sc.channels.map((c, i) => ({ c, i })).filter(o => st.freqOn[o.i]).map((o, k) => ({ c: o.c, i: k }));
   let series = [];
   if (st.tab === 'chans') {
     series = chans.map(({ c, i }) => ({ name: c.freq_ghz + ' ГГц', color: PALETTE[i % 10], x, y: c[st.stokes] }));
@@ -190,6 +195,10 @@ $('tabs').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   st.tab = b.dataset.v;
   for (const x of $('tabs').children) x.setAttribute('aria-selected', String(x === b));
+  draw();
+});
+$('freqs').addEventListener('change', e => {
+  st.freqOn = [...e.target.options].map(o => o.selected);
   draw();
 });
 $('pos').addEventListener('input', e => { st.pos = +e.target.value; $('pos-v').textContent = st.pos; draw(); });

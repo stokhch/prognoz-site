@@ -50,12 +50,12 @@
     </div>
     <div class="table-box">
       <table style="min-width: 760px">
-        <thead><tr><th scope="col">Дата</th><th scope="col">Время, UT</th><th scope="col">Азимут</th><th scope="col" class="num">Сканов</th><th scope="col" class="num">Дефектных</th><th scope="col" class="num">В этот день</th><th scope="col">Анализ</th></tr></thead>
+        <thead><tr><th scope="col">Дата</th><th scope="col">Время, UT</th><th scope="col">Азимут</th><th scope="col" class="num">Каналов</th><th scope="col" class="num">Удалено каналов</th><th scope="col" class="num">В этот день</th><th scope="col">Анализ</th></tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
     <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
-      <span class="muted" style="font-size: 14px">Дефектные сканы удаляются при первичной обработке.</span>
+      <span class="muted" style="font-size: 14px">Из 90 каналов нового комплекса плохие удаляются при первичной обработке.</span>
       <span style="display: flex; gap: 10px; align-items: center"><span class="muted" id="copy-msg" role="status" style="font-size: 13px"></span><button class="btn" type="button" id="copy-csv">Скопировать CSV</button></span>
     </div>
   </section>
@@ -80,8 +80,8 @@ function apply() {
     el('td', { class: 'mono', text: fmtDate(o.date) }),
     el('td', { class: 'mono', text: o.time_ut }),
     el('td', { class: 'mono', text: fmtAz(o.az) }),
-    el('td', { class: 'mono num', text: String(o.scans) }),
-    el('td', { class: 'mono num', text: String(o.defective) }),
+    el('td', { class: 'mono num', text: String(o.channels) }),
+    el('td', { class: 'mono num', text: String(o.removed) }),
     el('td', { class: 'mono num', text: String(o.n_per_day) }),
     el('td', {}, el('a', { href: obsHref(o.id), style: 'font-weight:600;text-decoration:none', text: 'Открыть →' })))));
   $('count').textContent = 'Найдено: ' + shown.length;
@@ -98,7 +98,7 @@ try {
 
 $('filters').addEventListener('submit', e => { e.preventDefault(); apply(); });
 $('copy-csv').addEventListener('click', async () => {
-  const csv = 'date;time_ut;az;scans;defective;n_per_day\n' + shown.map(o => [o.date, o.time_ut, o.az, o.scans, o.defective, o.n_per_day].join(';')).join('\n');
+  const csv = 'date;time_ut;az;channels;removed;n_per_day\n' + shown.map(o => [o.date, o.time_ut, o.az, o.channels, o.removed, o.n_per_day].join(';')).join('\n');
   try { await navigator.clipboard.writeText(csv); $('copy-msg').textContent = 'CSV скопирован.'; }
   catch (e) { $('copy-msg').textContent = 'Браузер не дал доступа к буферу обмена.'; }
 });

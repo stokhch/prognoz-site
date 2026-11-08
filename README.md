@@ -2,7 +2,7 @@
 
 Новый сайт «Прогноз солнечной активности по наблюдениям РАТАН-600» (СПбФ САО РАН) — замена страниц ION на старом сервере prognoz.
 
-Сейчас на сайте **демонстрационные данные** (в JSON стоит `"demo": true`, и сайт показывает плашку). Формат данных совпадает с выдачей новой системы прогноза `ratan-forecast`.
+Сканы на сайте настоящие (level2 РАТАН-600); **прогноз пока демонстрационный** (в `data/forecast.json` стоит `"demo": true`, и сайт показывает плашку). Формат данных совпадает с выдачей новой системы прогноза `ratan-forecast`.
 
 ## Устройство
 
@@ -17,7 +17,7 @@
 | `assets/` | стили, общие функции, построение графиков | |
 | `data/` | JSON с прогнозом, списком наблюдений и сканами | Oracle (`RAT_*`) |
 
-Ссылка на наблюдение: `data.html#obs-<id>`, например `data.html#obs-20261027-az0`.
+Ссылка на наблюдение: `data.html#obs-<id>`, например `data.html#obs-20261106-085716-az0`.
 
 ## Формат данных
 
@@ -33,7 +33,7 @@
 
 `label`: `positive`, `positive?`, `negative`, `negative?`, `no data`.
 
-`data/observations.json` — список наблюдений: `{"observations": [{"id", "date", "time_ut", "az", "scans", "defective", "n_per_day"}]}`.
+`data/observations.json` — список наблюдений: `{"observations": [{"id", "date", "time_ut", "az", "channels", "removed", "n_per_day"}]}`; `id` вида `20261106-085716-az0` (дата и время UT, азимут).
 
 `data/scans/<id>.jpg` и `<id>-small.jpg` — картинки скана 663×450 и 221×150, те же, что в прогнозе (`sunsao1.jpg`, `sunsao0.jpg`): их рисует `ratan_forecast.scanplot` (`ratan-forecast scanplot --level2 … --out-dir …`). Страница анализа показывает её по умолчанию.
 
@@ -41,9 +41,9 @@
 
 Для настоящих данных эти файлы будет писать новая система прогноза (по расписанию, после обработки скана); поле `demo` тогда не ставится.
 
-## Демо-данные
+## Данные наблюдений
 
-`python3 tools/make_demo.py /путь/к/ratan-forecast/src` заново создаёт `data/observations.json`, `data/scans/*.json` и картинки сканов (синтетические сканы в кельвинах, окно ±2 радиуса Солнца). Нужны numpy, matplotlib, opencv-python и Pillow.
+Сканы настоящие: `python3 tools/make_site_data.py --src /путь/к/ratan-forecast/src файл_out.fits …` читает level2, рисует картинки кодом прогноза и пишет `data/scans/` и `data/observations.json` (добавляет к уже выгруженным). Каналы с явно испорченным сигналом (максимум I больше чем в 10 раз выше медианы по каналам) отбрасываются и перечислены в JSON в поле `dropped`. Нужны numpy, matplotlib, opencv-python и Pillow.
 
 ## Запуск у себя
 
