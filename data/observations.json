@@ -1,0 +1,177 @@
+{
+ "demo": true,
+ "generated_at": "2026-11-09T09:30:00Z",
+ "observations": [
+  {
+   "id": "20261026-az0",
+   "date": "2026-10-26",
+   "time_ut": "09:05",
+   "az": 0,
+   "scans": 20,
+   "defective": 1,
+   "n_per_day": 1
+  },
+  {
+   "id": "20261027-az0",
+   "date": "2026-10-27",
+   "time_ut": "09:05",
+   "az": 0,
+   "scans": 20,
+   "defective": 0,
+   "n_per_day": 3
+  },
+  {
+   "id": "20261027-az16",
+   "date": "2026-10-27",
+   "time_ut": "09:09",
+   "az": 16,
+   "scans": 20,
+   "defective": 2,
+   "n_per_day": 3
+  },
+  {
+   "id": "20261027-azm16",
+   "date": "2026-10-27",
+   "time_ut": "09:13",
+   "az": -16,
+   "scans": 20,
+   "defective": 0,
+   "n_per_day": 3
+  },
+  {
+   "id": "20261028-az0",
+   "date": "2026-10-28",
+   "time_ut": "09:05",
+   "az": 0,
+   "scans": 20,
+   "defective": 0,
+   "n_per_day": 1
+  },
+  {
+   "id": "20261029-az0",
+   "date": "2026-10-29",
+   "time_ut": "09:05",
+   "az": 0,
+   "scans": 20,
+   "defective": 3,
+   "n_per_day": 1
+  },
+  {
+   "id": "20261030-az0",
+   "date": "2026-10-30",
+   "time_ut": "09:05",
+   "az": 0,
+   "scans": 20,
+   "defective": 0,
+   "n_per_day": 1
+  },
+  {
+   "id": "20261031-az0",
+   "date": "2026-10-31",
+   "time_ut": "09:05",
+   "az": 0,
+   "scans": 20,
+   "defective": 1,
+   "n_per_day": 3
+  },
+  {
+   "id": "20261031-az16",
+   "date": "2026-10-31",
+   "time_ut": "09:09",
+   "az": 16,
+   "scans": 20,
+   "defective": 3,
+   "n_per_day": 3
+  },
+  {
+   "id": "20261031-azm16",
+   "date": "2026-10-31",
+   "time_ut": "09:13",
+   "az": -16,
+   "scans": 20,
+   "defective": 0,
+   "n_per_day": 3
+  },
+  {
+   "id": "20261101-az0",
+   "date": "2026-11-01",
+   "time_ut": "09:05",
+   "az": 0,
+   "scans": 20,
+   "defective": 3,
+   "n_per_day": 1
+  },
+  {
+   "id": "20261102-az0",
+   "date": "2026-11-02",
+   "time_ut": "09:05",
+   "az": 0,
+   "scans": 20,
+   "defective": 0,
+   "n_per_day": 1
+  },
+  {
+   "id": "20261103-az0",
+   "date": "2026-11-03",
+   "time_ut": "09:05",
+   "az": 0,
+   "scans": 20,
+   "defective": 0,
+   "n_per_day": 1
+  },
+  {
+   "id": "20261104-az0",
+   "date": "2026-11-04",
+   "time_ut": "09:05",
+   "az": 0,
+   "scans": 20,
+   "defective": 0,
+   "n_per_day": 3
+  },
+  {
+   "id": "20261104-az16",
+   "date": "2026-11-04",
+   "time_ut": "09:09",
+   "az": 16,
+   "scans": 20,
+   "defective": 2,
+   "n_per_day": 3
+  },
+  {
+   "id": "20261104-azm16",
+   "date": "2026-11-04",
+   "time_ut": "09:13",
+   "az": -16,
+   "scans": 20,
+   "defective": 2,
+   "n_per_day": 3
+  },
+  {
+   "id": "20261105-az0",
+   "date": "2026-11-05",
+   "time_ut": "09:05",
+   "az": 0,
+   "scans": 20,
+   "defective": 0,
+   "n_per_day": 1
+  },
+  {
+   "id": "20261106-az0",
+   "date": "2026-11-06",
+   "time_ut": "09:05",
+   "az": 0,
+   "scans": 20,
+   "defective": 0,
+   "n_per_day": 1
+  },
+  {
+   "id": "20261107-az0",
+   "date": "2026-11-07",
+   "time_ut": "09:05",
+   "az": 0,
+   "scans": 20,
+   "defective": 0,
+   "n_per_day": 1
+  }
+ ]
+}

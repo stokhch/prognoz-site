@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Прогноз солнечной активности · РАТАН-600</title>
+<meta name="description" content="Трёхсуточный прогноз мощных солнечных вспышек и данные наблюдений Солнца на радиотелескопе РАТАН-600 (СПбФ САО РАН).">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#content">К содержанию</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="7" fill="#F97316"/><circle cx="16" cy="16" r="12" fill="none" stroke="#F97316" stroke-opacity=".45" stroke-width="1.5"/><circle cx="16" cy="16" r="15" fill="none" stroke="#F97316" stroke-opacity=".2"/></svg>
+      <span><b>Прогноз · РАТАН-600</b><small>Радиоастрономический центр прогноза солнечной активности</small></span>
+    </a>
+    <nav class="nav" aria-label="Основное меню">
+      <a href="forecast.html">Прогноз</a>
+      <a href="data.html">Анализ данных</a>
+      <a href="search.html">Поиск в базе</a>
+      <a href="index.html#tools">Вычисления</a>
+      <a href="index.html#about">О проекте</a>
+    </nav>
+  </div>
+</header>
+<div class="demo-banner" role="note"><div class="wrap"><b>Демонстрационные данные.</b> Сайт в разработке: прогноз и сканы ниже условные, формат совпадает с выдачей новой системы прогноза.</div></div>
+
+<section class="hero" id="content">
+  <div class="wrap row" style="align-items: stretch; gap: 48px">
+    <div class="main stack" style="gap: 20px">
+      <p class="eyebrow">Трёхсуточный прогноз мощных вспышек</p>
+      <h1>Солнце в радиодиапазоне — каждый день, по наблюдениям РАТАН-600</h1>
+      <p class="lead">Автоматический сбор, обработка и публикация многоволновых наблюдений Солнца на РАТАН-600. Прогноз обновляется после каждого нового скана; около 16:00 МСК он публикуется на сайте САО РАН.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px">
+        <a class="btn btn-primary" href="data.html">Открыть анализ данных</a>
+        <a class="btn btn-ghost-dark" href="forecast.html">Как устроен прогноз</a>
+      </div>
+      <figure class="scan-figure">
+        <div id="hero-plot" style="min-height: 120px"></div>
+        <figcaption><span id="hero-cap">Последний скан · параметр Стокса I</span><span>Восток ← центр диска → Запад, угл. с</span></figcaption>
+      </figure>
+    </div>
+    <aside class="side" aria-labelledby="fc-h">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px">
+        <h2 id="fc-h" style="font-size: 20px">Прогноз на 3 суток</h2>
+        <span class="mono muted" id="fc-day">—</span>
+      </div>
+      <div class="state" id="fc-state" aria-live="polite">
+        <span class="k">Мощные вспышки</span>
+        <span class="v">…</span>
+        <span class="t" style="font-size: 15px; color: var(--ink)"></span>
+      </div>
+      <dl class="facts">
+        <div><dt>Последний скан</dt><dd id="fc-scan">—</dd></div>
+        <div><dt>Азимут</dt><dd id="fc-az">—</dd></div>
+        <div><dt>Источников в расчёте</dt><dd id="fc-n">—</dd></div>
+        <div><dt>Давность данных</dt><dd id="fc-age">—</dd></div>
+      </dl>
+      <div style="border-top: 1px solid var(--line); padding-top: 16px; display: flex; flex-direction: column; gap: 10px">
+        <span style="font-size: 13px; font-weight: 600">Как читать</span>
+        <div class="legend-row"><span class="mono" style="color: var(--neg)">negative</span><span class="muted">мощных вспышек не ожидается</span></div>
+        <div class="legend-row"><span class="mono" style="color: var(--unsure)">positive?</span><span class="muted">признак есть, но сомнительный</span></div>
+        <div class="legend-row"><span class="mono" style="color: var(--pos)">positive</span><span class="muted">вероятна мощная вспышка</span></div>
+      </div>
+      <a class="btn" href="forecast.html#regions">Таблица Танаки–Эноме по областям</a>
+    </aside>
+  </div>
+</section>
+
+<main class="wrap" style="padding-top: 0">
+  <section class="block" aria-labelledby="latest-h">
+    <div class="section-head">
+      <div><h2 id="latest-h">Последние наблюдения</h2><p class="muted" style="margin: 6px 0 0">Одномерные радиоизображения Солнца за последние 9 дней, канал 3 ГГц</p></div>
+      <a href="search.html" style="font-weight: 600; text-decoration: none; padding: 12px 0">Все наблюдения →</a>
+    </div>
+    <div class="grid" id="latest" style="grid-template-columns: repeat(auto-fill, minmax(230px, 1fr))"></div>
+  </section>
+
+  <section class="block" aria-labelledby="data-h">
+    <div class="section-head"><h2 id="data-h">Данные</h2></div>
+    <div class="grid">
+      <a class="card tile" href="data.html"><b>Анализ данных</b><span>Сканы по дате и азимуту: графики по каналам, I и V, вычитание спокойного Солнца, соседние волны, спектры.</span></a>
+      <a class="card tile" href="search.html"><b>Поиск в базе данных</b><span>Наблюдения по дате, азимуту и числу наблюдений в день — для серий многоазимутальных наблюдений.</span></a>
+      <a class="card tile" href="forecast.html"><b>Прогноз и методика</b><span>Итог дня, таблица Танаки–Эноме по активным областям NOAA и правила прогноза.</span></a>
+      <a class="card tile" href="https://solar.sao.ru/data/"><b>Файловые архивы ↗</b><span>Первичные (level1) и обработанные (level2) FITS нового комплекса.</span></a>
+    </div>
+  </section>
+
+  <section class="block" id="tools" aria-labelledby="tools-h">
+    <div class="section-head"><div><h2 id="tools-h">Вычисления</h2><p class="muted" style="margin: 6px 0 0">Веб-интерфейсы к программам подготовки наблюдений и моделирования переносятся со старого сайта</p></div></div>
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))">
+      <div class="card stack" style="gap: 8px">
+        <span class="mono muted" style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px">Подготовка наблюдений</span>
+        <div class="link-list">
+          <a href="https://spbf.sao.ru/cgi-bin/ion-p?page=efrat.ion">Эфемериды · EFRAT 2 <span aria-hidden="true">↗</span></a>
+          <a href="https://spbf.sao.ru/cgi-bin/ion-p?page=rat_beam.ion">Диаграмма направленности · bp1 <span aria-hidden="true">↗</span></a>
+        </div>
+        <span class="muted" style="font-size: 13px">Эфемериды Солнца и калибровочных источников (ГАО РАН); ДНА по методу Коржавина, программа Верходанова.</span>
+      </div>
+      <div class="card stack" style="gap: 8px">
+        <span class="mono muted" style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px">Моделирование</span>
+        <div class="link-list">
+          <a href="https://spbf.sao.ru/cgi-bin/ion-p?page=rat_magnum.ion">Магнитное поле петли <span aria-hidden="true">↗</span></a>
+          <a href="https://spbf.sao.ru/cgi-bin/ion-p?page=rat_dim2spot.ion">Магнитное поле пятна <span aria-hidden="true">↗</span></a>
+          <a href="https://spbf.sao.ru/cgi-bin/ion-p?page=rat_cycl1.ion">Радиоизлучение пятна 1 <span aria-hidden="true">↗</span></a>
+          <a href="https://spbf.sao.ru/cgi-bin/ion-p?page=rat_cycl2.ion">Радиоизлучение пятна 2 <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+      <div class="card stack" style="gap: 8px">
+        <span class="mono muted" style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px">Новый комплекс</span>
+        <div class="link-list">
+          <a href="https://solar.sao.ru/dataview/">Dataviewer <span aria-hidden="true">↗</span></a>
+          <a href="https://solar.sao.ru/sunview/">Sunviewer <span aria-hidden="true">↗</span></a>
+          <a href="https://solar.sao.ru/data/">Данные FastAcq <span aria-hidden="true">↗</span></a>
+          <a href="https://github.com/andrei-shendrik/ratanpy">ratanpy <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="about" aria-labelledby="about-h">
+    <div class="card row" style="padding: 36px; gap: 40px">
+      <div class="main stack" style="flex-basis: 460px; gap: 14px">
+        <h2 id="about-h" style="font-size: 30px">Радиотелескоп РАТАН-600</h2>
+        <p style="margin: 0; color: var(--ink-2)">Кольцевая антенна диаметром 576 м из 895 элементов — один из двух основных инструментов САО РАН. Для регулярных наблюдений Солнца используется Южный сектор с Плоским отражателем (система Крауса). Данные поступают на сервер, автоматически проходят первичную обработку (отбраковка сканов, вычитание неба, параметры Стокса, калибровка) и сразу публикуются.</p>
+        <p style="margin: 0; color: var(--ink-2)">Проект поддержан грантом РФФИ 06-02-17034-а и программой СПбНЦ РАН. Участники — сотрудники ГСИ РАТАН-600 и ЛСИ СПбФ САО РАН; руководитель проекта — С. Х. Тохчукова.</p>
+      </div>
+      <dl class="side facts" style="gap: 24px 20px">
+        <div><dt>Диаметр кольца</dt><dd style="font-family: var(--display); font-weight: 800; font-size: 30px">576 м</dd></div>
+        <div><dt>Элементов</dt><dd style="font-family: var(--display); font-weight: 800; font-size: 30px">895</dd></div>
+        <div><dt>Диапазон волн</dt><dd style="font-family: var(--display); font-weight: 800; font-size: 30px">1–50 см</dd></div>
+        <div><dt>Угловое разрешение</dt><dd style="font-family: var(--display); font-weight: 800; font-size: 30px">до 2″</dd></div>
+      </dl>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Санкт-Петербургский филиал САО РАН · лаборатория солнечных исследований</span>
+    <span>Вопросы и предложения: <a href="mailto:susan@sao.ru">susan@sao.ru</a></span>
+  </div>
+</footer>
+
+<script type="module">
+import { getJSON, fmtDate, fmtAz, renderState, el, obsHref, showError } from './assets/app.js';
+import { linePlot, preview, xs } from './assets/plot.js';
+
+try {
+  const f = await getJSON('data/forecast.json');
+  renderState(document.getElementById('fc-state'), f);
+  document.getElementById('fc-day').textContent = fmtDate(f.day);
+  document.getElementById('fc-scan').textContent = f.last_scan ? fmtDate(f.data_day) + ' ' + f.last_scan.time_ut : '—';
+  document.getElementById('fc-az').textContent = f.last_scan ? fmtAz(f.last_scan.az) : '—';
+  document.getElementById('fc-n').textContent = f.rows ? f.rows.length : '—';
+  document.getElementById('fc-age').textContent = f.age_days === 0 ? 'сегодня' : f.age_days + ' сут';
+} catch (e) { showError(document.getElementById('fc-state'), e); }
+
+try {
+  const idx = await getJSON('data/observations.json');
+  const obs = idx.observations.filter(o => o.az === 0).slice(-9).reverse();
+  const box = document.getElementById('latest');
+  const scans = await Promise.all(obs.map(o => getJSON('data/scans/' + o.id + '.json')));
+  obs.forEach((o, i) => {
+    const card = el('a', { class: 'card day-card tile', href: obsHref(o.id) },
+      preview(scans[i]),
+      el('span', { style: 'display:flex;justify-content:space-between;color:var(--ink)' },
+        el('span', { class: 'mono', text: fmtDate(o.date) }),
+        el('span', { class: 'muted', text: o.time_ut + ' UT' })));
+    box.append(card);
+  });
+  const last = scans[0];
+  if (last) {
+    document.getElementById('hero-plot').append(linePlot([{ x: xs(last), y: last.channels[0].I, color: '#F97316' }], { width: 1200, height: 240 }));
+    document.getElementById('hero-cap').textContent = 'Скан ' + fmtDate(last.date) + ', ' + last.time_ut + ' UT · I · ' + last.channels[0].freq_ghz + ' ГГц';
+  }
+} catch (e) { showError(document.getElementById('latest'), e); }
+</script>
+</body>
+</html>

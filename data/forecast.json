@@ -1,0 +1,48 @@
+{
+ "demo": true,
+ "day": "2026-11-09",
+ "data_day": "2026-11-07",
+ "age_days": 2,
+ "label": "positive?",
+ "quality": "B",
+ "rule_version": "idl-2026-10",
+ "generated_at": "2026-11-09T09:30:00Z",
+ "last_scan": {
+  "id": "20261107-az0",
+  "time_ut": "09:05",
+  "az": 0
+ },
+ "message": "Демонстрационный прогноз: формат совпадает с выдачей ratan-forecast, значения условные.",
+ "rows": [
+  {
+   "noaa": "14271",
+   "location": "S12E35",
+   "flux2": 21.4,
+   "flux3": 18.7,
+   "flux10": 24.9,
+   "beam": 0.97,
+   "flux3_corr": 18.14,
+   "label": "negative"
+  },
+  {
+   "noaa": "14268_14269",
+   "location": "N08W12",
+   "flux2": 63.0,
+   "flux3": 58.2,
+   "flux10": 41.5,
+   "beam": 0.99,
+   "flux3_corr": 57.62,
+   "label": "positive?"
+  },
+  {
+   "noaa": "",
+   "location": "",
+   "flux2": 7.9,
+   "flux3": 6.1,
+   "flux10": 5.0,
+   "beam": 1.0,
+   "flux3_corr": 6.1,
+   "label": "negative"
+  }
+ ]
+}

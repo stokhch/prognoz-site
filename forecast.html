@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Прогноз и методика · РАТАН-600</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#content">К содержанию</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="7" fill="#F97316"/><circle cx="16" cy="16" r="12" fill="none" stroke="#F97316" stroke-opacity=".45" stroke-width="1.5"/><circle cx="16" cy="16" r="15" fill="none" stroke="#F97316" stroke-opacity=".2"/></svg>
+      <span><b>Прогноз · РАТАН-600</b><small>Радиоастрономический центр прогноза солнечной активности</small></span>
+    </a>
+    <nav class="nav" aria-label="Основное меню">
+      <a href="forecast.html" aria-current="page">Прогноз</a>
+      <a href="data.html">Анализ данных</a>
+      <a href="search.html">Поиск в базе</a>
+      <a href="index.html#tools">Вычисления</a>
+      <a href="index.html#about">О проекте</a>
+    </nav>
+  </div>
+</header>
+<div class="demo-banner" role="note"><div class="wrap"><b>Демонстрационные данные.</b> Значения условные; формат совпадает с выдачей новой системы прогноза.</div></div>
+
+<main class="wrap stack" id="content" style="gap: 36px">
+  <div class="stack" style="gap: 10px">
+    <p class="eyebrow">Радиоастрономический прогноз</p>
+    <h1 class="page-title">Прогноз мощных вспышек на 3 суток</h1>
+    <p class="lead">Строится по сканам Солнца на РАТАН-600 за последний день наблюдений: параметры Стокса I и V, все частотные каналы.</p>
+  </div>
+
+  <div class="row">
+    <figure class="card main" style="margin: 0; display: flex; flex-direction: column; gap: 12px">
+      <div class="plot" id="fc-plot"></div>
+      <figcaption style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 13px" class="muted">
+        <span id="fc-cap">Сканы последнего дня наблюдений</span>
+        <a id="fc-open" href="data.html" style="font-weight: 600; text-decoration: none">Открыть в анализе данных →</a>
+      </figcaption>
+    </figure>
+    <div class="side stack" style="gap: 12px">
+      <div class="state" id="fc-state" aria-live="polite" style="border-radius: 20px; padding: 28px">
+        <span class="k">Итог дня · <span id="fc-day">—</span></span>
+        <span class="v">…</span>
+        <span class="t" style="font-size: 15px; color: var(--ink)"></span>
+      </div>
+      <div class="card stack" style="gap: 10px">
+        <h2 style="font-size: 18px">Когда обновляется</h2>
+        <ul style="margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 14px; display: flex; flex-direction: column; gap: 6px">
+          <li>после каждого нового скана (наблюдения — около местного полудня);</li>
+          <li>без наблюдений за текущий день — по последнему дню, но не старше 3 суток;</li>
+          <li>около 16:00 МСК картинка публикуется на www.sao.ru.</li>
+        </ul>
+        <p class="muted mono" style="margin: 0; font-size: 12px">Правила: <span id="fc-rules">—</span> · расчёт: <span id="fc-gen">—</span></p>
+      </div>
+    </div>
+  </div>
+
+  <section class="card stack" id="regions" aria-labelledby="te-h" style="gap: 18px; padding: 28px">
+    <div class="section-head" style="margin: 0">
+      <div><h2 id="te-h" style="font-size: 26px">Таблица Танаки–Эноме по источникам</h2><p class="muted" style="margin: 6px 0 0">Потоки в с.е.п.; k — поправка на диаграмму направленности по широте источника</p></div>
+      <button class="btn" type="button" id="copy-csv">Скопировать CSV</button>
+    </div>
+    <div class="table-box">
+      <table style="min-width: 760px">
+        <thead><tr><th scope="col">NOAA</th><th scope="col">Положение</th><th scope="col" class="num">F 2 см</th><th scope="col" class="num">F 3 см</th><th scope="col" class="num">F 10 см</th><th scope="col" class="num">k</th><th scope="col" class="num">F3·k</th><th scope="col">Признак</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <span class="muted" id="copy-msg" role="status" style="font-size: 13px"></span>
+  </section>
+
+  <section aria-labelledby="m-h" class="stack" style="gap: 16px">
+    <h2 id="m-h" style="font-size: 26px">Методика</h2>
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))">
+      <div class="card stack" style="gap: 8px"><span class="pill" data-label="positive" style="align-self: flex-start">positive</span><p style="margin: 0">Для источника поток на 3 см с поправкой на ДН не меньше 10 с.е.п. и не меньше потока на 10 см (вариант критерия Танаки–Эноме).</p></div>
+      <div class="card stack" style="gap: 8px"><span class="pill" data-label="positive?" style="align-self: flex-start">positive?</span><p style="margin: 0">Очень большой поток (от 100 с.е.п.) или источник, отождествлённый сразу с несколькими номерами NOAA.</p></div>
+      <div class="card stack" style="gap: 8px"><span class="pill" data-label="negative" style="align-self: flex-start">negative</span><p style="margin: 0">Ни один источник не удовлетворяет критерию. Итог дня — positive, если положителен хотя бы один источник, иначе positive?, если такой есть.</p></div>
+    </div>
+    <p class="muted" style="margin: 0; font-size: 14px">Литература: Tanaka &amp; Enome, 1975; Богод и др., Астрофиз. бюлл. 73, 505 (2018).</p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Санкт-Петербургский филиал САО РАН · лаборатория солнечных исследований</span>
+    <span>Вопросы и предложения: <a href="mailto:susan@sao.ru">susan@sao.ru</a></span>
+  </div>
+</footer>
+
+<script type="module">
+import { getJSON, fmtDate, fmtAz, renderState, el, num, obsHref, showError } from './assets/app.js';
+import { linePlot, legend, xs, PALETTE } from './assets/plot.js';
+
+let csv = '';
+try {
+  const f = await getJSON('data/forecast.json');
+  renderState(document.getElementById('fc-state'), f);
+  document.getElementById('fc-day').textContent = fmtDate(f.day);
+  document.getElementById('fc-rules').textContent = f.rule_version;
+  document.getElementById('fc-gen').textContent = (f.generated_at || '').replace('T', ' ').slice(0, 16) + ' UT';
+  const tb = document.getElementById('rows');
+  csv = 'noaa;location;flux2;flux3;flux10;beam;flux3_corr;label\n';
+  for (const r of f.rows || []) {
+    tb.append(el('tr', {},
+      el('td', { class: 'mono', text: r.noaa ? r.noaa.replace('_', ' + ') : '—' }),
+      el('td', { class: 'mono', text: r.location || '—' }),
+      el('td', { class: 'mono num', text: num(r.flux2) }),
+      el('td', { class: 'mono num', text: num(r.flux3) }),
+      el('td', { class: 'mono num', text: num(r.flux10) }),
+      el('td', { class: 'mono num', text: num(r.beam, 3) }),
+      el('td', { class: 'mono num', text: num(r.flux3_corr) }),
+      el('td', {}, el('span', { class: 'pill', 'data-label': r.label, text: r.label }))));
+    csv += [r.noaa, r.location, r.flux2, r.flux3, r.flux10, r.beam, r.flux3_corr, r.label].join(';') + '\n';
+  }
+  if (f.last_scan) {
+    const scan = await getJSON('data/scans/' + f.last_scan.id + '.json');
+    const x = xs(scan);
+    const series = scan.channels.map((c, i) => ({ name: c.freq_ghz + ' ГГц', color: PALETTE[i % PALETTE.length], x, y: c.I }));
+    const box = document.getElementById('fc-plot');
+    box.append(linePlot(series, { height: 360, xLabel: 'угл. с', yLabel: 'I' }), legend(series));
+    document.getElementById('fc-cap').textContent = 'Скан ' + fmtDate(scan.date) + ', ' + scan.time_ut + ' UT, ' + fmtAz(scan.az) + ' · I · все каналы';
+    document.getElementById('fc-open').href = obsHref(scan.id);
+  }
+} catch (e) { showError(document.getElementById('rows'), e); }
+
+document.getElementById('copy-csv').addEventListener('click', async () => {
+  const msg = document.getElementById('copy-msg');
+  try { await navigator.clipboard.writeText(csv); msg.textContent = 'CSV скопирован в буфер обмена.'; }
+  catch (e) { msg.textContent = 'Браузер не дал доступа к буферу обмена.'; }
+});
+</script>
+</body>
+</html>

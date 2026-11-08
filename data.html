@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Анализ данных · РАТАН-600</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#content">К содержанию</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="7" fill="#F97316"/><circle cx="16" cy="16" r="12" fill="none" stroke="#F97316" stroke-opacity=".45" stroke-width="1.5"/><circle cx="16" cy="16" r="15" fill="none" stroke="#F97316" stroke-opacity=".2"/></svg>
+      <span><b>Прогноз · РАТАН-600</b><small>Радиоастрономический центр прогноза солнечной активности</small></span>
+    </a>
+    <nav class="nav" aria-label="Основное меню">
+      <a href="forecast.html">Прогноз</a>
+      <a href="data.html" aria-current="page">Анализ данных</a>
+      <a href="search.html">Поиск в базе</a>
+      <a href="index.html#tools">Вычисления</a>
+      <a href="index.html#about">О проекте</a>
+    </nav>
+  </div>
+</header>
+<div class="demo-banner" role="note"><div class="wrap"><b>Демонстрационные данные.</b> Сканы синтетические: форма похожа на настоящую, значения условные.</div></div>
+
+<main class="wrap stack" id="content">
+  <div>
+    <h1 class="page-title">Анализ данных</h1>
+    <p class="lead" style="margin-top: 6px">Выберите дату и азимут наблюдения, затем действие над сканом</p>
+  </div>
+
+  <div class="row" style="align-items: flex-start">
+    <form class="card side stack" id="params" aria-label="Параметры наблюдения" style="gap: 18px; flex-basis: 300px">
+      <div class="field">
+        <label for="date">Дата наблюдения</label>
+        <select id="date"></select>
+      </div>
+      <div class="field">
+        <label for="az">Азимут</label>
+        <select id="az"></select>
+      </div>
+      <fieldset class="field">
+        <legend>Параметр Стокса</legend>
+        <div class="chips" id="stokes">
+          <button type="button" class="chip" data-v="I" aria-pressed="true">I · интенсивность</button>
+          <button type="button" class="chip" data-v="V" aria-pressed="false">V · поляризация</button>
+        </div>
+      </fieldset>
+      <fieldset class="field">
+        <legend>Частоты, ГГц</legend>
+        <div class="chips" id="freqs"></div>
+      </fieldset>
+      <p class="muted" style="margin: 0; font-size: 13px">Ссылка на график сохраняет выбранное наблюдение.</p>
+    </form>
+
+    <section class="card main stack" aria-label="Результат" style="gap: 18px">
+      <div class="chips" role="tablist" aria-label="Действия" id="tabs">
+        <button type="button" class="chip" role="tab" data-v="plot" aria-selected="true">График</button>
+        <button type="button" class="chip" role="tab" data-v="quiet" aria-selected="false">Спокойное Солнце</button>
+        <button type="button" class="chip" role="tab" data-v="near" aria-selected="false">Соседние волны</button>
+        <button type="button" class="chip" role="tab" data-v="spectrum" aria-selected="false">Спектр</button>
+      </div>
+      <div>
+        <h2 id="t-title" style="font-size: 22px">Скан Солнца</h2>
+        <p class="muted" id="t-text" style="margin: 4px 0 0; font-size: 14px"></p>
+      </div>
+      <div class="field" id="pos-box" hidden>
+        <label for="pos">Положение на скане, угл. с: <span class="mono" id="pos-v">0</span></label>
+        <input id="pos" type="range" min="-1200" max="1200" step="10" value="0" style="min-height: 44px; padding: 0">
+      </div>
+      <div class="plot" id="plot" aria-live="polite"></div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px">
+        <a class="btn" id="fits-l1" href="#">Level1 FITS</a>
+        <a class="btn" id="fits-l2" href="#">Level2 FITS</a>
+        <button class="btn" type="button" id="copy-link">Скопировать ссылку</button>
+        <span class="muted" id="copy-msg" role="status" style="align-self: center; font-size: 13px"></span>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Санкт-Петербургский филиал САО РАН · лаборатория солнечных исследований</span>
+    <span>Вопросы и предложения: <a href="mailto:susan@sao.ru">susan@sao.ru</a></span>
+  </div>
+</footer>
+
+<script type="module">
+import { getJSON, fmtDate, fmtAz, el, showError } from './assets/app.js';
+import { linePlot, legend, xs, quietSun, PALETTE } from './assets/plot.js';
+
+const TABS = {
+  plot: ['Скан Солнца', 'Обработанные данные (level2) выбранного азимута по выбранным каналам.'],
+  quiet: ['Вычитание спокойного Солнца', 'Из скана вычитается нижняя огибающая — оценка уровня спокойного Солнца; остаются локальные источники.'],
+  near: ['Вычитание соседних волн', 'Разность соседних частотных каналов подчёркивает спектральные особенности источников.'],
+  spectrum: ['Спектр в точке скана', 'Поток по всем каналам в выбранном положении (после вычитания спокойного Солнца).']
+};
+const st = { obs: [], id: null, scan: null, stokes: 'I', tab: 'plot', freqOn: null, pos: 0 };
+const $ = id => document.getElementById(id);
+
+function idFromHash() { const h = location.hash.slice(1); return h.startsWith('obs-') ? h.slice(4) : null; }
+
+function fillAz(date) {
+  const list = st.obs.filter(o => o.date === date);
+  $('az').replaceChildren(...list.map(o => el('option', { value: o.id, text: fmtAz(o.az) + ' · ' + o.time_ut + ' UT' })));
+  $('az').value = list.some(o => o.id === st.id) ? st.id : list[0].id;
+}
+
+async function load(id) {
+  st.id = id;
+  st.scan = await getJSON('data/scans/' + id + '.json');
+  if (!st.freqOn || st.freqOn.length !== st.scan.channels.length) st.freqOn = st.scan.channels.map((_, i) => i < 4);
+  $('freqs').replaceChildren(...st.scan.channels.map((c, i) => el('button', {
+    type: 'button', class: 'chip', 'aria-pressed': String(st.freqOn[i]), text: String(c.freq_ghz),
+    onclick: () => { st.freqOn[i] = !st.freqOn[i]; load(st.id); }
+  })));
+  if (location.hash !== '#obs-' + id) history.replaceState(null, '', '#obs-' + id);
+  $('fits-l1').href = 'https://solar.sao.ru/data/';
+  $('fits-l2').href = 'https://solar.sao.ru/data/';
+  draw();
+}
+
+function draw() {
+  const sc = st.scan, x = xs(sc), box = $('plot');
+  $('t-title').textContent = TABS[st.tab][0];
+  $('t-text').textContent = TABS[st.tab][1] + ' ' + fmtDate(sc.date) + ', ' + sc.time_ut + ' UT, ' + fmtAz(sc.az) + ', Стокс ' + st.stokes + '.';
+  $('pos-box').hidden = st.tab !== 'spectrum';
+  const chans = sc.channels.map((c, i) => ({ c, i })).filter(o => st.freqOn[o.i]);
+  let series = [];
+  if (st.tab === 'plot') {
+    series = chans.map(({ c, i }) => ({ name: c.freq_ghz + ' ГГц', color: PALETTE[i % 10], x, y: c[st.stokes] }));
+  } else if (st.tab === 'quiet') {
+    series = chans.map(({ c, i }) => {
+      const y = c[st.stokes], q = st.stokes === 'I' ? quietSun(y) : y.map(() => 0);
+      return { name: c.freq_ghz + ' ГГц', color: PALETTE[i % 10], x, y: y.map((v, k) => v - q[k]) };
+    });
+  } else if (st.tab === 'near') {
+    for (let k = 1; k < chans.length; k++) {
+      const a = chans[k - 1], b = chans[k];
+      series.push({ name: a.c.freq_ghz + '−' + b.c.freq_ghz, color: PALETTE[a.i % 10], x, y: a.c[st.stokes].map((v, j) => v - b.c[st.stokes][j]) });
+    }
+  } else {
+    const j = Math.round((st.pos - sc.x_arcsec.start) / sc.x_arcsec.step);
+    const f = sc.channels.map(c => c.freq_ghz);
+    const y = sc.channels.map(c => { const yy = c[st.stokes], q = st.stokes === 'I' ? quietSun(yy) : yy.map(() => 0); return yy[j] - q[j]; });
+    series = [{ name: 'поток в точке ' + st.pos + '″', color: '#F97316', x: f, y }];
+    box.replaceChildren(linePlot(series, { height: 340, xLabel: 'частота, ГГц', yLabel: st.stokes }), legend(series));
+    return;
+  }
+  if (!series.length) { box.replaceChildren(el('div', { class: 'empty', text: 'Выберите хотя бы ' + (st.tab === 'near' ? 'два канала.' : 'один канал.') })); return; }
+  box.replaceChildren(linePlot(series, { height: 380, xLabel: 'угл. с', yLabel: st.stokes }), legend(series));
+}
+
+try {
+  const idx = await getJSON('data/observations.json');
+  st.obs = idx.observations;
+  const dates = [...new Set(st.obs.map(o => o.date))].reverse();
+  $('date').replaceChildren(...dates.map(d => el('option', { value: d, text: fmtDate(d) })));
+  const want = idFromHash();
+  const start = st.obs.find(o => o.id === want) || st.obs.filter(o => o.date === dates[0])[0];
+  st.id = start.id;
+  $('date').value = start.date;
+  fillAz(start.date);
+  await load(start.id);
+} catch (e) { showError($('plot'), e); }
+
+$('date').addEventListener('change', e => { fillAz(e.target.value); load($('az').value); });
+$('az').addEventListener('change', e => load(e.target.value));
+$('stokes').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  st.stokes = b.dataset.v;
+  for (const x of $('stokes').children) x.setAttribute('aria-pressed', String(x === b));
+  draw();
+});
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  st.tab = b.dataset.v;
+  for (const x of $('tabs').children) x.setAttribute('aria-selected', String(x === b));
+  draw();
+});
+$('pos').addEventListener('input', e => { st.pos = +e.target.value; $('pos-v').textContent = st.pos; draw(); });
+window.addEventListener('hashchange', () => {
+  const id = idFromHash(), o = st.obs.find(x => x.id === id);
+  if (o && id !== st.id) { $('date').value = o.date; st.id = id; fillAz(o.date); load(id); }
+});
+$('copy-link').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(location.href); $('copy-msg').textContent = 'Ссылка скопирована.'; }
+  catch (e) { $('copy-msg').textContent = 'Браузер не дал доступа к буферу обмена.'; }
+});
+</script>
+</body>
+</html>
