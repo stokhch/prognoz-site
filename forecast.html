@@ -96,7 +96,6 @@
 
 <script type="module">
 import { getJSON, fmtDate, fmtAz, renderState, el, num, obsHref, showError } from './assets/app.js';
-import { linePlot, legend, xs, PALETTE } from './assets/plot.js';
 
 let csv = '';
 try {
@@ -120,13 +119,10 @@ try {
     csv += [r.noaa, r.location, r.flux2, r.flux3, r.flux10, r.beam, r.flux3_corr, r.label].join(';') + '\n';
   }
   if (f.last_scan) {
-    const scan = await getJSON('data/scans/' + f.last_scan.id + '.json');
-    const x = xs(scan);
-    const series = scan.channels.map((c, i) => ({ name: c.freq_ghz + ' ГГц', color: PALETTE[i % PALETTE.length], x, y: c.I }));
-    const box = document.getElementById('fc-plot');
-    box.append(linePlot(series, { height: 360, xLabel: 'угл. с', yLabel: 'I' }), legend(series));
-    document.getElementById('fc-cap').textContent = 'Скан ' + fmtDate(scan.date) + ', ' + scan.time_ut + ' UT, ' + fmtAz(scan.az) + ' · I · все каналы';
-    document.getElementById('fc-open').href = obsHref(scan.id);
+    const ls = f.last_scan;
+    document.getElementById('fc-plot').append(el('img', { src: 'data/scans/' + ls.id + '.jpg', width: '663', height: '450', alt: 'Скан Солнца на РАТАН-600 за последний день наблюдений: параметры Стокса I и V по всем каналам', style: 'display:block;width:100%;max-width:663px;height:auto;margin:0 auto' }));
+    document.getElementById('fc-cap').textContent = 'Скан ' + fmtDate(f.data_day) + ', ' + ls.time_ut + ' UT, ' + fmtAz(ls.az) + ' · I и V · все каналы';
+    document.getElementById('fc-open').href = obsHref(ls.id);
   }
 } catch (e) { showError(document.getElementById('rows'), e); }
 

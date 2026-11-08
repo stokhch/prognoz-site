@@ -61,7 +61,8 @@
 
     <section class="card main stack" aria-label="Результат" style="gap: 18px">
       <div class="chips" role="tablist" aria-label="Действия" id="tabs">
-        <button type="button" class="chip" role="tab" data-v="plot" aria-selected="true">График</button>
+        <button type="button" class="chip" role="tab" data-v="plot" aria-selected="true">Скан</button>
+        <button type="button" class="chip" role="tab" data-v="chans" aria-selected="false">По каналам</button>
         <button type="button" class="chip" role="tab" data-v="quiet" aria-selected="false">Спокойное Солнце</button>
         <button type="button" class="chip" role="tab" data-v="near" aria-selected="false">Соседние волны</button>
         <button type="button" class="chip" role="tab" data-v="spectrum" aria-selected="false">Спектр</button>
@@ -97,7 +98,8 @@ import { getJSON, fmtDate, fmtAz, el, showError } from './assets/app.js';
 import { linePlot, legend, xs, quietSun, PALETTE } from './assets/plot.js';
 
 const TABS = {
-  plot: ['Скан Солнца', 'Обработанные данные (level2) выбранного азимута по выбранным каналам.'],
+  plot: ['Скан Солнца', 'Все каналы от 3 ГГц, I (сплошные) и V (штрихпунктир), цвет — по частоте; картинка та же, что в прогнозе.'],
+  chans: ['Скан по каналам', 'Обработанные данные (level2) по выбранным каналам.'],
   quiet: ['Вычитание спокойного Солнца', 'Из скана вычитается нижняя огибающая — оценка уровня спокойного Солнца; остаются локальные источники.'],
   near: ['Вычитание соседних волн', 'Разность соседних частотных каналов подчёркивает спектральные особенности источников.'],
   spectrum: ['Спектр в точке скана', 'Поток по всем каналам в выбранном положении (после вычитания спокойного Солнца).']
@@ -130,11 +132,16 @@ async function load(id) {
 function draw() {
   const sc = st.scan, x = xs(sc), box = $('plot');
   $('t-title').textContent = TABS[st.tab][0];
-  $('t-text').textContent = TABS[st.tab][1] + ' ' + fmtDate(sc.date) + ', ' + sc.time_ut + ' UT, ' + fmtAz(sc.az) + ', Стокс ' + st.stokes + '.';
+  $('t-text').textContent = TABS[st.tab][1] + ' ' + fmtDate(sc.date) + ', ' + sc.time_ut + ' UT, ' + fmtAz(sc.az) + (st.tab === 'plot' ? '.' : ', Стокс ' + st.stokes + '.');
   $('pos-box').hidden = st.tab !== 'spectrum';
+  if (st.tab === 'plot') {
+    const img = el('img', { src: 'data/scans/' + sc.id + '.jpg', width: '663', height: '450', alt: 'Скан Солнца на РАТАН-600 ' + fmtDate(sc.date) + ', ' + sc.time_ut + ' UT: параметры Стокса I и V по всем каналам', style: 'display:block;width:100%;max-width:663px;height:auto;margin:0 auto' });
+    box.replaceChildren(img);
+    return;
+  }
   const chans = sc.channels.map((c, i) => ({ c, i })).filter(o => st.freqOn[o.i]);
   let series = [];
-  if (st.tab === 'plot') {
+  if (st.tab === 'chans') {
     series = chans.map(({ c, i }) => ({ name: c.freq_ghz + ' ГГц', color: PALETTE[i % 10], x, y: c[st.stokes] }));
   } else if (st.tab === 'quiet') {
     series = chans.map(({ c, i }) => {

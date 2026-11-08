@@ -35,9 +35,15 @@
 
 `data/observations.json` — список наблюдений: `{"observations": [{"id", "date", "time_ut", "az", "scans", "defective", "n_per_day"}]}`.
 
+`data/scans/<id>.jpg` и `<id>-small.jpg` — картинки скана 663×450 и 221×150, те же, что в прогнозе (`sunsao1.jpg`, `sunsao0.jpg`): их рисует `ratan_forecast.scanplot` (`ratan-forecast scanplot --level2 … --out-dir …`). Страница анализа показывает её по умолчанию.
+
 `data/scans/<id>.json` — скан level2: `x_arcsec` (`start`, `step`, `n`) и `channels` — `[{"freq_ghz", "I": [...], "V": [...]}]`.
 
 Для настоящих данных эти файлы будет писать новая система прогноза (по расписанию, после обработки скана); поле `demo` тогда не ставится.
+
+## Демо-данные
+
+`python3 tools/make_demo.py /путь/к/ratan-forecast/src` заново создаёт `data/observations.json`, `data/scans/*.json` и картинки сканов (синтетические сканы в кельвинах, окно ±2 радиуса Солнца). Нужны numpy, matplotlib, opencv-python и Pillow.
 
 ## Запуск у себя
 

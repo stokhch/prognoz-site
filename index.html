@@ -38,7 +38,7 @@
       <p class="lead">Автоматический сбор, обработка и публикация многоволновых наблюдений Солнца на РАТАН-600. Прогноз обновляется после каждого нового скана; около 16:00 МСК он публикуется на сайте САО РАН.</p>
       <div style="display: flex; flex-wrap: wrap; gap: 12px">
         <a class="btn btn-primary" href="data.html">Открыть анализ данных</a>
-        <a class="btn btn-ghost-dark" href="forecast.html">Как устроен прогноз</a>
+        <a class="btn" href="forecast.html">Как устроен прогноз</a>
       </div>
       <figure class="scan-figure">
         <div id="hero-plot" style="min-height: 120px"></div>
@@ -75,7 +75,7 @@
 <main class="wrap" style="padding-top: 0">
   <section class="block" aria-labelledby="latest-h">
     <div class="section-head">
-      <div><h2 id="latest-h">Последние наблюдения</h2><p class="muted" style="margin: 6px 0 0">Одномерные радиоизображения Солнца за последние 9 дней, канал 3 ГГц</p></div>
+      <div><h2 id="latest-h">Последние наблюдения</h2><p class="muted" style="margin: 6px 0 0">Одномерные радиоизображения Солнца за последние 9 дней</p></div>
       <a href="search.html" style="font-weight: 600; text-decoration: none; padding: 12px 0">Все наблюдения →</a>
     </div>
     <div class="grid" id="latest" style="grid-template-columns: repeat(auto-fill, minmax(230px, 1fr))"></div>
@@ -149,7 +149,6 @@
 
 <script type="module">
 import { getJSON, fmtDate, fmtAz, renderState, el, obsHref, showError } from './assets/app.js';
-import { linePlot, preview, xs } from './assets/plot.js';
 
 try {
   const f = await getJSON('data/forecast.json');
@@ -165,19 +164,18 @@ try {
   const idx = await getJSON('data/observations.json');
   const obs = idx.observations.filter(o => o.az === 0).slice(-9).reverse();
   const box = document.getElementById('latest');
-  const scans = await Promise.all(obs.map(o => getJSON('data/scans/' + o.id + '.json')));
-  obs.forEach((o, i) => {
+  obs.forEach(o => {
     const card = el('a', { class: 'card day-card tile', href: obsHref(o.id) },
-      preview(scans[i]),
+      el('img', { src: 'data/scans/' + o.id + '-small.jpg', width: '221', height: '150', alt: 'Скан ' + fmtDate(o.date), loading: 'lazy', style: 'display:block;width:100%;height:auto;border-radius:8px;background:#000' }),
       el('span', { style: 'display:flex;justify-content:space-between;color:var(--ink)' },
         el('span', { class: 'mono', text: fmtDate(o.date) }),
         el('span', { class: 'muted', text: o.time_ut + ' UT' })));
     box.append(card);
   });
-  const last = scans[0];
+  const last = obs[0];
   if (last) {
-    document.getElementById('hero-plot').append(linePlot([{ x: xs(last), y: last.channels[0].I, color: '#F97316' }], { width: 1200, height: 240 }));
-    document.getElementById('hero-cap').textContent = 'Скан ' + fmtDate(last.date) + ', ' + last.time_ut + ' UT · I · ' + last.channels[0].freq_ghz + ' ГГц';
+    document.getElementById('hero-plot').append(el('img', { src: 'data/scans/' + last.id + '.jpg', width: '663', height: '450', alt: 'Последний скан Солнца на РАТАН-600: параметры Стокса I и V по всем каналам', style: 'display:block;width:100%;height:auto;border-radius:8px' }));
+    document.getElementById('hero-cap').textContent = 'Скан ' + fmtDate(last.date) + ', ' + last.time_ut + ' UT · I и V · все каналы от 3 ГГц';
   }
 } catch (e) { showError(document.getElementById('latest'), e); }
 </script>
