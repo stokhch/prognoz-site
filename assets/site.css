@@ -252,3 +252,24 @@ figure.photo img { max-width: 820px; }
 .switch input:focus-visible + span { outline: 3px solid var(--sun); outline-offset: 2px; }
 .head-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
 #pos { width: 100%; accent-color: var(--sun-ink); }
+.tag { display: inline-flex; align-items: center; gap: 2px; height: 24px; padding: 0 8px; border: 1px solid var(--line-2); border-radius: 999px; background: var(--ground); font: inherit; font-family: var(--mono); font-size: 12px; cursor: pointer; color: var(--ink); }
+.tag:hover { border-color: var(--sun-ink); color: var(--sun-ink); }
+.tag small { color: var(--muted); font-family: var(--font); }
+.x-btn { width: 22px; height: 22px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-size: 16px; line-height: 1; cursor: pointer; }
+.x-btn:hover { background: var(--pos-bg); color: var(--sun-ink); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.archive { flex: 0 0 210px; max-width: 210px; position: sticky; top: 8px; }
+.archive.folded { flex-basis: 56px; max-width: 56px; padding: 10px 8px !important; }
+.archive.folded #tree-h, .archive.folded #src, .archive.folded #tree, .archive.folded #reload { display: none; }
+@media (max-width: 760px) { #layout { flex-wrap: wrap !important; } .archive { flex-basis: 100%; max-width: none; position: static; } }
+/* mode buttons with icons */
+.modebar { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: flex-end; }
+.mgroup { display: flex; flex-direction: column; gap: 3px; }
+.mgroup + .mgroup { padding-left: 18px; border-left: 1px solid var(--line); }
+.mrow { display: flex; flex-wrap: wrap; gap: 4px; }
+.mrow button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 76px; height: 54px; padding: 4px 2px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink-2); font: inherit; font-size: 11px; font-weight: 600; cursor: pointer; transition: border-color .12s, background .12s, color .12s; }
+.mrow button span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 72px; }
+.mrow button:hover { border-color: var(--ink); color: var(--ink); }
+.mrow button[aria-selected="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.mrow button[aria-selected="true"] svg { stroke: var(--sun); }
+@media (max-width: 640px) { .mrow button { width: 56px; height: 50px; font-size: 10px; } .mgroup + .mgroup { padding-left: 0; border-left: 0; } }

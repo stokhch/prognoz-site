@@ -118,22 +118,30 @@ export function value(s, ch, iv, x) {
   return Number.isFinite(v) ? v : 0;
 }
 
-// Drop channels whose I maximum is far above the others (same rule as tools/make_site_data.py).
-export function clean(s, factor = 10) {
+// Channels whose I maximum is far above the others (spikes the level1 -> level2 cleaning missed).
+export function badChannels(s, factor = 10) {
   const mx = [];
   for (let c = 0; c < s.nChan; c++) { let m = -Infinity; for (let x = 0; x < s.nX; x++) m = Math.max(m, value(s, c, 0, x)); mx.push(m); }
   const sorted = [...mx].sort((a, b) => a - b);
   const mid = sorted.length >> 1;
   const med = sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-  const keep = mx.map(m => m <= factor * med);
-  const idx = keep.map((k, i) => k ? i : -1).filter(i => i >= 0);
+  return mx.map((m, i) => m > factor * med ? i : -1).filter(i => i >= 0);
+}
+
+// The scan without the channels in `excluded` (indices of the full scan); `dropped` lists their frequencies.
+export function subset(s, excluded) {
+  const ex = new Set(excluded);
+  const idx = [];
+  for (let c = 0; c < s.nChan; c++) if (!ex.has(c)) idx.push(c);
   const data = new Float32Array(idx.length * 2 * s.nX);
   idx.forEach((c, j) => data.set(s.data.subarray(c * 2 * s.nX, (c + 1) * 2 * s.nX), j * 2 * s.nX));
   return {
     ...s, nChan: idx.length, data, freq: idx.map(i => s.freq[i]), tqsun: idx.map(i => s.tqsun[i]),
-    dropped: s.freq.filter((_, i) => !keep[i])
+    dropped: s.freq.filter((_, i) => ex.has(i)), keep: idx, _qs: undefined
   };
 }
+
+export function clean(s, factor = 10) { return subset(s, badChannels(s, factor)); }
 
 // Scan in the site's JSON shape (window +-2 solar radii, thinned), for the interactive plots.
 export function toScan(s, id, stepArcsec = 8) {
