@@ -189,3 +189,13 @@ td.mono { font-family: var(--mono); }
 .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin: 4px 0 14px; }
 .flow > div { flex: 1 1 150px; background: var(--ground); border-radius: 12px; padding: 12px 14px; font-size: 14px; }
 .flow > div b { display: block; color: var(--ink); font-size: 14px; }
+
+/* figures */
+figure.diagram, figure.photo { margin: 6px 0 16px; max-width: none !important; }
+figure.diagram { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+figure.photo img { display: block; width: 100%; height: auto; border-radius: 12px; background: var(--ground); }
+figure.diagram figcaption, figure.photo figcaption { margin-top: 8px; font-size: 13px; color: var(--muted); line-height: 1.45; }
+.fig-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; max-width: none !important; }
+.fig-pair figure { margin: 0 0 12px; }
+figure.diagram svg { max-width: 760px; margin: 0 auto; }
+figure.photo img { max-width: 820px; }
