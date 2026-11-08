@@ -323,15 +323,17 @@ export function percentileRange(arrs, lo = 0.5, hi = 99.5) {
 // series: [{x, y, color, dash, width, name}]; opts: {height, xLabel, yLabel, yr, guides:[{x,label}], labels:[{y,text,color}],
 //   onClick(x), onZoom(x0,x1), mark: x, yTicks: true, logX}
 export function chart(series, opts = {}) {
-  const W = opts.width || 900, P = { l: 66, r: 16, t: 14, b: 40 };
+  const W = opts.width || 900, P = { l: 66, r: opts.y2 ? 62 : 16, t: 14, b: 40 };
   const xs = series.flatMap(s => s.x), x0 = opts.xr ? opts.xr[0] : Math.min(...xs), x1 = opts.xr ? opts.xr[1] : Math.max(...xs);
   // a background Sun image only makes the plot taller (to fit the disk); the data range of Y is not touched
   const kxBg = (W - P.l - P.r) / (x1 - x0);
   const H = opts.bg ? Math.max(opts.height || 380, Math.min(1400, 2.15 * opts.bg.R * kxBg + P.t + P.b)) : (opts.height || 380);
-  const [y0, y1] = opts.yr || percentileRange(series.map(s => s.y), 0, 100);
+  const [y0, y1] = opts.yr || percentileRange(series.filter(s => s.axis !== 2).map(s => s.y), 0, 100);
+  const [v0, v1] = opts.y2 ? (opts.y2.yr || percentileRange(series.filter(s => s.axis === 2).map(s => s.y), 0, 100)) : [0, 1];
   const tx = v => opts.logX ? Math.log10(v) : v;
   const X = v => P.l + (tx(v) - tx(x0)) / (tx(x1) - tx(x0)) * (W - P.l - P.r);
   const Y = v => H - P.b - (v - y0) / (y1 - y0) * (H - P.t - P.b);
+  const Y2 = v => H - P.b - (v - v0) / (v1 - v0) * (H - P.t - P.b);
   const svg = se('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': (opts.yLabel || '') + ' от ' + (opts.xLabel || ''), style: 'width:100%;height:auto;display:block;touch-action:pan-y' });
   const clip = 'c' + Math.random().toString(36).slice(2);
   const d = se('defs', {}); const cp = se('clipPath', { id: clip }); cp.append(se('rect', { x: P.l, y: P.t, width: W - P.l - P.r, height: H - P.t - P.b })); d.append(cp); svg.append(d);
@@ -346,10 +348,15 @@ export function chart(series, opts = {}) {
     svg.append(se('line', { x1: X(gd.x), x2: X(gd.x), y1: P.t, y2: H - P.b, stroke: '#8A5A00', 'stroke-dasharray': '4 4', 'stroke-opacity': 0.6 }));
     if (gd.label) t(X(gd.x) + 4, P.t + 12, gd.label, { fill: '#8A5A00', 'font-size': 11 });
   }
+  if (opts.y2) {
+    for (const v of niceTicks(v0, v1, 6)) t(W - P.r + 6, Y2(v) + 4, fmt(v), { 'text-anchor': 'start', fill: opts.y2.color || '#4A5668' });
+    const yl2 = se('text', { x: W - 10, y: (P.t + H - P.b) / 2, 'font-size': 12, fill: opts.y2.color || '#4A5668', 'text-anchor': 'middle', transform: `rotate(-90 ${W - 10} ${(P.t + H - P.b) / 2})` }); yl2.textContent = opts.y2.label || ''; svg.append(yl2);
+  }
   const g = se('g', { 'clip-path': `url(#${clip})` }); svg.append(g);
   for (const s of series) {
     let dstr = '', pen = false;
-    s.x.forEach((xv, i) => { const yv = s.y[i]; if (!Number.isFinite(yv)) { pen = false; return; } dstr += (pen ? 'L' : 'M') + X(xv).toFixed(1) + ',' + Y(yv).toFixed(1); pen = true; });
+    const YY = s.axis === 2 ? Y2 : Y;
+    s.x.forEach((xv, i) => { const yv = s.y[i]; if (!Number.isFinite(yv)) { pen = false; return; } dstr += (pen ? 'L' : 'M') + X(xv).toFixed(1) + ',' + YY(yv).toFixed(1); pen = true; });
     g.append(se('path', { d: dstr, fill: 'none', stroke: s.color, 'stroke-width': s.width || 1.5, 'stroke-linejoin': 'round', ...(s.dash ? { 'stroke-dasharray': s.dash } : {}) }));
   }
   for (const l of opts.labels || []) t(P.l + 4, Y(l.y) - 3, l.text, { fill: l.color || '#4A5668', 'font-size': 11 });

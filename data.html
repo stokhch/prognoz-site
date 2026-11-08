@@ -67,6 +67,8 @@
             <button type="button" class="chip" data-v="R" aria-pressed="false" title="правая поляризация, I + V">R</button>
             <button type="button" class="chip" data-v="L" aria-pressed="false" title="левая поляризация, I − V">L</button>
             <button type="button" class="chip" data-v="p" aria-pressed="false" title="степень поляризации V/I, %">p, %</button>
+            <button type="button" class="chip" data-v="IV" aria-pressed="false" title="I (сплошная) и V (пунктир, своя шкала справа)">I+V</button>
+            <button type="button" class="chip" data-v="RL" aria-pressed="false" title="R (сплошная) и L (пунктир) в общей шкале">R+L</button>
           </div>
         </fieldset>
         <fieldset class="field">
@@ -318,8 +320,12 @@ function G(maxN = 900) {
   return { idx, x, step: g.step * k };
 }
 const qsSub = () => st.qsMode === 'sub' ? st.qsMethod : 'none';
-const ser = (c, g, p = st.param, q = qsSub()) => V.series(st.level2, c, p, g, q);
-const unit = () => st.param === 'p' ? '%' : 'K';
+// a pair of Stokes parameters (I+V, R+L) or a single one; views without pair support use the first
+const comps = () => st.param === 'IV' ? ['I', 'V'] : st.param === 'RL' ? ['R', 'L'] : [st.param];
+const pp = () => comps()[0];
+const isPair = () => comps().length === 2;
+const ser = (c, g, p = pp(), q = qsSub()) => V.series(st.level2, c, p, g, q);
+const unit = () => pp() === 'p' ? '%' : 'K';
 function guides() { const R = st.level2.solarR; return [{ x: -R, label: '−R☉' }, { x: 0, label: 'центр' }, { x: R, label: '+R☉' }]; }
 function yr(rows, g) {
   if (st.scale === 'full') return V.percentileRange(rows, 0, 100);
@@ -338,7 +344,7 @@ function draw() {
   $('pos-box').hidden = st.tab !== 'point';
   $('unzoom').hidden = !st.zoom;
   extra.replaceChildren();
-  const g = G(), sel = selected(), xl = 'угл. с от центра диска', yl = st.param + ', ' + unit();
+  const g = G(), sel = selected(), xl = 'угл. с от центра диска', yl = (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit();
   const common = { xLabel: xl, guides: guides(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined };
   if (st.tab === 'plot') {
     const cv = render(sc, { big: true });
@@ -355,10 +361,13 @@ function draw() {
     sel.forEach((c, k) => {
       const col = sel.length <= 10 ? PALETTE[k % 10] : colorOf(c);
       series.push({ name: sc.freq[c].toFixed(3) + ' ГГц', color: col, x: g.x, y: ser(c, g), width: sel.length > 20 ? 1 : 1.5 });
+      if (isPair()) series.push({ name: '', color: col, x: g.x, y: second(c, g), dash: '3 3', width: 1.2, qs: true, axis: st.param === 'IV' ? 2 : 1 });
       if (showQs) series.push({ name: '', color: col, x: g.x, y: qsCurve(c, g), dash: '6 4', width: 1.1, qs: true });
     });
     const main = series.filter(s => !s.qs);
-    put(V.chart(series, { ...common, yLabel: yl, yr: yr0(main.map(s => s.y), g) }), ...(bg ? [bg.msg] : []), sel.length <= 24 ? legend(main) : el('p', { class: 'muted', style: 'font-size:12px;margin:6px 0 0', text: sel.length + ' каналов: синий — ' + sc.freq[sel[0]].toFixed(2) + ' ГГц, оранжевый — ' + sc.freq[sel[sel.length - 1]].toFixed(2) + ' ГГц' }));
+    const firstRows = st.param === 'RL' ? series.filter(s => !s.dash || s.axis === 1).map(s => s.y) : main.map(s => s.y);
+    put(V.chart(series, { ...common, yLabel: yl, yr: yr0(firstRows, g), y2: y2opt(series.filter(s => s.axis === 2).map(s => s.y), g) }), ...(bg ? [bg.msg] : []), sel.length <= 24 ? legend(main) : el('p', { class: 'muted', style: 'font-size:12px;margin:6px 0 0', text: sel.length + ' каналов: синий — ' + sc.freq[sel[0]].toFixed(2) + ' ГГц, оранжевый — ' + sc.freq[sel[sel.length - 1]].toFixed(2) + ' ГГц' }));
+    if (isPair()) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: st.param === 'IV' ? 'Сплошные — I (шкала слева), мелкий пунктир — V (шкала справа).' : 'Сплошные — R, мелкий пунктир — L, шкала общая.' }));
     if (showQs) { extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: qsNote() }), qsDetails()); }
     return;
   }
@@ -367,10 +376,16 @@ function draw() {
     sel.forEach((c, k) => {
       const y = ser(c, g), [a, b] = V.percentileRange([y], 1, 98), off = (n - 1 - k), sc1 = v => off + 0.9 * (v - a) / (b - a);
       series.push({ x: g.x, y: y.map(sc1), color: colorOf(c), width: 1.2 });
+      if (isPair()) {
+        const y2 = second(c, g);
+        if (st.param === 'RL') series.push({ x: g.x, y: y2.map(sc1), color: colorOf(c), dash: '3 3', width: 1 });
+        else { const m = Math.max(1e-9, ...y2.filter(Number.isFinite).map(Math.abs)); series.push({ x: g.x, y: y2.map(v => off + 0.45 + 0.42 * v / m), color: colorOf(c), dash: '3 3', width: 1 }); }
+      }
       if (showQs) series.push({ x: g.x, y: qsCurve(c, g).map(sc1), color: '#0F1B2D', dash: '5 4', width: 1 });
       labels.push({ y: off + 0.1, text: sc.freq[c].toFixed(2) + ' ГГц', color: colorOf(c) });
     });
     put(V.chart(series, { ...common, yLabel: yl + ' (своя шкала)', yr: [-0.2, n + 0.1], yTicks: false, labels, height: Math.max(380, 30 * n + 60) }), ...(bg ? [bg.msg] : []));
+    if (isPair()) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: st.param === 'IV' ? 'Сплошные — I в своей шкале канала; пунктир — V в своей шкале, ноль V — посередине полосы канала.' : 'Сплошные — R, пунктир — L, шкала канала общая.' }));
     if (showQs) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: qsNote() }), qsDetails());
     return;
   }
@@ -380,10 +395,12 @@ function draw() {
     const rows = list.map(c => ser(c, g)), same = yr(rows, g);
     list.forEach((c, k) => {
       const sr = [{ x: g.x, y: rows[k], color: colorOf(c), width: 1.4 }];
+      const y2 = second(c, g);
+      if (y2) sr.push({ x: g.x, y: y2, color: colorOf(c), dash: '3 3', width: 1.1, axis: st.param === 'IV' ? 2 : 1 });
       if (showQs) sr.push({ x: g.x, y: qsCurve(c, g), color: '#0F1B2D', dash: '5 4', width: 1.2 });
       wrap.append(el('div', { style: 'cursor:pointer', title: 'Открыть канал в режиме «Скан»' },
         el('div', { class: 'mono', style: 'font-size:12px;color:var(--muted)', text: sc.freq[c].toFixed(3) + ' ГГц' }),
-        V.chart(sr, { width: 420, height: 220, guides: guides(), yr: st.scale === 'full' ? same : yr0([rows[k]], g), yLabel: '', xLabel: '', xr: st.zoom || undefined, bg: bg && k < 12 ? { ...bg, onStatus: k === 0 ? bg.onStatus : null } : undefined, onClick: () => { st.single = c; selectTab('single'); } })));
+        V.chart(sr, { width: 420, height: 220, guides: guides(), y2: y2 ? y2opt([y2], g) : undefined, yr: st.scale === 'full' ? same : yr0(st.param === 'RL' ? [rows[k], y2] : [rows[k]], g), yLabel: '', xLabel: '', xr: st.zoom || undefined, bg: bg && k < 12 ? { ...bg, onStatus: k === 0 ? bg.onStatus : null } : undefined, onClick: () => { st.single = c; selectTab('single'); } })));
     });
     put(...(bg ? [bg.msg] : []), wrap);
     if (sel.length > 36) extra.append(el('p', { class: 'muted', text: 'Показаны первые 36 из ' + sel.length + ' выбранных каналов.' }));
@@ -414,13 +431,13 @@ function draw() {
   }
   if (st.tab === 'gauss') { drawGauss(g, sel[0]); return; }
   if (st.tab === 'fft') {
-    const series = sel.slice(0, 10).map((c, k) => { const p = V.powerSpectrum(ser(c, g, st.param === 'p' ? 'I' : st.param, st.qsMethod), g.step); return { name: sc.freq[c].toFixed(2) + ' ГГц', color: PALETTE[k % 10], x: p.period, y: p.logPower }; });
+    const series = sel.slice(0, 10).map((c, k) => { const p = V.powerSpectrum(ser(c, g, pp() === 'p' ? 'I' : pp(), st.qsMethod), g.step); return { name: sc.freq[c].toFixed(2) + ' ГГц', color: PALETTE[k % 10], x: p.period, y: p.logPower }; });
     box.replaceChildren(V.chart(series, { xLabel: 'период, угл. с', yLabel: 'lg мощности', logX: true, height: 380 }), legend(series));
     extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Перед расчётом вычитается спокойное Солнце (по умолчанию — нижняя огибающая). Периоды меньше ширины диаграммы — шум.' }));
     return;
   }
   if (st.tab === 'wavelet') {
-    const c = sel[0], y = ser(c, g, st.param === 'p' ? 'I' : st.param, st.qsMethod), w = V.wavelet(y, g.step);
+    const c = sel[0], y = ser(c, g, pp() === 'p' ? 'I' : pp(), st.qsMethod), w = V.wavelet(y, g.step);
     box.replaceChildren(V.map2d(g.x, w.periods.map(Math.log10), w.rows, 'map', 'амплитуда', pick, 'lg периода, угл. с'));
     extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Канал ' + sc.freq[c].toFixed(3) + ' ГГц. По вертикали — десятичный логарифм периода (от ' + Math.round(w.periods[0]) + ' до ' + Math.round(w.periods[w.periods.length - 1]) + '″).' }));
     return;
@@ -428,8 +445,11 @@ function draw() {
   if (st.tab === 'azim') { drawAzimuths(sel[0]); return; }
 }
 
-function yr0(rows, g) { const r = yr(rows, g); if (st.param !== 'V' && st.param !== 'p') r[0] = Math.min(r[0], -0.03 * Math.abs(r[1])); return r; }
-function canQs() { return st.param === 'I' || st.param === 'R' || st.param === 'L'; }
+function yr0(rows, g) { const r = yr(rows, g); if (pp() !== 'V' && pp() !== 'p') r[0] = Math.min(r[0], -0.03 * Math.abs(r[1])); return r; }
+// second component of a pair on grid g; for I+V it goes to the right axis
+function second(c, g) { return isPair() ? V.series(st.level2, c, comps()[1], g, qsSub()) : null; }
+function y2opt(rows, g) { return st.param === 'IV' ? { yr: V.percentileRange(rows, 0.5, 99.5), label: 'V, K (пунктир)', color: '#1E4FB8' } : undefined; }
+function canQs() { return ['I', 'R', 'L'].includes(pp()); }
 // quiet-Sun template on grid g (for R and L the quiet Sun is the same as for I, since V = 0 there)
 function qsCurve(c, g) { return V.quietTemplate(st.level2, c, { x: g.x, idx: g.idx }, g.step, st.qsMethod); }
 function qsNote() { return canQs() ? 'Пунктир — шаблон спокойного Солнца: ' + V.QUIET[st.qsMethod] + '.' : 'Для V и p шаблона нет: у спокойного Солнца V = 0.'; }
@@ -451,10 +471,12 @@ function drawSingle(g, sel, bg) {
   const next = el('button', { type: 'button', class: 'btn', 'aria-label': 'Следующий канал', text: '▶', onclick: () => { st.single = Math.min(sc.nChan - 1, c + 1); draw(); } });
   for (const b of [prev, next]) b.style.cssText = 'min-height:32px;padding:0 10px';
   const tb = el('div', { class: 'toolbar' }, prev, chSel, next);
-  const sr = [{ name: sc.freq[c].toFixed(3) + ' ГГц, ' + st.param + (st.qsMode === 'sub' ? ' − спокойное Солнце' : ''), x: g.x, y, color: '#C2410C', width: 1.8 }];
+  const sr = [{ name: sc.freq[c].toFixed(3) + ' ГГц, ' + pp() + (st.qsMode === 'sub' ? ' − спокойное Солнце' : ''), x: g.x, y, color: '#C2410C', width: 1.8 }];
+  const y2 = second(c, g);
+  if (y2) sr.push({ name: comps()[1] + (st.param === 'IV' ? ' (шкала справа)' : ''), x: g.x, y: y2, color: '#1E4FB8', dash: '4 3', width: 1.5, axis: st.param === 'IV' ? 2 : 1 });
   let t = null;
   if (withQs) { t = qsCurve(c, g); sr.push({ name: 'спокойное Солнце', x: g.x, y: t, color: '#0F1B2D', dash: '6 4', width: 1.5 }); }
-  box.replaceChildren(tb, V.chart(sr, { xLabel: 'угл. с от центра диска', yLabel: st.param + ', ' + unit(), guides: guides(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, height: 360, yr: yr0(sr.map(s => s.y), g), bg }), legend(sr), ...(bg ? [bg.msg] : []));
+  box.replaceChildren(tb, V.chart(sr, { xLabel: 'угл. с от центра диска', yLabel: (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit(), guides: guides(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, height: 360, yr: yr0(sr.filter(s => s.axis !== 2).map(s => s.y), g), y2: y2 ? y2opt([y2], g) : undefined, bg }), legend(sr), ...(bg ? [bg.msg] : []));
   if (withQs) {
     const res = y.map((v, i) => v - t[i]);
     extra.append(el('div', { class: 'plot' }, el('div', { style: 'font-size:13px;font-weight:600;margin-bottom:4px', text: 'Остаток: скан − шаблон (локальные источники)' }),
@@ -512,7 +534,7 @@ function drawPoint(g, sel) {
   $('pos').min = xmin; $('pos').max = xmax; $('pos').value = st.pos; $('pos-v').textContent = st.pos;
   // scan with the point marked
   const ss = sel.slice(0, 6).map((c, k) => ({ name: sc.freq[c].toFixed(2) + ' ГГц', color: PALETTE[k % 10], x: g.x, y: ser(c, g) }));
-  const top = V.chart(ss, { xLabel: 'угл. с от центра диска', yLabel: st.param + ', ' + unit(), guides: guides(), mark: st.pos, onClick: x => { st.pos = Math.round(x); draw(); }, onZoom: zoom, xr: st.zoom || undefined, height: 260, yr: yr(ss.map(s => s.y), g) });
+  const top = V.chart(ss, { xLabel: 'угл. с от центра диска', yLabel: pp() + ', ' + unit(), guides: guides(), mark: st.pos, onClick: x => { st.pos = Math.round(x); draw(); }, onZoom: zoom, xr: st.zoom || undefined, height: 260, yr: yr(ss.map(s => s.y), g) });
   // spectra
   const j = g.x.reduce((b, x, i) => Math.abs(x - st.pos) < Math.abs(g.x[b] - st.pos) ? i : b, 0);
   const fr = sc.freq, I = [], Vv = [], dx = [], pk = [];
@@ -565,11 +587,11 @@ async function drawAzimuths(c) {
   const series = [], labels = [], k = scans.length;
   scans.forEach(({ n, s }, i) => {
     const gi = V.grid(s, st.range, 900), ci = s.freq.reduce((b, ff, j) => Math.abs(ff - f) < Math.abs(s.freq[b] - f) ? j : b, 0);
-    const y = V.series(s, ci, st.param, gi, qsSub()), [a, b] = V.percentileRange([y], 1, 99), off = k - 1 - i;
+    const y = V.series(s, ci, pp(), gi, qsSub()), [a, b] = V.percentileRange([y], 1, 99), off = k - 1 - i;
     series.push({ x: gi.x, y: y.map(v => off + 0.9 * (v - a) / (b - a)), color: n === st.path.split('/').pop() ? '#C2410C' : '#1E4FB8', width: 1.3 });
     labels.push({ y: off + 0.1, text: s.obs.time.slice(0, 5) + ' UT, az ' + Math.round(s.az) + '°' });
   });
-  box.replaceChildren(V.chart(series, { xLabel: 'угл. с от центра диска', yLabel: st.param + ' (своя шкала)', yr: [-0.2, k + 0.1], yTicks: false, labels, guides: guides(), height: Math.max(300, 46 * k + 60), xr: st.zoom || undefined, onZoom: zoom }));
+  box.replaceChildren(V.chart(series, { xLabel: 'угл. с от центра диска', yLabel: pp() + ' (своя шкала)', yr: [-0.2, k + 0.1], yTicks: false, labels, guides: guides(), height: Math.max(300, 46 * k + 60), xr: st.zoom || undefined, onZoom: zoom }));
   extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: k + ' наблюдени' + (k === 1 ? 'е' : 'й') + ' за ' + fmtDate(sc.obs.date) + ' на ' + f.toFixed(3) + ' ГГц; текущее — оранжевым. Сдвиг источников между азимутами — вращение Солнца и смена позиционного угла.' }));
 }
 
