@@ -2,6 +2,7 @@
 // buttons). Everything is computed in the browser from one level2 scan (see fits.js).
 import { value } from './fits.js';
 import { palette } from './scanplot.js';
+import { template as qsTemplate } from './quietsun.js';
 
 // ---------- data access ----------
 export const RANGES = { disk: 1, sun2: 2, full: 0 };   // x window in solar radii (0 = whole record)
@@ -72,9 +73,11 @@ function diskTemplate(x, R, tq, theta) {
 
 export const QUIET = {
   none: 'не вычитать',
-  env: 'нижняя огибающая',
-  median: 'медианный фильтр',
-  tq: 'модель диска (tqsun)'
+  model: 'модель диска, подгонка по огибающей',
+  touch: 'модель диска, касание снизу',
+  modeltq: 'модель диска, уровень TQSUN',
+  env: 'скользящая нижняя огибающая',
+  median: 'медианный фильтр'
 };
 
 export function quietTemplate(s, c, x, step, method) {
@@ -82,6 +85,9 @@ export function quietTemplate(s, c, x, step, method) {
   const w = Math.max(3, Math.round(220 / step));
   if (method === 'env') return movingMean(movingMin(y, w), w);
   if (method === 'median') return movingMedian(y, Math.max(5, Math.round(420 / step)));
+  if (method === 'model') return qsTemplate(s, c, x.x, 'fit');
+  if (method === 'modeltq') return qsTemplate(s, c, x.x, 'tq');
+  if (method === 'touch') return qsTemplate(s, c, x.x, 'touch', y);
   if (method === 'tq') return diskTemplate(x.x, s.solarR, s.tqsun[c], beamArcsec(s.freq[c]));
   return y.map(() => 0);
 }
@@ -379,4 +385,95 @@ export function localPeak(x, y, xc, half) {
     if (Number.isFinite(v) && v > bv && y[i] >= y[i - 1] && y[i] >= y[i + 1]) { bv = v; best = i; }
   }
   return best < 0 ? null : { dx: x[best] - xc, v: y[best] };
+}
+
+// ---------- 2D image of the Sun (Helioviewer) with the scan, as in sunview (solar_image.py) ----------
+// Geometry: the Sun drifts through the fixed beam along its diurnal parallel, so in the equatorial frame the scan
+// runs east-west; positive scan x is west. The beam strip is tilted to the hour circle by the transit angle
+// q = arctan(sin(dec) * tan(t)); points of equal x lie on u - v*tan(q) = x (u west, v north). The Helioviewer image
+// has solar north up, so it is turned by P + q to bring the scan axis horizontal.
+export const SUN_LAYERS = {
+  aia193: ['SDO AIA 193 Å (корона)', '[SDO,AIA,AIA,193,1,100]'],
+  aia171: ['SDO AIA 171 Å', '[SDO,AIA,AIA,171,1,100]'],
+  aia304: ['SDO AIA 304 Å (хромосфера)', '[SDO,AIA,AIA,304,1,100]'],
+  aia1600: ['SDO AIA 1600 Å', '[SDO,AIA,AIA,1600,1,100]'],
+  aia94: ['SDO AIA 94 Å (горячая плазма)', '[SDO,AIA,AIA,94,1,100]'],
+  hmimag: ['SDO HMI магнитограмма', '[SDO,HMI,HMI,magnetogram,1,100]'],
+  hmicont: ['SDO HMI континуум', '[SDO,HMI,HMI,continuum,1,100]']
+};
+
+export function transitAngle(s) {
+  // hour angle of the observation from the azimuth (RATAN azimuth: 0 = meridian), small-angle-safe
+  const d = (s.header.SOL_DEC || 0) * Math.PI / 180, h = (s.header.ALTITUDE || 45) * Math.PI / 180, A = (s.az || 0) * Math.PI / 180;
+  const sint = -Math.sin(A) * Math.cos(h) / Math.cos(d);
+  const t = Math.asin(Math.max(-1, Math.min(1, sint)));
+  return Math.atan(Math.sin(d) * Math.tan(t)) * 180 / Math.PI;
+}
+
+export function helioviewerUrl(s, layer, events, size = 900, scale = 2.8) {
+  const p = new URLSearchParams({
+    date: s.obs.date + 'T' + s.obs.time.slice(0, 8) + 'Z', imageScale: String(scale), layers: SUN_LAYERS[layer][1],
+    x0: '0', y0: '0', width: String(size), height: String(size), display: 'true', watermark: 'false'
+  });
+  if (events) { p.set('events', '[AR,all,1]'); p.set('eventLabels', 'true'); }
+  return 'https://api.helioviewer.org/v2/takeScreenshot/?' + p.toString();
+}
+
+// opts: {layer, events, rot (extra degrees), flip, curves:[{y:[], color}], x, pos, beam, onPick}
+export function sunOverlay(s, opts, done) {
+  const S = 900, scale = 2.8, cx = S / 2, cy = S / 2, k = 1 / scale;      // px per arcsec
+  const cv = document.createElement('canvas');
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = S * dpr; cv.height = S * dpr; cv.style.width = '100%'; cv.style.height = 'auto'; cv.style.display = 'block'; cv.style.maxWidth = '760px'; cv.style.margin = '0 auto';
+  const g = cv.getContext('2d'); g.scale(dpr, dpr);
+  const P = s.header.SOLAR_P || 0, q = transitAngle(s), turn = P + q + (opts.rot || 0);
+  const sgn = opts.flip ? -1 : 1, R = s.solarR;
+  const draw = img => {
+    g.fillStyle = '#000'; g.fillRect(0, 0, S, S);
+    if (img) { g.save(); g.translate(cx, cy); g.rotate(-turn * Math.PI / 180); g.drawImage(img, -S / 2, -S / 2, S, S); g.restore(); }
+    else { g.strokeStyle = '#F5C451'; g.beginPath(); g.arc(cx, cy, R * k, 0, 2 * Math.PI); g.stroke(); }
+    const tq = Math.tan(q * Math.PI / 180);
+    const X = (x, v = 0) => cx + sgn * (x + v * tq) * k;                     // celestial frame after the turn
+    // limbs and centre along the scan
+    g.setLineDash([5, 5]); g.strokeStyle = 'rgba(255,255,255,0.45)'; g.lineWidth = 1;
+    for (const x of [-R, 0, R]) { g.beginPath(); g.moveTo(X(x, 1.3 * R), cy - 1.3 * R * k); g.lineTo(X(x, -1.3 * R), cy + 1.3 * R * k); g.stroke(); }
+    g.setLineDash([]);
+    // beam strip at the picked point
+    if (opts.pos !== null && opts.pos !== undefined) {
+      const w = (opts.beam || 30) / 2, L = 1.4 * R;
+      g.fillStyle = 'rgba(249,115,22,0.30)'; g.strokeStyle = '#F97316'; g.lineWidth = 1.5;
+      g.beginPath(); g.moveTo(X(opts.pos - w, L), cy - L * k); g.lineTo(X(opts.pos + w, L), cy - L * k); g.lineTo(X(opts.pos + w, -L), cy + L * k); g.lineTo(X(opts.pos - w, -L), cy + L * k); g.closePath(); g.fill(); g.stroke();
+    }
+    // scans drawn along the scan axis, baseline under the disk
+    const base = cy + 1.22 * R * k, hgt = 0.55 * R * k;
+    let lo = Infinity, hi = -Infinity;
+    for (const c of opts.curves) for (const v of c.y) if (Number.isFinite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    g.strokeStyle = 'rgba(255,255,255,0.5)'; g.beginPath(); g.moveTo(X(opts.x[0]), base); g.lineTo(X(opts.x[opts.x.length - 1]), base); g.stroke();
+    for (const c of opts.curves) {
+      g.strokeStyle = c.color; g.globalAlpha = 0.9; g.lineWidth = 1.4; g.beginPath(); let pen = false;
+      opts.x.forEach((x, i) => { const v = c.y[i]; if (!Number.isFinite(v)) { pen = false; return; } const yy = base - (v - Math.min(0, lo)) / (hi - Math.min(0, lo)) * hgt; pen ? g.lineTo(X(x), yy) : g.moveTo(X(x), yy); pen = true; });
+      g.stroke(); g.globalAlpha = 1;
+    }
+    // labels
+    g.fillStyle = '#fff'; g.font = '13px Inter, sans-serif';
+    g.fillText(sgn > 0 ? 'В ← скан → З' : 'З ← скан → В', 14, S - 14);
+    g.fillText(`P = ${P.toFixed(1)}°, q = ${q.toFixed(1)}°${opts.rot ? ', поправка ' + opts.rot + '°' : ''}`, 14, 22);
+    if (img) g.fillText(SUN_LAYERS[opts.layer][0] + ' · Helioviewer', 14, 40);
+  };
+  draw(null);
+  if (opts.layer && opts.layer !== 'none') {
+    const img = new Image();
+    img.onload = () => { draw(img); done && done(null); };
+    img.onerror = () => { draw(null); done && done(new Error('снимок Helioviewer не загрузился')); };
+    img.src = helioviewerUrl(s, opts.layer, opts.events, S, scale);
+  } else done && done(null);
+  if (opts.onPick) {
+    cv.style.cursor = 'crosshair';
+    cv.addEventListener('click', e => {
+      const b = cv.getBoundingClientRect(), px = (e.clientX - b.left) / b.width * S, py = (e.clientY - b.top) / b.height * S;
+      const v = -(py - cy) / k, x = sgn * (px - cx) / k - v * Math.tan(q * Math.PI / 180);
+      opts.onPick(x);
+    });
+  }
+  return cv;
 }

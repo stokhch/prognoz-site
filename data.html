@@ -42,23 +42,23 @@
   </div>
 </header>
 
-<main class="wrap stack" id="content">
+<main class="wrap stack" id="content" style="gap: 16px; padding-top: 24px">
   <div>
-    <h1 class="page-title">Анализ данных</h1>
-    <p class="lead" style="margin-top: 6px">Выберите скан в архиве level2 РАТАН-600 (год → месяц → день), затем действие над ним</p>
+    <h1 class="page-title" style="font-size: 30px">Анализ данных</h1>
+    <p class="muted" style="margin: 4px 0 0; font-size: 14px">Выберите скан в архиве level2 РАТАН-600 (год → месяц → день), затем действие над ним</p>
   </div>
 
-  <div class="row" style="align-items: flex-start">
-    <div class="side stack" style="gap: 16px; flex-basis: 320px">
-      <nav class="card stack" aria-labelledby="tree-h" style="gap: 10px; padding: 18px">
+  <div class="row" style="align-items: flex-start; gap: 16px">
+    <div class="side stack" style="gap: 12px; flex: 1 1 250px; max-width: 290px">
+      <nav class="card stack compact" aria-labelledby="tree-h">
         <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
-          <h2 id="tree-h" style="font-size: 17px">Архив</h2>
-          <button class="btn" type="button" id="reload" style="min-height: 36px; padding: 0 12px; font-size: 13px">Обновить</button>
+          <h2 id="tree-h" style="font-size: 15px">Архив</h2>
+          <button class="btn" type="button" id="reload">Обновить</button>
         </div>
-        <p class="muted" id="src" role="status" style="margin: 0; font-size: 13px">Чтение каталога…</p>
-        <div class="tree" id="tree"></div>
+        <p class="muted" id="src" role="status" style="margin: 0; font-size: 12px">Чтение каталога…</p>
+        <div class="tree compact-tree" id="tree" style="max-height: 300px"></div>
       </nav>
-      <form class="card stack" id="params" aria-label="Параметры просмотра" style="gap: 16px; padding: 18px">
+      <form class="card stack compact" id="params" aria-label="Параметры просмотра">
         <fieldset class="field">
           <legend>Параметр Стокса</legend>
           <div class="chips" id="param">
@@ -76,8 +76,8 @@
             <button type="button" class="chip" data-v="sun2" aria-pressed="true">±2 R☉</button>
             <button type="button" class="chip" data-v="full" aria-pressed="false">Вся запись</button>
           </div>
-          <span class="muted" style="font-size: 12px">Протяните мышью по графику — увеличить участок.</span>
-          <button type="button" class="btn" id="unzoom" hidden style="min-height: 36px; font-size: 13px">Сбросить увеличение</button>
+          <span class="muted" style="font-size: 11px">Протяните по графику — увеличить.</span>
+          <button type="button" class="btn" id="unzoom" hidden>Сбросить увеличение</button>
         </fieldset>
         <div class="field">
           <label for="qs">Спокойное Солнце</label>
@@ -86,34 +86,34 @@
         <div class="field">
           <label for="scale">Масштаб по Y</label>
           <select id="scale">
-            <option value="auto">авто, без выбросов (0,5–99,5%)</option>
+            <option value="auto">авто, без выбросов</option>
             <option value="full">полный</option>
           </select>
         </div>
         <div class="field">
-          <label for="freqs">Частоты, ГГц <span class="muted" style="font-weight: 400">(несколько — Ctrl или Shift)</span></label>
-          <select id="freqs" multiple size="8" style="padding: 6px; font-family: var(--mono)"></select>
+          <label for="freqs">Частоты, ГГц <span style="font-weight: 400">(Ctrl/Shift — несколько)</span></label>
+          <select id="freqs" multiple size="7" style="padding: 4px; font-family: var(--mono)"></select>
           <div style="display: flex; gap: 6px; flex-wrap: wrap">
-            <button type="button" class="btn" id="f-4" style="min-height: 34px; font-size: 13px; padding: 0 10px">4 опорных</button>
-            <button type="button" class="btn" id="f-12" style="min-height: 34px; font-size: 13px; padding: 0 10px">каждый 6-й</button>
-            <button type="button" class="btn" id="f-all" style="min-height: 34px; font-size: 13px; padding: 0 10px">все</button>
+            <button type="button" class="btn" id="f-4">4 опорных</button>
+            <button type="button" class="btn" id="f-12">каждый 6-й</button>
+            <button type="button" class="btn" id="f-all">все</button>
           </div>
         </div>
       </form>
     </div>
 
-    <section class="card main stack" aria-label="Результат" style="gap: 18px">
-      <div role="tablist" aria-label="Режим просмотра" id="tabs" style="display: flex; flex-direction: column; gap: 8px">
-        <div class="chips"><span class="muted" style="align-self: center; font-size: 12px; width: 72px">Сканы</span><button type="button" class="chip" role="tab" data-v="plot" aria-selected="true">Прогноз</button><button type="button" class="chip" role="tab" data-v="group" aria-selected="false">Наложение</button><button type="button" class="chip" role="tab" data-v="vertical" aria-selected="false">Разнесение</button><button type="button" class="chip" role="tab" data-v="grid" aria-selected="false">Сетка</button><button type="button" class="chip" role="tab" data-v="map" aria-selected="false">Карта</button><button type="button" class="chip" role="tab" data-v="contour" aria-selected="false">Контуры</button><button type="button" class="chip" role="tab" data-v="waterfall" aria-selected="false">3D</button></div>
-        <div class="chips"><span class="muted" style="align-self: center; font-size: 12px; width: 72px">Анализ</span><button type="button" class="chip" role="tab" data-v="point" aria-selected="false">Спектр в точке</button><button type="button" class="chip" role="tab" data-v="qsview" aria-selected="false">Спокойное Солнце</button><button type="button" class="chip" role="tab" data-v="near" aria-selected="false">Соседние волны</button><button type="button" class="chip" role="tab" data-v="gauss" aria-selected="false">Гаусс-анализ</button><button type="button" class="chip" role="tab" data-v="fft" aria-selected="false">Фурье</button><button type="button" class="chip" role="tab" data-v="wavelet" aria-selected="false">Вейвлет</button><button type="button" class="chip" role="tab" data-v="azim" aria-selected="false">Азимуты дня</button></div>
+    <section class="card main stack" aria-label="Результат" style="gap: 12px; padding: 18px">
+      <div role="tablist" aria-label="Режим просмотра" id="tabs" class="tabs-compact" style="display: flex; flex-direction: column; gap: 6px">
+        <div class="chips"><span class="muted" style="align-self: center; font-size: 12px; width: 56px">Сканы</span><button type="button" class="chip" role="tab" data-v="plot" aria-selected="true">Прогноз</button><button type="button" class="chip" role="tab" data-v="group" aria-selected="false">Наложение</button><button type="button" class="chip" role="tab" data-v="vertical" aria-selected="false">Разнесение</button><button type="button" class="chip" role="tab" data-v="grid" aria-selected="false">Сетка</button><button type="button" class="chip" role="tab" data-v="map" aria-selected="false">Карта</button><button type="button" class="chip" role="tab" data-v="contour" aria-selected="false">Контуры</button><button type="button" class="chip" role="tab" data-v="waterfall" aria-selected="false">3D</button><button type="button" class="chip" role="tab" data-v="sun" aria-selected="false">Снимок Солнца</button></div>
+        <div class="chips"><span class="muted" style="align-self: center; font-size: 12px; width: 56px">Анализ</span><button type="button" class="chip" role="tab" data-v="point" aria-selected="false">Спектр в точке</button><button type="button" class="chip" role="tab" data-v="qsview" aria-selected="false">Спокойное Солнце</button><button type="button" class="chip" role="tab" data-v="near" aria-selected="false">Соседние волны</button><button type="button" class="chip" role="tab" data-v="gauss" aria-selected="false">Гаусс-анализ</button><button type="button" class="chip" role="tab" data-v="fft" aria-selected="false">Фурье</button><button type="button" class="chip" role="tab" data-v="wavelet" aria-selected="false">Вейвлет</button><button type="button" class="chip" role="tab" data-v="azim" aria-selected="false">Азимуты дня</button></div>
       </div>
       <div>
-        <h2 id="t-title" style="font-size: 22px">Скан Солнца</h2>
-        <p class="muted" id="t-text" style="margin: 4px 0 0; font-size: 14px"></p>
+        <h2 id="t-title" style="font-size: 19px">Скан Солнца</h2>
+        <p class="muted" id="t-text" style="margin: 2px 0 0; font-size: 13px"></p>
       </div>
       <div class="field" id="pos-box" hidden>
         <label for="pos">Точка на скане, угл. с от центра: <span class="mono" id="pos-v">0</span> <span class="muted" style="font-weight: 400">— или щёлкните по скану</span></label>
-        <input id="pos" type="range" min="-1900" max="1900" step="2" value="0" style="min-height: 44px; padding: 0">
+        <input id="pos" type="range" min="-1900" max="1900" step="2" value="0" style="min-height: 28px; padding: 0">
       </div>
       <div class="plot" id="plot" aria-live="polite" style="overflow-x: auto"><div class="empty">Выберите скан в архиве слева.</div></div>
       <div id="extra"></div>
@@ -137,6 +137,7 @@
 import { fmtDate, el } from './assets/app.js';
 import { legend, PALETTE } from './assets/plot.js';
 import * as V from './assets/views.js';
+import { fitQuietSun } from './assets/quietsun.js';
 import { openArchive, listLevel, parseName } from './assets/archive.js';
 import { readLevel2, clean } from './assets/fits.js';
 import { render } from './assets/scanplot.js';
@@ -149,6 +150,7 @@ const TABS = {
   map: ['Цветная карта', 'Частота × положение на скане; ось частот в ГГц. Щелчок — спектр в точке.'],
   contour: ['Контурная карта', 'Изолинии на плоскости частота × положение.'],
   waterfall: ['Трёхмерный вид', 'Каналы друг за другом: низкие частоты спереди.'],
+  sun: ['Скан на снимке Солнца', 'Снимок SDO (Helioviewer) на момент наблюдения, повёрнутый так, что скан идёт по горизонтали; под диском — выбранные каналы, оранжевая полоса — диаграмма в выбранной точке. Щелчок по снимку выбирает точку.'],
   point: ['Спектр в точке', 'Сверху — скан и выбранная точка; ниже — спектр в точке, сдвиг ближайшего максимума по каналам (в пределах ¼ ДНА) и спектр максимумов.'],
   qsview: ['Шаблон спокойного Солнца', 'Скан (сплошная) и выбранная оценка спокойного Солнца (пунктир) — проверка, насколько хорошо проведён уровень.'],
   near: ['Вычитание соседних волн', 'Разность соседних выбранных каналов подчёркивает спектральные особенности источников.'],
@@ -158,7 +160,7 @@ const TABS = {
   azim: ['Азимуты дня', 'Все наблюдения этого дня на первом выбранном канале, сверху вниз по времени.']
 };
 const $ = id => document.getElementById(id);
-const st = { arc: null, path: null, level2: null, param: 'I', range: 'sun2', qs: 'none', scale: 'auto', tab: 'plot', freqOn: null, pos: null, zoom: null, buttons: new Map(), dayCache: new Map() };
+const st = { sunLayer: 'aia193', sunEvents: true, sunRot: 0, sunFlip: false, arc: null, path: null, level2: null, param: 'I', range: 'sun2', qs: 'none', scale: 'auto', tab: 'plot', freqOn: null, pos: null, zoom: null, buttons: new Map(), dayCache: new Map() };
 
 // ---------- archive tree ----------
 function wantedPath() { return decodeURIComponent(location.hash.slice(1)); }
@@ -362,15 +364,17 @@ function draw() {
     return;
   }
   if (st.tab === 'point') { drawPoint(g, sel); return; }
+  if (st.tab === 'sun') { drawSun(g, sel); return; }
   if (st.tab === 'qsview') {
-    const method = st.qs === 'none' ? 'tq' : st.qs, series = [];
+    const method = st.qs === 'none' ? 'model' : st.qs, series = [];
     sel.slice(0, 8).forEach((c, k) => {
       const col = PALETTE[k % 10];
       series.push({ name: sc.freq[c].toFixed(2) + ' ГГц', x: g.x, y: V.stokes(sc, c, 'I', g.idx), color: col });
       series.push({ name: 'спокойное Солнце, ' + V.QUIET[method], x: g.x, y: V.quietTemplate(sc, c, g, g.step, method), color: col, dash: '6 4' });
     });
     box.replaceChildren(V.chart(series, { ...common, yLabel: 'I, K', yr: yr(series.map(s => s.y), g) }), legend(series.filter((_, i) => i % 2 === 0)));
-    if (st.qs === 'none') extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Способ вычитания не выбран — показана модель диска по tqsun. Выберите способ слева, чтобы сравнить.' }));
+    extra.append(qsReport());
+    if (st.qs === 'none') extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Способ вычитания не выбран — показана модель диска с подгонкой по огибающей. Выберите способ слева, чтобы сравнить.' }));
     return;
   }
   if (st.tab === 'near') {
@@ -385,18 +389,58 @@ function draw() {
   }
   if (st.tab === 'gauss') { drawGauss(g, sel[0]); return; }
   if (st.tab === 'fft') {
-    const series = sel.slice(0, 10).map((c, k) => { const p = V.powerSpectrum(ser(c, g, st.param === 'p' ? 'I' : st.param, st.qs === 'none' ? 'env' : st.qs), g.step); return { name: sc.freq[c].toFixed(2) + ' ГГц', color: PALETTE[k % 10], x: p.period, y: p.logPower }; });
+    const series = sel.slice(0, 10).map((c, k) => { const p = V.powerSpectrum(ser(c, g, st.param === 'p' ? 'I' : st.param, st.qs === 'none' ? 'model' : st.qs), g.step); return { name: sc.freq[c].toFixed(2) + ' ГГц', color: PALETTE[k % 10], x: p.period, y: p.logPower }; });
     box.replaceChildren(V.chart(series, { xLabel: 'период, угл. с', yLabel: 'lg мощности', logX: true, height: 380 }), legend(series));
     extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Перед расчётом вычитается спокойное Солнце (по умолчанию — нижняя огибающая). Периоды меньше ширины диаграммы — шум.' }));
     return;
   }
   if (st.tab === 'wavelet') {
-    const c = sel[0], y = ser(c, g, st.param === 'p' ? 'I' : st.param, st.qs === 'none' ? 'env' : st.qs), w = V.wavelet(y, g.step);
+    const c = sel[0], y = ser(c, g, st.param === 'p' ? 'I' : st.param, st.qs === 'none' ? 'model' : st.qs), w = V.wavelet(y, g.step);
     box.replaceChildren(V.map2d(g.x, w.periods.map(Math.log10), w.rows, 'map', 'амплитуда', pick, 'lg периода, угл. с'));
     extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Канал ' + sc.freq[c].toFixed(3) + ' ГГц. По вертикали — десятичный логарифм периода (от ' + Math.round(w.periods[0]) + ' до ' + Math.round(w.periods[w.periods.length - 1]) + '″).' }));
     return;
   }
   if (st.tab === 'azim') { drawAzimuths(sel[0]); return; }
+}
+
+function drawSun(g, sel) {
+  const sc = st.level2, box = $('plot'), extra = $('extra');
+  const ctl = el('div', { class: 'toolbar' });
+  const lay = el('select', { id: 'sun-layer', 'aria-label': 'Снимок' }, el('option', { value: 'none', text: 'без снимка' }), ...Object.entries(V.SUN_LAYERS).map(([k, v]) => el('option', { value: k, text: v[0] })));
+  lay.value = st.sunLayer; lay.onchange = () => { st.sunLayer = lay.value; draw(); };
+  const ev = el('input', { type: 'checkbox', id: 'sun-ev' }); ev.checked = st.sunEvents; ev.onchange = () => { st.sunEvents = ev.checked; draw(); };
+  const rot = el('input', { type: 'number', id: 'sun-rot', step: '0.5', value: String(st.sunRot), style: 'width:72px' }); rot.onchange = () => { st.sunRot = +rot.value || 0; draw(); };
+  const fl = el('input', { type: 'checkbox', id: 'sun-flip' }); fl.checked = st.sunFlip; fl.onchange = () => { st.sunFlip = fl.checked; draw(); };
+  ctl.append(el('label', { for: 'sun-layer', text: 'Снимок' }), lay, el('label', { class: 'check' }, ev, ' номера АО (HEK)'),
+    el('label', { for: 'sun-rot', text: 'поправка угла, °' }), rot, el('label', { class: 'check' }, fl, ' отразить скан'));
+  const c0 = sel[0];
+  if (st.pos === null) { const y = ser(c0, g), i = y.indexOf(Math.max(...y.filter(Number.isFinite))); st.pos = Math.round(g.x[i]); }
+  const curves = sel.slice(0, 6).map((c, k) => ({ y: ser(c, g), color: ['#FDBA74', '#93C5FD', '#5EEAD4', '#F0ABFC', '#FDE68A', '#FCA5A5'][k] }));
+  const msg = el('p', { class: 'muted', role: 'status', style: 'font-size:13px;margin:6px 0 0', text: st.sunLayer === 'none' ? '' : 'Загрузка снимка Helioviewer…' });
+  const cv = V.sunOverlay(sc, { layer: st.sunLayer, events: st.sunEvents, rot: st.sunRot, flip: st.sunFlip, curves, x: g.x, pos: st.pos, beam: V.beamArcsec(sc.freq[c0]),
+    onPick: x => { st.pos = Math.round(x); draw(); } }, err => { msg.textContent = err ? 'Снимок не загрузился (нет связи с api.helioviewer.org) — показан контур диска.' : 'Снимок: Helioviewer.org, SDO/NASA; время — ' + sc.obs.date + ' ' + sc.obs.time.slice(0, 5) + ' UT.'; });
+  box.replaceChildren(ctl, cv, msg);
+  const ss = sel.slice(0, 6).map((c, k) => ({ name: sc.freq[c].toFixed(2) + ' ГГц', color: PALETTE[k % 10], x: g.x, y: ser(c, g) }));
+  extra.append(el('div', { class: 'plot' }, V.chart(ss, { xLabel: 'угл. с от центра диска (+ — запад)', yLabel: st.param + ', ' + unit(), guides: guides(), mark: st.pos, onClick: x => { st.pos = Math.round(x); draw(); }, onZoom: zoom, xr: st.zoom || undefined, height: 240, yr: yr(ss.map(s => s.y), g) }), legend(ss)),
+    el('p', { class: 'muted', style: 'font-size:13px', text: 'Положительное x скана — запад (как в sunview). Угол поворота снимка P + q: P — позиционный угол Солнца из заголовка FITS, q = arctan(sin δ · tan t) — наклон полосы диаграммы на азимуте наблюдения (на 0° равен нулю). Если активные области на снимке и пики скана не совпадают, подправьте угол или отразите скан.' }));
+}
+
+function qsReport() {
+  const q = fitQuietSun(st.level2), L = q.law, sel = new Set(selected());
+  const box = el('div', { class: 'stack', style: 'gap:8px;margin-top:8px' });
+  box.append(el('p', { style: 'margin:0;font-size:14px' }, el('b', { text: 'Подогнанная модель: ' }),
+    el('span', { class: 'mono', text: `R/R☉ = ${L.a.toFixed(3)} + ${L.k.toFixed(3)}/ν; θгор = ${L.beta.toFixed(1)} + ${L.gamma.toFixed(3)}·λ[мм]″; сдвиг центра Δx = ${L.dx.toFixed(0)}″` })));
+  box.append(el('p', { class: 'muted', style: 'margin:0;font-size:13px', text: 'Диск радиуса ρR☉ с уярчением к краю 4% через вертикальную (по высоте Солнца ' + Math.round(st.level2.header.ALTITUDE || 0) + '°) и горизонтальную диаграммы; подгонка по нижней огибающей, точки выше модели (активные области) отбрасываются. Законы по частоте — по 12 опорным каналам, начальное приближение — физический шаблон WorkScanJ для комплекса 3–18 ГГц.' }));
+  const head = ['ν, ГГц', 'центр A, K', 'TQSUN, K', 'A / TQSUN', 'ρ', 'θгор, ″', 'θверт, ′', 'Δx, ″', 'на огибающей'];
+  const rows = q.ch.map((r, i) => ({ i, cells: [r.f.toFixed(3), Math.round(r.A), Math.round(r.tq), (r.A / r.tq).toFixed(2), r.rho.toFixed(3), r.th.toFixed(0), (r.tv / 60).toFixed(1), r.dx.toFixed(0), Math.round(100 * r.kept) + '%'] }));
+  const shown = rows.filter(r => sel.has(r.i));
+  box.append(el('div', { class: 'table-box' }, el('table', { style: 'min-width:720px' },
+    el('thead', {}, el('tr', {}, ...head.map(h => el('th', { scope: 'col', class: 'num', text: h })))),
+    el('tbody', {}, ...(shown.length ? shown : rows).map(r => el('tr', {}, ...r.cells.map(v => el('td', { class: 'mono num', text: String(v) }))))))));
+  const all = el('button', { type: 'button', class: 'btn', text: 'Копировать все каналы (TSV)', onclick: async () => {
+    try { await navigator.clipboard.writeText([head, ...rows.map(r => r.cells)].map(r => r.join('\t')).join('\n')); all.textContent = 'Скопировано'; } catch (e) { all.textContent = 'Нет доступа к буферу'; } } });
+  box.append(el('div', {}, all));
+  return box;
 }
 
 function drawPoint(g, sel) {
@@ -432,7 +476,7 @@ function drawPoint(g, sel) {
 
 function drawGauss(g, c) {
   const sc = st.level2, box = $('plot'), extra = $('extra');
-  const method = st.qs === 'none' ? 'env' : st.qs;
+  const method = st.qs === 'none' ? 'model' : st.qs;
   const y = ser(c, g, 'I', method), yv = V.stokes(sc, c, 'V', g.idx);
   const theta = V.beamArcsec(sc.freq[c]);
   const src = V.gaussSources(g.x, y, yv, theta);
