@@ -411,12 +411,12 @@ export function transitAngle(s) {
 }
 
 export function helioviewerUrl(s, layer, events, size = 900, scale = 2.8) {
-  const p = new URLSearchParams({
-    date: s.obs.date + 'T' + s.obs.time.slice(0, 8) + 'Z', imageScale: String(scale), layers: SUN_LAYERS[layer][1],
-    x0: '0', y0: '0', width: String(size), height: String(size), display: 'true', watermark: 'false'
-  });
-  if (events) { p.set('events', '[AR,all,1]'); p.set('eventLabels', 'true'); }
-  return 'https://api.helioviewer.org/v2/takeScreenshot/?' + p.toString();
+  // written like the examples of the Helioviewer API docs: brackets and commas left as they are
+  let u = 'https://api.helioviewer.org/v2/takeScreenshot/?date=' + s.obs.date + 'T' + s.obs.time.slice(0, 8) + 'Z'
+    + '&imageScale=' + scale + '&layers=' + SUN_LAYERS[layer][1]
+    + '&x0=0&y0=0&width=' + size + '&height=' + size + '&display=true&watermark=false';
+  if (events) u += '&events=[AR,all,1]&eventLabels=true';
+  return u;
 }
 
 // opts: {layer, events, rot (extra degrees), flip, curves:[{y:[], color}], x, pos, beam, onPick}
@@ -462,10 +462,29 @@ export function sunOverlay(s, opts, done) {
   };
   draw(null);
   if (opts.layer && opts.layer !== 'none') {
-    const img = new Image();
-    img.onload = () => { draw(img); done && done(null); };
-    img.onerror = () => { draw(null); done && done(new Error('снимок Helioviewer не загрузился')); };
-    img.src = helioviewerUrl(s, opts.layer, opts.events, S, scale);
+    // several ways to get the picture: with region labels, without them, and the two-step API (id -> download)
+    const tries = [helioviewerUrl(s, opts.layer, opts.events, S, scale), helioviewerUrl(s, opts.layer, false, S, scale)];
+    const log = [];
+    const viaId = async () => {
+      const u = helioviewerUrl(s, opts.layer, false, S, scale).replace('display=true', 'display=false');
+      const r = await fetch(u, { signal: AbortSignal.timeout(60000) });
+      const j = await r.json();
+      if (!j || !j.id) throw new Error(j && (j.error || j.message) || 'нет id в ответе');
+      return 'https://api.helioviewer.org/v2/downloadScreenshot/?id=' + j.id;
+    };
+    const next = k => {
+      if (k < tries.length) {
+        const img = new Image(), t0 = Date.now();
+        img.onload = () => { draw(img); done && done(null, tries[k], log); };
+        img.onerror = () => { log.push(tries[k] + ' — ошибка (' + Math.round((Date.now() - t0) / 1000) + ' с)'); next(k + 1); };
+        img.src = tries[k];
+        done && done('loading', tries[k], log);
+      } else if (k === tries.length) {
+        viaId().then(u => { tries.push(u); next(k + 1); })
+          .catch(e => { log.push('двухшаговый запрос: ' + (e.message || e)); done && done(new Error('снимок Helioviewer не загрузился'), tries[0], log); });
+      } else done && done(new Error('снимок Helioviewer не загрузился'), tries[0], log);
+    };
+    next(0);
   } else done && done(null);
   if (opts.onPick) {
     cv.style.cursor = 'crosshair';

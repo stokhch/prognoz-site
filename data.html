@@ -464,9 +464,19 @@ function drawSun(g, sel) {
   const c0 = sel[0];
   if (st.pos === null) { const y = ser(c0, g), i = y.indexOf(Math.max(...y.filter(Number.isFinite))); st.pos = Math.round(g.x[i]); }
   const curves = sel.slice(0, 6).map((c, k) => ({ y: ser(c, g), color: ['#FDBA74', '#93C5FD', '#5EEAD4', '#F0ABFC', '#FDE68A', '#FCA5A5'][k] }));
+  let timer = null;
   const msg = el('p', { class: 'muted', role: 'status', style: 'font-size:13px;margin:6px 0 0', text: st.sunLayer === 'none' ? '' : 'Загрузка снимка Helioviewer…' });
   const cv = V.sunOverlay(sc, { layer: st.sunLayer, events: st.sunEvents, rot: st.sunRot, flip: st.sunFlip, curves, x: g.x, pos: st.pos, beam: V.beamArcsec(sc.freq[c0]),
-    onPick: x => { st.pos = Math.round(x); draw(); } }, err => { msg.textContent = err ? 'Снимок не загрузился (нет связи с api.helioviewer.org) — показан контур диска.' : 'Снимок: Helioviewer.org, SDO/NASA; время — ' + sc.obs.date + ' ' + sc.obs.time.slice(0, 5) + ' UT.'; });
+    onPick: x => { st.pos = Math.round(x); draw(); } }, (err, url, log) => {
+      clearInterval(timer);
+      if (err === 'loading') {
+        const t0 = Date.now();
+        timer = setInterval(() => { msg.textContent = 'Загрузка снимка Helioviewer… ' + Math.round((Date.now() - t0) / 1000) + ' с (сервер собирает снимок, бывает до минуты)'; }, 1000);
+        return;
+      }
+      if (err) msg.replaceChildren('Снимок не загрузился — показан контур диска. ', el('a', { href: url, text: 'Открыть запрос к Helioviewer' }), ' — по нему видно, что отвечает сервер.' + (log && log.length ? ' Попытки: ' + log.join('; ') : ''));
+      else if (url) msg.replaceChildren('Снимок: Helioviewer.org, SDO/NASA; ' + sc.obs.date + ' ' + sc.obs.time.slice(0, 5) + ' UT. ', el('a', { href: url, text: 'исходный снимок' }));
+    });
   box.replaceChildren(ctl, cv, msg);
   const ss = sel.slice(0, 6).map((c, k) => ({ name: sc.freq[c].toFixed(2) + ' ГГц', color: PALETTE[k % 10], x: g.x, y: ser(c, g) }));
   extra.append(el('div', { class: 'plot' }, V.chart(ss, { xLabel: 'угл. с от центра диска (+ — запад)', yLabel: st.param + ', ' + unit(), guides: guides(), mark: st.pos, onClick: x => { st.pos = Math.round(x); draw(); }, onZoom: zoom, xr: st.zoom || undefined, height: 240, yr: yr(ss.map(s => s.y), g) }), legend(ss)),
