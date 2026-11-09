@@ -354,3 +354,9 @@ section.main > #plot { margin-top: 0; padding-top: 0; }
 .vgain input[type=range] { writing-mode: vertical-lr; direction: rtl; flex: 1 1 auto; min-height: 160px; width: 22px; accent-color: #1E4FB8; cursor: ns-resize; }
 #gshift-box input[type=range] { accent-color: #0E7490; }
 .vgain .mini-btn { padding: 0 6px; font-size: 11px; }
+/* compact vertical sliders */
+.plot-row { gap: 2px; }
+.vgain { width: 26px; padding: 4px 0; gap: 2px; background: transparent; border: 0; border-radius: 0; }
+.vgain .cap { font-size: 9px; letter-spacing: 0; text-transform: none; }
+.vgain .mono { font-size: 9.5px; cursor: pointer; white-space: nowrap; }
+.vgain input[type=range] { width: 16px; min-height: 120px; margin: 0; }

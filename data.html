@@ -139,15 +139,13 @@
       </div>
       <div class="plot-row">
         <div class="vgain" id="gshift-box" hidden title="Move the heliographic grid up and down; double-click resets">
-          <span class="cap">Grid</span><span class="mono" id="gshift-v">0</span>
+          <span class="cap">grid</span><span class="mono" id="gshift-v" title="Click to reset">0</span>
           <input type="range" id="gshift" min="-100" max="100" step="1" value="0" aria-label="Heliographic grid vertical position">
-          <button type="button" class="mini-btn" id="gshift-0" title="Centre">0</button>
         </div>
         <div class="plot" id="plot" aria-live="polite" style="overflow-x: auto"><div class="empty">Pick a scan in the archive.</div></div>
         <div class="vgain" id="vgain-box" hidden title="Polarization (V) scale: up — larger, down — smaller; double-click resets">
-          <span class="cap">V</span><span class="mono" id="vgain-v">×1</span>
+          <span class="cap">V</span><span class="mono" id="vgain-v" title="Click to reset">×1</span>
           <input type="range" id="vgain" min="0" max="100" step="1" value="50" aria-label="Polarization scale">
-          <button type="button" class="mini-btn" id="vgain-0" title="Reset">1:1</button>
         </div></div>
       <div class="ctl below" id="below">
         <div class="grp" role="tablist" aria-label="Analysis" id="an-grp"><span class="cap">Analysis</span><details class="pop" id="an-pop"><summary class="an-sum"><span id="an-cur">choose…</span> <span aria-hidden="true">▾</span></summary><div class="pop-body an-list"><button type="button" role="tab" data-v="point" aria-selected="false">Point spectrum</button><button type="button" role="tab" data-v="near" aria-selected="false">Adjacent diff.</button><button type="button" role="tab" data-v="gauss" aria-selected="false">Gauss fit</button><button type="button" role="tab" data-v="fft" aria-selected="false">Fourier</button><button type="button" role="tab" data-v="wavelet" aria-selected="false">Wavelet</button><button type="button" role="tab" data-v="azim" aria-selected="false">Day azimuths</button></div></details></div>
@@ -823,13 +821,13 @@ $('png').addEventListener('click', async () => {
   let raf = 0;
   sl.addEventListener('input', () => { st.vSlider = +sl.value; show(); cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); });
   const reset = () => { sl.value = 50; st.vSlider = 50; show(); draw(); };
-  sl.addEventListener('dblclick', reset); $('vgain-0').addEventListener('click', reset); show();
+  sl.addEventListener('dblclick', reset); $('vgain-v').addEventListener('click', reset); show();
 }
 { const sl = $('gshift');
   let raf = 0; const show = () => { $('gshift-v').textContent = (st.gridShift > 0 ? '+' : '') + st.gridShift; };
   sl.addEventListener('input', () => { st.gridShift = +sl.value; show(); cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); });
   const reset = () => { sl.value = 0; st.gridShift = 0; show(); draw(); };
-  sl.addEventListener('dblclick', reset); $('gshift-0').addEventListener('click', reset);
+  sl.addEventListener('dblclick', reset); $('gshift-v').addEventListener('click', reset);
 }
 $('noisy').addEventListener('click', e => { if (st.level2) stepNoisy(e.shiftKey ? -1 : 1); });
 $('noisy-prev').addEventListener('click', () => { if (st.level2) stepNoisy(-1); });
