@@ -97,21 +97,24 @@
             </div>
           </div>
         </details>
+        <label class="switch" title="Вертикальные линии краёв диска (±R☉) и центра Солнца"><input type="checkbox" id="guides" checked><span></span> края и центр</label>
+        <label class="switch" title="Номера активных областей NOAA в их положении на скане"><input type="checkbox" id="ar-on" checked><span></span> АО NOAA</label>
+        <span class="muted" id="ar-msg" style="font-size: 11px"></span>
         <details class="pop" id="pal-pop">
           <summary><span class="cap" style="letter-spacing: 0">Палитра</span> <span class="swatch" id="pal-sw" aria-hidden="true"></span> <span aria-hidden="true">▾</span></summary>
           <div class="pop-body" id="pal-list" style="min-width: 250px; gap: 4px"></div>
         </details>
         <details class="pop" id="sun-pop">
-          <summary><span class="dot" id="sun-dot" aria-hidden="true"></span> Снимок Солнца <span aria-hidden="true">▾</span></summary>
+          <summary><span class="dot" id="sun-dot" aria-hidden="true"></span> Диск Солнца <span aria-hidden="true">▾</span></summary>
           <div class="pop-body" style="min-width: 270px">
-            <label class="switch"><input type="checkbox" id="sun-on"><span></span> показать фоном (Helioviewer)</label>
+            <label class="switch"><input type="checkbox" id="sun-on"><span></span> показать диск со сканами</label>
             <div id="sun-opts" style="display: flex; flex-direction: column; gap: 8px">
               <select id="sun-layer" class="mini-select" aria-label="Снимок"></select>
-              <label class="switch"><input type="checkbox" id="sun-ev" checked><span></span> номера АО (HEK)</label>
+              <label class="switch"><input type="checkbox" id="sun-grid" checked><span></span> гелиографическая сетка</label>
               <label class="switch"><input type="checkbox" id="sun-flip"><span></span> отразить скан</label>
               <label style="display: flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--muted)">поправка угла <input type="number" id="sun-rot" step="0.5" value="0" class="mini-select" style="width: 64px"> °</label>
             </div>
-            <p class="muted" style="margin: 0; font-size: 11.5px">Шаблон спокойного Солнца и снимок — в режимах «Скан», «Наложение», «Разнесение», «Сетка».</p>
+            <p class="muted" style="margin: 0; font-size: 11.5px">Снимок SDO можно не загружать — тогда на диске только край, сетка и номера АО. Показывается в режимах «Скан», «Наложение», «Разнесение», «Сетка».</p>
           </div>
         </details>
       </form>
@@ -147,12 +150,13 @@ import { fmtDate, el } from './assets/app.js';
 import { legend, PALETTE } from './assets/plot.js';
 import * as V from './assets/views.js';
 import { fitQuietSun } from './assets/quietsun.js';
+import { regionsFor, projectHelio, scanX } from './assets/regions.js';
 import { openArchive, listLevel, parseName } from './assets/archive.js';
 import { readLevel2, clean, subset, badChannels } from './assets/fits.js';
 import { render } from './assets/scanplot.js';
 
 const TABS = {
-  plot: ['Картинка прогноза', 'Все каналы от 3 ГГц, I (сплошные) и V (штрихпунктир), цвет — по частоте; как sunsao1.jpg прогноза. Параметры слева на неё не влияют.'],
+  plot: ['Картинка прогноза', 'Все каналы от 3 ГГц, I (сплошные) и V (штрихпунктир), цвет — по частоте; как sunsao1.jpg прогноза. Параметры слева на неё не влияют, кроме линий краёв и центра (выключите их — получится в точности картинка прогноза).'],
   single: ['Скан', 'Один канал крупно; стрелки — соседние каналы. С шаблоном спокойного Солнца ниже показан остаток «скан − шаблон».'],
   group: ['Наложение каналов', 'Выбранные каналы на одном графике, цвет — от синего (низкие частоты) к оранжевому (высокие). Щелчок — спектр в точке.'],
   vertical: ['Разнесение по вертикали', 'Каждый канал в своей шкале (1–98-й процентили), подписаны частоты.'],
@@ -170,7 +174,7 @@ const TABS = {
   azim: ['Азимуты дня', 'Все наблюдения этого дня на первом выбранном канале, сверху вниз по времени.']
 };
 const $ = id => document.getElementById(id);
-const st = { raw: null, excluded: [], auto: [], qsMode: 'off', qsMethod: 'model', sunOn: false, single: null, sunLayer: 'aia193', sunEvents: true, sunRot: 0, sunFlip: false, arc: null, path: null, level2: null, param: 'I', range: 'sun2', scale: 'auto', tab: 'plot', freqOn: null, pos: null, zoom: null, buttons: new Map(), dayCache: new Map() };
+const st = { guides: true, arOn: true, sunGrid: true, regs: null, regsMsg: '', raw: null, excluded: [], auto: [], qsMode: 'off', qsMethod: 'model', sunOn: false, single: null, sunLayer: 'aia193', sunEvents: true, sunRot: 0, sunFlip: false, arc: null, path: null, level2: null, param: 'I', range: 'sun2', scale: 'auto', tab: 'plot', freqOn: null, pos: null, zoom: null, buttons: new Map(), dayCache: new Map() };
 
 // ---------- archive tree ----------
 // archive path from the address (#YYYY/MM/<file>_out.fits); anything else (old #obs-… links) is ignored
@@ -351,7 +355,21 @@ const pp = () => comps()[0];
 const isPair = () => comps().length === 2;
 const ser = (c, g, p = pp(), q = qsSub()) => V.series(st.level2, c, p, g, q);
 const unit = () => pp() === 'p' ? '%' : 'K';
-function guides() { const R = st.level2.solarR; return [{ x: -R, label: '−R☉' }, { x: 0, label: 'центр' }, { x: R, label: '+R☉' }]; }
+// NOAA regions -> marks on the scan axis (only the visible hemisphere)
+function marks() {
+  if (!st.arOn || !st.regs || !st.level2) return [];
+  const sc = st.level2, P = sc.header.SOLAR_P || 0, q = V.transitAngle(sc), turn = P + q + st.sunRot, B0 = sc.header.SOLAR_B || 0;
+  return st.regs.regions.map(r => { const p = projectHelio(r.lat, r.lon, B0, sc.solarR); return p.z > 0.05 ? { x: scanX(p, turn, q, st.sunFlip), label: r.noaa } : null; }).filter(Boolean);
+}
+function loadRegions() {
+  const sc = st.level2; if (!sc || !st.arOn) { $('ar-msg').textContent = ''; return; }
+  const key = sc.obs.date + ' ' + sc.obs.time;
+  if (st.regsKey === key) return;
+  st.regsKey = key; st.regs = null; $('ar-msg').textContent = 'АО: загрузка…';
+  regionsFor(sc.obs.date, sc.obs.time).then(r => { if (st.regsKey !== key) return; st.regs = r; $('ar-msg').textContent = 'АО: ' + r.regions.length + ' · ' + r.source; draw(); })
+    .catch(e => { if (st.regsKey !== key) return; $('ar-msg').textContent = 'АО: ' + e.message; });
+}
+function guides() { if (!st.guides) return []; const R = st.level2.solarR; return [{ x: -R, label: '−R☉' }, { x: 0, label: 'центр' }, { x: R, label: '+R☉' }]; }
 function yr(rows, g) {
   if (st.scale === 'full') return V.percentileRange(rows, 0, 100);
   const R = st.level2.solarR, disk = rows.map(r => r.filter((_, i) => Math.abs(g.x[i]) <= 1.1 * R));
@@ -370,9 +388,10 @@ function draw() {
   $('unzoom').hidden = !st.zoom;
   extra.replaceChildren();
   const g = G(), sel = selected(), xl = 'угл. с от центра диска', yl = (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit();
-  const common = { xLabel: xl, guides: guides(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined };
+  loadRegions();
+  const common = { xLabel: xl, guides: guides(), marks: marks(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined };
   if (st.tab === 'plot') {
-    const cv = render(sc, { big: true });
+    const cv = render(sc, { big: true, guides: st.guides });
     cv.className = 'scan-canvas'; cv.setAttribute('role', 'img');
     cv.setAttribute('aria-label', 'Скан Солнца ' + fmtDate(sc.obs.date) + ', ' + sc.obs.time + ' UT: параметры Стокса I и V по всем каналам от 3 ГГц');
     box.replaceChildren(cv); return;
@@ -426,7 +445,7 @@ function draw() {
       wrap.append(el('div', { style: 'cursor:pointer', title: 'Открыть канал в режиме «Скан»' },
         el('div', { style: 'display:flex;justify-content:space-between;align-items:center' }, el('span', { class: 'mono', style: 'font-size:12px;color:var(--muted)', text: sc.freq[c].toFixed(3) + ' ГГц' }),
           el('button', { type: 'button', class: 'x-btn', title: 'Удалить канал ' + sc.freq[c].toFixed(3) + ' ГГц из рассмотрения', 'aria-label': 'Удалить канал ' + sc.freq[c].toFixed(3) + ' ГГц', text: '×', onclick: e => { e.stopPropagation(); excludeFreqs([sc.freq[c]]); } })),
-        V.chart(sr, { width: 420, height: 220, guides: guides(), y2: y2 ? y2opt([y2], g) : undefined, yr: st.scale === 'full' ? same : yr0(st.param === 'RL' ? [rows[k], y2] : [rows[k]], g), yLabel: '', xLabel: '', xr: st.zoom || undefined, onClick: () => { st.single = c; selectTab('single'); } })));
+        V.chart(sr, { width: 420, height: 220, guides: guides(), marks: marks(), y2: y2 ? y2opt([y2], g) : undefined, yr: st.scale === 'full' ? same : yr0(st.param === 'RL' ? [rows[k], y2] : [rows[k]], g), yLabel: '', xLabel: '', xr: st.zoom || undefined, onClick: () => { st.single = c; selectTab('single'); } })));
     });
     put(wrap);
     if (sel.length > 36) extra.append(el('p', { class: 'muted', text: 'Показаны первые 36 из ' + sel.length + ' выбранных каналов.' }));
@@ -440,8 +459,8 @@ function draw() {
     const [lo, hi] = yr(rows, gg), clipped = rows.map(r => r.map(v => Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : v));
     if (st.tab === 'waterfall') {
       const step = Math.max(1, Math.round(sc.nChan / 40)), idx = all.filter(c => c % step === 0);
-      box.replaceChildren(V.waterfall(gg.x, idx.map(c => sc.freq[c]), idx.map(c => clipped[c]), yl));
-    } else box.replaceChildren(V.map2d(gg.x, sc.freq, clipped, st.tab, yl, pick));
+      box.replaceChildren(V.waterfall(gg.x, idx.map(c => sc.freq[c]), idx.map(c => clipped[c]), yl, guides()));
+    } else box.replaceChildren(V.map2d(gg.x, sc.freq, clipped, st.tab, yl, pick, 'частота, ГГц', guides()));
     return;
   }
   if (st.tab === 'point') { drawPoint(g, sel); return; }
@@ -464,7 +483,7 @@ function draw() {
   }
   if (st.tab === 'wavelet') {
     const c = sel[0], y = ser(c, g, pp() === 'p' ? 'I' : pp(), st.qsMethod), w = V.wavelet(y, g.step);
-    box.replaceChildren(V.map2d(g.x, w.periods.map(Math.log10), w.rows, 'map', 'амплитуда', pick, 'lg периода, угл. с'));
+    box.replaceChildren(V.map2d(g.x, w.periods.map(Math.log10), w.rows, 'map', 'амплитуда', pick, 'lg периода, угл. с', guides()));
     extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Канал ' + sc.freq[c].toFixed(3) + ' ГГц. По вертикали — десятичный логарифм периода (от ' + Math.round(w.periods[0]) + ' до ' + Math.round(w.periods[w.periods.length - 1]) + '″).' }));
     return;
   }
@@ -503,7 +522,7 @@ function drawSingle(g, sel, sunEl) {
   if (y2) sr.push({ name: comps()[1] + (st.param === 'IV' ? ' (шкала справа)' : ''), x: g.x, y: y2, color: '#1E4FB8', dash: '4 3', width: 1.5, axis: st.param === 'IV' ? 2 : 1 });
   let t = null;
   if (withQs) { t = qsCurve(c, g); sr.push({ name: 'спокойное Солнце', x: g.x, y: t, color: '#0F1B2D', dash: '6 4', width: 1.5 }); }
-  const parts = [tb, V.chart(sr, { xLabel: 'угл. с от центра диска', yLabel: (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit(), guides: guides(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, width: CW(), height: 560, yr: yr0(sr.filter(s => s.axis !== 2).map(s => s.y), g), y2: y2 ? y2opt([y2], g) : undefined }), legend(sr)];
+  const parts = [tb, V.chart(sr, { xLabel: 'угл. с от центра диска', yLabel: (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit(), guides: guides(), marks: marks(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, width: CW(), height: 560, yr: yr0(sr.filter(s => s.axis !== 2).map(s => s.y), g), y2: y2 ? y2opt([y2], g) : undefined }), legend(sr)];
   box.replaceChildren(...(sunEl ? [el('div', { class: 'with-sun' }, sunEl, el('div', { style: 'min-width:0' }, ...parts))] : parts));
   if (withQs) {
     const res = y.map((v, i) => v - t[i]);
@@ -519,9 +538,8 @@ function drawSingle(g, sel, sunEl) {
 // local copy of the SDO picture next to the site data (written by tools/make_site_data.py --sun), then Helioviewer
 function sunUrls(sc) {
   const stem = st.path.split('/').pop().replace(/\.fits$/i, '');
-  const urls = [new URL('data/sun/' + stem + '-' + st.sunLayer + '.png', location.href).href, V.helioviewerUrl(sc, st.sunLayer, st.sunEvents, 900, 2.8)];
-  if (st.sunEvents) urls.push(V.helioviewerUrl(sc, st.sunLayer, false, 900, 2.8));
-  return urls;
+  if (st.sunLayer === 'none') return [];
+  return [new URL('data/sun/' + stem + '-' + st.sunLayer + '.png', location.href).href, V.helioviewerUrl(sc, st.sunLayer, false, 900, 2.8)];
 }
 function sunPanel(g, sel) {
   const sc = st.level2, c0 = st.tab === 'single' && st.single !== null ? st.single : sel[0];
@@ -540,13 +558,14 @@ function sunPanel(g, sel) {
   }
   let timer = null;
   const msg = el('p', { class: 'muted', role: 'status', style: 'font-size:12px;margin:6px 0 0;text-align:center' });
-  const cv = V.sunOverlay(sc, { urls: sunUrls(sc), layer: st.sunLayer, rot: st.sunRot, flip: st.sunFlip, curves, x: g.x, pos: st.pos, beam: V.beamArcsec(sc.freq[c0]),
+  const cv = V.sunOverlay(sc, { urls: sunUrls(sc), layer: st.sunLayer, rot: st.sunRot, flip: st.sunFlip, grid: st.sunGrid, regions: st.arOn && st.regs ? st.regs.regions : [], curves, x: g.x, pos: st.pos, beam: V.beamArcsec(sc.freq[c0]),
     onPick: x => { st.pos = Math.round(x); draw(); } }, (state, url, log) => {
       clearInterval(timer);
       if (state === 'loading') {
         const t0 = Date.now(); msg.textContent = 'Снимок Солнца: загрузка…';
         timer = setInterval(() => { if (!msg.isConnected) return clearInterval(timer); msg.textContent = 'Снимок Солнца: загрузка с Helioviewer… ' + Math.round((Date.now() - t0) / 1000) + ' с'; }, 1000);
-      } else if (state === 'error') msg.replaceChildren('Снимок не загрузился — сканы нарисованы на контуре диска. ', el('a', { href: url.includes('helioviewer') ? url : sunUrls(sc)[1], text: 'Открыть запрос к Helioviewer' }), ' и прислать, что он показывает. ' + (log && log.length ? 'Попытки: ' + log.join('; ') : ''));
+      } else if (state === 'error') msg.replaceChildren('Снимок не загрузился — сканы нарисованы на диске с сеткой. ', el('a', { href: url.includes('helioviewer') ? url : sunUrls(sc)[1], text: 'Открыть запрос к Helioviewer' }), ' и прислать, что он показывает. ' + (log && log.length ? 'Попытки: ' + log.join('; ') : ''));
+      else if (state === 'none') msg.textContent = 'Без снимка: край диска, гелиографическая сетка и активные области; сканы — поверх диска.';
       else if (state === 'ok') msg.replaceChildren(`${V.SUN_LAYERS[st.sunLayer][0]} (${url.includes('helioviewer') ? 'Helioviewer.org' : 'копия на сайте'}, SDO/NASA), ${sc.obs.date} ${sc.obs.time.slice(0, 5)} UT; сканы — поверх диска, положительное x — запад; оранжевая полоса — диаграмма в точке ${st.pos}″. `, el('a', { href: url, text: 'исходный снимок' }));
     });
   return el('div', { style: 'margin-bottom:10px' }, cv, msg);
@@ -648,7 +667,9 @@ function selectTab(v) {
 
 // ---------- events ----------
 for (const [k, v] of Object.entries(V.QUIET)) if (k !== 'none') $('qs').append(el('option', { value: k, text: v }));
+$('sun-layer').append(el('option', { value: 'none', text: 'без снимка — край, сетка, АО' }));
 for (const [k, v] of Object.entries(V.SUN_LAYERS)) $('sun-layer').append(el('option', { value: k, text: v[0] }));
+$('sun-layer').value = st.sunLayer;
 // palette chooser: gradient swatches; the choice is remembered in the browser
 function palList() {
   $('pal-sw').style.background = V.gradientCss(V.paletteName());
@@ -669,10 +690,12 @@ function chips(id, key) {
 }
 chips('param', 'param'); chips('range', 'range'); chips('qsmode', 'qsMode'); chips('scale', 'scale');
 $('tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) selectTab(b.dataset.v); });
+$('guides').addEventListener('change', e => { st.guides = e.target.checked; draw(); });
 $('qs').addEventListener('change', e => { st.qsMethod = e.target.value; draw(); });
 $('sun-on').addEventListener('change', e => { st.sunOn = e.target.checked; $('sun-dot').classList.toggle('on', st.sunOn); draw(); });
 $('sun-layer').addEventListener('change', e => { st.sunLayer = e.target.value; draw(); });
-$('sun-ev').addEventListener('change', e => { st.sunEvents = e.target.checked; draw(); });
+$('sun-grid').addEventListener('change', e => { st.sunGrid = e.target.checked; draw(); });
+$('ar-on').addEventListener('change', e => { st.arOn = e.target.checked; draw(); });
 $('sun-rot').addEventListener('change', e => { st.sunRot = +e.target.value || 0; draw(); });
 $('sun-flip').addEventListener('change', e => { st.sunFlip = e.target.checked; draw(); });
 $('freqs').addEventListener('change', e => { st.freqOn = [...e.target.options].map(o => o.selected); freqLabel(); draw(); });

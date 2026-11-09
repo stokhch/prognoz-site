@@ -11,7 +11,9 @@ The JSON keeps the +-2 solar radii window of the picture, thinned to about STEP_
 With --sun the SDO pictures for the observation time are downloaded from Helioviewer (takeScreenshot) into
 data/sun/<file>-<layer>.png, so the analysis page shows them without asking Helioviewer from the browser.
 
-Usage: python3 tools/make_site_data.py --src /path/to/ratan-forecast/src [--sun] file1_out.fits [file2_out.fits ...]
+With --regions the NOAA active regions of the day are saved to data/regions/<date>.json.
+
+Usage: python3 tools/make_site_data.py --src /path/to/ratan-forecast/src [--sun] [--regions] file1_out.fits [...]
 """
 from __future__ import annotations
 
@@ -32,6 +34,28 @@ SUN_LAYERS = {             # same keys as assets/views.js SUN_LAYERS
     "aia1600": "[SDO,AIA,AIA,1600,1,100]", "aia94": "[SDO,AIA,AIA,94,1,100]",
     "hmimag": "[SDO,HMI,HMI,magnetogram,1,100]", "hmicont": "[SDO,HMI,HMI,continuum,1,100]",
 }
+
+
+def fetch_regions(date: str) -> None:
+    """NOAA active regions of the day from SWPC solar_regions.json -> data/regions/<date>.json
+    (list of {noaa, location, area, mag}); the analysis page reads it before asking SWPC itself."""
+    import urllib.request
+    out = SITE / "data" / "regions"
+    out.mkdir(parents=True, exist_ok=True)
+    try:
+        req = urllib.request.Request("https://services.swpc.noaa.gov/json/solar_regions.json", headers={"User-Agent": "prognoz-site"})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            allr = json.loads(r.read())
+    except Exception as e:  # noqa: BLE001
+        print(f"  regions: {e}")
+        return
+    day = [x for x in allr if str(x.get("observed_date", ""))[:10] == date]
+    if not day:
+        print(f"  regions: no SWPC summary for {date} (the list keeps only recent days; use the SRS archive)")
+        return
+    lst = [{"noaa": x.get("region"), "location": x.get("location"), "area": x.get("area"), "mag": x.get("mag_class")} for x in day]
+    (out / f"{date}.json").write_text(json.dumps(lst, ensure_ascii=False, indent=1))
+    print(f"  regions: {len(lst)} -> data/regions/{date}.json")
 
 
 def fetch_sun(path: Path, when, layers=("aia193", "hmimag", "hmicont", "aia304")) -> None:
@@ -113,6 +137,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--src", required=True, help="ratan-forecast/src")
     ap.add_argument("--sun", action="store_true", help="also download SDO pictures from Helioviewer")
+    ap.add_argument("--regions", action="store_true", help="also save the NOAA regions of the day (SWPC) to data/regions/")
     ap.add_argument("files", nargs="+", type=Path)
     a = ap.parse_args()
     sys.path.insert(0, a.src)
@@ -127,6 +152,8 @@ def main() -> int:
         if a.sun:
             from ratan_forecast.level2 import read_level2
             fetch_sun(f, read_level2(f).obs_time)
+        if a.regions:
+            fetch_regions(o["date"])
     items = sorted(obs.values(), key=lambda o: (o["date"], o["time_ut"]))
     per_day = {}
     for o in items:

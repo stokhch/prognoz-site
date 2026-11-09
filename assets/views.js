@@ -31,6 +31,7 @@ export function cmap(t, name = currentPal) {
 export function gradientCss(name) { return 'linear-gradient(90deg,' + Array.from({ length: 12 }, (_, k) => cmap(k / 11, name)).join(',') + ')'; }
 
 import { template as qsTemplate } from './quietsun.js';
+import { projectHelio } from './regions.js';
 
 // ---------- data access ----------
 export const RANGES = { disk: 1, sun2: 2, full: 0 };   // x window in solar radii (0 = whole record)
@@ -172,8 +173,8 @@ function finiteRange(rows) {
 
 // ---------- 2D views ----------
 // rows: channels (low freq at bottom), columns: x. kind: 'map' | 'contour'
-export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'частота, ГГц') {
-  const W = 900, H = 460, pad = { l: 64, r: 70, t: 14, b: 40 };
+export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'частота, ГГц', guides = []) {
+  const W = 900, H = 460, pad = { l: 64, r: 70, t: 20, b: 40 };
   const A = axesCanvas(W, H, pad), g = A.g;
   const [lo, hi] = finiteRange(rows);
   const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b, nr = rows.length, nc = x.length;
@@ -215,6 +216,15 @@ export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'частот
     });
   }
   drawAxes(A, x[0], x[nc - 1], freqs[0], freqs[nr - 1], 'угл. с от центра диска', yAxis);
+  for (const gd of guides) {
+    if (gd.x < x[0] || gd.x > x[nc - 1]) continue;
+    const px = pad.l + (gd.x - x[0]) / (x[nc - 1] - x[0]) * pw;
+    g.save(); g.setLineDash(gd.x === 0 ? [7, 4] : [4, 4]); g.lineWidth = 1.3;
+    g.strokeStyle = 'rgba(255,255,255,0.85)'; g.beginPath(); g.moveTo(px, pad.t); g.lineTo(px, pad.t + ph); g.stroke();
+    g.strokeStyle = 'rgba(15,27,45,0.55)'; g.lineDashOffset = 4; g.beginPath(); g.moveTo(px + 1, pad.t); g.lineTo(px + 1, pad.t + ph); g.stroke();
+    g.restore();
+    g.fillStyle = '#8A5A00'; g.font = '600 12px Inter, sans-serif'; g.textAlign = 'center'; g.fillText(gd.label, px, pad.t - 2 > 10 ? pad.t - 2 : 11);
+  }
   // colour bar
   for (let k = 0; k < ph; k++) { g.fillStyle = cmap(1 - k / ph); g.fillRect(W - pad.r + 14, pad.t + k, 14, 1); }
   g.strokeStyle = '#9AA6B5'; g.strokeRect(W - pad.r + 14, pad.t, 14, ph);
@@ -232,7 +242,7 @@ export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'частот
 function fmt(v) { return Math.abs(v) >= 1000 ? Math.round(v).toString() : v.toPrecision(3); }
 
 // pseudo-3D "waterfall": curves from back (high freq) to front, each hiding what is behind it
-export function waterfall(x, freqs, rows, label) {
+export function waterfall(x, freqs, rows, label, guides = []) {
   const W = 900, H = 520, pad = { l: 40, r: 30, t: 20, b: 40 };
   const A = axesCanvas(W, H, pad), g = A.g;
   const n = rows.length, [lo, hi] = finiteRange(rows);
@@ -245,6 +255,13 @@ export function waterfall(x, freqs, rows, label) {
     g.lineTo(X(x.length - 1), oy); g.closePath();
     g.fillStyle = 'rgba(255,255,255,0.92)'; g.fill();
     g.strokeStyle = cmap(0.1 + 0.75 * k / Math.max(1, n - 1)); g.lineWidth = 1.2; g.stroke();
+  }
+  for (const gd of guides) {
+    if (gd.x < x[0] || gd.x > x[x.length - 1]) continue;
+    const t = (gd.x - x[0]) / (x[x.length - 1] - x[0]), x0 = pad.l + t * pw, y0 = H - pad.b;
+    g.save(); g.setLineDash(gd.x === 0 ? [7, 4] : [4, 4]); g.strokeStyle = 'rgba(138,90,0,0.8)'; g.lineWidth = 1.2;
+    g.beginPath(); g.moveTo(x0, y0); g.lineTo(x0 + (n - 1) * dx, y0 - (n - 1) * dy); g.stroke(); g.restore();
+    g.fillStyle = '#8A5A00'; g.font = '600 12px Inter, sans-serif'; g.textAlign = 'center'; g.fillText(gd.label, x0, y0 + 16); g.textAlign = 'start';
   }
   g.fillStyle = '#4A5668'; g.font = '12px "JetBrains Mono", monospace';
   g.fillText(freqs[0].toFixed(2) + ' ГГц', pad.l + pw + 6, H - pad.b);
@@ -373,8 +390,8 @@ export function chart(series, opts = {}) {
   svg.append(se('rect', { x: P.l, y: P.t, width: W - P.l - P.r, height: H - P.t - P.b, fill: 'none', stroke: '#C5CFDB' }));
   if (y0 < 0 && y1 > 0) svg.append(se('line', { x1: P.l, x2: W - P.r, y1: Y(0), y2: Y(0), stroke: '#9AA6B5' }));
   for (const gd of opts.guides || []) if (gd.x >= x0 && gd.x <= x1) {
-    svg.append(se('line', { x1: X(gd.x), x2: X(gd.x), y1: P.t, y2: H - P.b, stroke: '#8A5A00', 'stroke-dasharray': '4 4', 'stroke-opacity': 0.6 }));
-    if (gd.label) t(X(gd.x) + 4, P.t + 12, gd.label, { fill: '#8A5A00', 'font-size': 11 });
+    svg.append(se('line', { x1: X(gd.x), x2: X(gd.x), y1: P.t, y2: H - P.b, stroke: gd.x === 0 ? '#B45309' : '#8A5A00', 'stroke-width': gd.x === 0 ? 1.4 : 1.2, 'stroke-dasharray': gd.x === 0 ? '7 4' : '4 4', 'stroke-opacity': 0.85 }));
+    if (gd.label) t(X(gd.x) + 4, P.t + 13, gd.label, { fill: '#8A5A00', 'font-size': 12, 'font-weight': 600, 'font-family': 'Inter, sans-serif' });
   }
   if (opts.y2) {
     for (const v of niceTicks(v0, v1, 6)) t(W - P.r + 6, Y2(v) + 4, fmt(v), { 'text-anchor': 'start', fill: opts.y2.color || '#4A5668' });
@@ -388,6 +405,10 @@ export function chart(series, opts = {}) {
     g.append(se('path', { d: dstr, fill: 'none', stroke: s.color, 'stroke-width': s.width || 1.5, 'stroke-linejoin': 'round', ...(s.dash ? { 'stroke-dasharray': s.dash } : {}) }));
   }
   for (const l of opts.labels || []) t(P.l + 4, Y(l.y) - 3, l.text, { fill: l.color || '#4A5668', 'font-size': 11 });
+  for (const m of opts.marks || []) if (m.x >= x0 && m.x <= x1) {
+    svg.append(se('line', { x1: X(m.x), x2: X(m.x), y1: P.t + 16, y2: H - P.b, stroke: '#A21CAF', 'stroke-width': 1, 'stroke-dasharray': '1 3', 'stroke-opacity': 0.8 }));
+    t(X(m.x), P.t + 28, String(m.label), { 'text-anchor': 'middle', fill: '#86198F', 'font-size': 11, 'font-weight': 700, 'font-family': 'Inter, sans-serif' });
+  }
   if (opts.mark !== undefined && opts.mark !== null && opts.mark >= x0 && opts.mark <= x1) svg.append(se('line', { x1: X(opts.mark), x2: X(opts.mark), y1: P.t, y2: H - P.b, stroke: '#C2410C', 'stroke-width': 1.5 }));
   t((P.l + W - P.r) / 2, H - 6, opts.xLabel || '', { 'text-anchor': 'middle', 'font-family': 'Inter, sans-serif' });
   const yl = se('text', { x: 14, y: (P.t + H - P.b) / 2, 'font-size': 12, fill: '#4A5668', 'text-anchor': 'middle', transform: `rotate(-90 14 ${(P.t + H - P.b) / 2})` }); yl.textContent = opts.yLabel || ''; svg.append(yl);
@@ -545,7 +566,7 @@ export function sunOverlay(s, opts, done) {
     g.fillStyle = '#05080F'; g.fillRect(0, 0, S, S);
     if (img) { g.save(); g.translate(cx, cy); g.rotate(-turn * Math.PI / 180); g.drawImage(img, -S / 2, -S / 2, S, S); g.restore(); }
     // heliographic grid (every 15 deg, B0 from the header) and the limb, in the solar frame turned like the image
-    if (opts.grid !== false) {
+    if (opts.grid) {
       const B0 = (s.header.SOLAR_B || 0) * Math.PI / 180, r = R * k;
       g.save(); g.translate(cx, cy); g.rotate(-turn * Math.PI / 180);
       const proj = (lat, lon) => {
@@ -571,6 +592,22 @@ export function sunOverlay(s, opts, done) {
     }
     g.strokeStyle = '#F5C451'; g.lineWidth = 1.6; g.setLineDash([]);
     g.beginPath(); g.arc(cx, cy, R * k, 0, 2 * Math.PI); g.stroke();
+    // NOAA active regions: marker and number at the heliographic position
+    if (opts.regions && opts.regions.length) {
+      const B0 = s.header.SOLAR_B || 0;
+      g.save(); g.translate(cx, cy); g.rotate(-turn * Math.PI / 180);
+      for (const r of opts.regions) {
+        const p = projectHelio(r.lat, r.lon, B0, R * k);
+        if (p.z < 0) continue;
+        g.fillStyle = '#F0ABFC'; g.strokeStyle = '#2E1065'; g.lineWidth = 1.5;
+        g.beginPath(); g.arc(p.x, -p.y, 5, 0, 2 * Math.PI); g.fill(); g.stroke();
+        g.save(); g.translate(p.x, -p.y); g.rotate(turn * Math.PI / 180);
+        g.font = 'bold 20px Inter, sans-serif'; g.lineWidth = 4; g.strokeStyle = 'rgba(0,0,0,0.75)'; g.fillStyle = '#F5D0FE';
+        g.strokeText(String(r.noaa), 8, -8); g.fillText(String(r.noaa), 8, -8);
+        g.restore();
+      }
+      g.restore();
+    }
     // beam strip at the picked point
     if (opts.pos !== null && opts.pos !== undefined) {
       const w = Math.max(1.5, (opts.beam || 30) * k) / 2, L = 1.25 * R;
@@ -603,6 +640,7 @@ export function sunOverlay(s, opts, done) {
     if (img) g.fillText(SUN_LAYERS[opts.layer][0], 16, 60);
   };
   draw(null);
+  if (!opts.urls || !opts.urls.length) done && done('none');
   if (opts.urls && opts.urls.length) {
     done && done('loading', opts.urls[0], []);
     sunImage(opts.urls).then(r => { draw(r.img); done && done('ok', r.url, r.log); })
