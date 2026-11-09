@@ -464,16 +464,16 @@ function drawDb() {
   if (!st.db) { box.replaceChildren(head(st.dbErr ? st.dbErr + ' — run tools/export_sources.sh on the prognoz VM, then tools/sources_to_json.py.' : 'loading…')); return; }
   const stem = (st.path || '').split('/').pop().replace(/_out\.fits$/i, '');
   const n = (v, k = 1) => v === null || v === undefined ? '' : (+v).toFixed(k);
-  const cols = ['UT', 'scan', 'x, ″', 'y, ″', 'NOAA', 'location', 'area', 'F 3 cm, s.f.u.', 'V 3 cm', 'F 10 cm', 'F 2 cm', 'k(y)', 'F·k', 'F·k/F10', 'forecast'];
+  const cols = ['UT', 'scan', 'x, ″', 'y, ″', 'NOAA', 'location', 'area', 'F 3 cm, s.f.u.', 'V 3 cm', 'F 10 cm', 'F 2 cm', 'k(y)', 'F/k', '(F/k)/F10', 'forecast'];
   const rows = st.db.rows.map(r => {
-    const fk = r.flux_i !== null && r.posykoeff !== null ? r.flux_i * r.posykoeff : null, ratio = fk !== null && r.flux_i10 > 0 ? fk / r.flux_i10 : null;
+    const fk = r.flux_i !== null && r.posykoeff ? r.flux_i / r.posykoeff : null, ratio = fk !== null && r.flux_i10 > 0 ? fk / r.flux_i10 : null;
     const scan = (r.fname || '').replace(/^.*?(\d{8}_\d{6}_sun[^_]*)_out.*$/, '$1');
     const tr = el('tr', { class: (stem && scan === stem ? 'cur ' : '') + (r.prognoz === '1' ? 'pos' : '') },
       ...[r.dateobs.slice(11, 19), scan.replace(/^\d{8}_/, ''), n(r.pos, 0), n(r.posy, 0), r.noaa || '', r.location || '', r.area ?? '', n(r.flux_i, 2), n(r.flux_v, 2), n(r.flux_i10, 2), n(r.flux_i2, 2), n(r.posykoeff, 2), n(fk, 2), n(ratio, 2), r.prognoz === '1' ? '▲' : ''].map(v => el('td', { text: String(v) })));
     return tr;
   });
   const table = el('table', { class: 'db-table' }, el('thead', {}, el('tr', {}, ...cols.map(c => el('th', { text: c })))), el('tbody', {}, ...rows));
-  box.replaceChildren(head(st.db.rows.length + ' rows · ' + (st.db.source || '') + ' · ▲ = F·k > 10 s.f.u. and F·k > F10 (forecast criterion); highlighted — the open scan'), el('div', { class: 'table-box' }, table));
+  box.replaceChildren(head(st.db.rows.length + ' rows · ' + (st.db.source || '') + ' · ▲ = Tanaka–Enome: F3/k > 10 s.f.u. and (F3/k)/F10 ≥ 1 (k — correction for the source ordinate y); highlighted — the open scan'), el('div', { class: 'table-box' }, table));
 }
 const TH_LABEL = () => V.TH.dark ? '#E2E8F0' : '#0F1B2D';
 // heliographic grid behind the scan charts when the Sun disk picture is off
