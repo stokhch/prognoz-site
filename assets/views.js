@@ -432,9 +432,17 @@ export function chart(series, opts = {}) {
     g.append(se('path', { d: dstr, fill: 'none', stroke: vis(s.color), 'stroke-width': (s.width || 1.5) * lineScale, 'stroke-linejoin': 'round', ...(s.dash ? { 'stroke-dasharray': s.dash } : {}) }));
   }
   for (const l of opts.labels || []) t(P.l + 4, Y(l.y) - 3, l.text, { fill: l.color || '#4A5668', 'font-size': 11 });
+  // NOAA regions: the number stands right above the source maximum nearest to the computed position
+  // (within m.snap arcsec); a small triangle on the x axis keeps the computed position itself
+  const arCol = TH.dark ? '#F0ABFC' : '#86198F';
   for (const m of opts.marks || []) if (m.x >= x0 && m.x <= x1) {
-    svg.append(se('line', { x1: X(m.x), x2: X(m.x), y1: P.t + 16, y2: H - P.b, stroke: '#A21CAF', 'stroke-width': 1, 'stroke-dasharray': '1 3', 'stroke-opacity': 0.8 }));
-    t(X(m.x), P.t + 28, String(m.label), { 'text-anchor': 'middle', fill: '#86198F', 'font-size': 11, 'font-weight': 700, 'font-family': 'Inter, sans-serif' });
+    const win = m.snap || 90;
+    let bx = m.x, by = -Infinity;
+    for (const sr of series) if (sr.axis !== 2) sr.x.forEach((xv, i) => { const v = sr.y[i]; if (Number.isFinite(v) && Math.abs(xv - m.x) <= win && v > by && v <= y1) { by = v; bx = xv; } });
+    const px = X(bx), top = Number.isFinite(by) ? Math.max(P.t + 14, Y(by) - 8) : P.t + 28;
+    svg.append(se('path', { d: `M${X(m.x) - 5},${H - P.b} L${X(m.x) + 5},${H - P.b} L${X(m.x)},${H - P.b - 8} Z`, fill: arCol, 'fill-opacity': 0.85 }));
+    if (Number.isFinite(by)) svg.append(se('line', { x1: px, x2: px, y1: top + 2, y2: Y(by) - 1, stroke: arCol, 'stroke-width': 1 }));
+    t(px, top - 2, String(m.label), { 'text-anchor': 'middle', fill: arCol, 'font-size': 12, 'font-weight': 700, 'font-family': 'Inter, sans-serif', stroke: TH.bg, 'stroke-width': 3, 'paint-order': 'stroke' });
   }
   if (opts.mark !== undefined && opts.mark !== null && opts.mark >= x0 && opts.mark <= x1) svg.append(se('line', { x1: X(opts.mark), x2: X(opts.mark), y1: P.t, y2: H - P.b, stroke: '#C2410C', 'stroke-width': 1.5 }));
   t((P.l + W - P.r) / 2, H - 6, opts.xLabel || '', { 'text-anchor': 'middle', 'font-family': 'Inter, sans-serif' });
