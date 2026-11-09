@@ -118,6 +118,7 @@
             </div>
           </div>
         </details>
+        <button type="button" class="mini-btn noisy-btn" id="noisy" title="Next noisy: the noisiest working channel first, then down the ranking. Noise = σ of second differences (I and V) / I span; dead and broken channels are skipped. Shift+click — backwards. Key N / Shift+N.">Noisy ▶</button>
       </form>
       <div class="head-row" style="align-items: center">
         <div style="min-width: 0; flex: 1">
@@ -575,8 +576,7 @@ function drawSingle(g, sel, sunEl) {
   const next = el('button', { type: 'button', class: 'btn', 'aria-label': 'Next channel', text: '▶', onclick: () => { st.single = Math.min(sc.nChan - 1, c + 1); draw(); } });
   for (const b of [prev, next]) b.style.cssText = 'min-height:32px;padding:0 10px';
   const del = el('button', { type: 'button', class: 'mini-btn', title: 'Remove this channel (restore in Channels)', text: '✕ remove', onclick: () => excludeFreqs([sc.freq[c]]) });
-  const noisy = el('button', { type: 'button', class: 'mini-btn noisy-btn', title: 'Next noisy: the noisiest working channel first, then down the ranking. Noise = σ of second differences (I and V) / I span; dead and broken channels are skipped. Shift+click — backwards. Key N / Shift+N.', text: 'Noisy ▶', onclick: e => stepNoisy(e.shiftKey ? -1 : 1) });
-  const tb = el('div', { class: 'toolbar' }, prev, chSel, next, noisy, del);
+  const tb = el('div', { class: 'toolbar' }, prev, chSel, next, del);
   const sr = [{ name: sc.freq[c].toFixed(3) + ' GHz, ' + pp() + (st.qsMode === 'sub' ? ' − quiet Sun' : ''), x: g.x, y, color: '#C2410C', width: 1.8 }];
   const y2 = second(c, g);
   if (y2) sr.push({ name: comps()[1] + (st.param === 'IV' ? ' (right axis)' : ''), x: g.x, y: y2, color: '#1E4FB8', dash: '4 3', width: 1.5, axis: st.param === 'IV' ? 2 : 1 });
@@ -791,6 +791,7 @@ $('png').addEventListener('click', async () => {
   apply(d);
   $('bgc').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const on = b.dataset.v === 'dark'; try { localStorage.setItem('chartBg', on ? 'dark' : 'light'); } catch (er) {} apply(on); draw(); });
 }
+$('noisy').addEventListener('click', e => { if (st.level2) stepNoisy(e.shiftKey ? -1 : 1); });
 document.addEventListener('keydown', e => {
   if ((e.key === 'n' || e.key === 'N') && !e.ctrlKey && !e.metaKey && !e.altKey && st.level2 && !/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName)) { e.preventDefault(); stepNoisy(e.shiftKey ? -1 : 1); }
 });
