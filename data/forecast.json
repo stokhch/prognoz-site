@@ -22,7 +22,7 @@
    "flux3": 18.7,
    "flux10": 24.9,
    "beam": 0.97,
-   "flux3_corr": 18.14,
+   "flux3_corr": 19.28,
    "label": "negative"
   },
   {
@@ -32,7 +32,7 @@
    "flux3": 58.2,
    "flux10": 41.5,
    "beam": 0.99,
-   "flux3_corr": 57.62,
+   "flux3_corr": 58.79,
    "label": "positive?"
   },
   {

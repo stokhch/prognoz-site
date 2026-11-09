@@ -373,3 +373,8 @@ section.main > #plot { margin-top: 0; padding-top: 0; }
 .db-table tr.pos td:last-child { color: #B91C1C; font-weight: 700; }
 #srcdb .table-box { max-height: 420px; overflow: auto; }
 .goes-box.darkbg .db-table tr.cur td { background: #3B1D0A; }
+.pub-group { border-top: 1px solid var(--line); padding: 8px 0; }
+.pub-group > summary { cursor: pointer; font-weight: 600; }
+.pub-list { font-size: 14px; margin: 8px 0 4px; }
+.pub-list li { margin: 4px 0; }
+.help-box { padding: 12px 18px; } .help-box > summary { cursor: pointer; } .help-box li { margin: 5px 0; font-size: 14px; }

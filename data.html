@@ -37,6 +37,7 @@
       <a href="observations.html">Наблюдения</a>
       <a href="instrument.html">Инструмент</a>
       <a href="tools.html">Вычисления</a>
+      <a href="activity.html">Активность</a>
       <a href="about.html">О проекте</a>
     </nav>
   </div>
@@ -166,6 +167,21 @@
       <div id="goes" class="goes-box" hidden></div>
       <div id="srcdb" class="goes-box" hidden></div>
       <div id="extra"></div>
+      <details class="card prose help-box" id="help">
+        <summary><b>Help</b> — how to use this page</summary>
+        <ul>
+          <li><b>Archive</b> (left): years → months → level2 scans <code>YYYYMMDD_hhmmss_sunAZ_out.fits</code>, local time in the name (LT = UT+3). The link button copies a link to the open scan.</li>
+          <li><b>Scans</b> modes: <b>Forecast</b> — the picture of the forecast page; <b>Scan</b> — one channel (arrows step channels, ✕ removes it); <b>Overlay</b> — channels on one scale, blue = low, orange = high frequency; <b>Stacked</b> — each channel on its own scale; <b>Grid</b> — a small plot per channel; <b>Map</b>, <b>Contours</b> — frequency × position; <b>3D</b> — channels in depth, high frequencies in front.</li>
+          <li><b>Stokes</b>: I, V, R = I+V, L = I−V, p = V/I, and the pairs I+V (V on the right axis) and R+L. <b>X range</b>: disk, ±2 R☉, whole record; drag on a chart to zoom, ⟲ resets. <b>Y</b>: full range or robust (0.5–99.5% on the disk).</li>
+          <li><b>Channels</b>: pick channels, remove bad ones (kept per file in the browser; “auto” = dropped on reading, I &gt; 10× median). <b>Noisy ◀ ▶</b> (key N) walks working channels from the noisiest down; dead and broken ones are skipped.</li>
+          <li><b>Quiet Sun</b> (under the chart): show the template dashed or subtract it. Methods: disk model fitted to the lower envelope (default), touching from below, TQSUN level, running envelope, median filter. In Scan mode the residual “scan − template” is drawn below.</li>
+          <li><b>Analysis</b> (under the chart): point spectrum (I, V at the chosen position, peak shift within ¼ beam), adjacent-channel difference, Gauss fit of local sources (position, amplitude, size, polarization; B₀ = √(B² − θ²)), Fourier and wavelet spectra, all azimuths of the day.</li>
+          <li><b>View</b>: Sun disk — scans drawn over an SDO image (Helioviewer) or a plain disk, turned by P + q (q — transit angle) so the scan runs horizontally; angle correction and flip if needed. <b>Marks</b>: limb and centre lines, NOAA AR numbers above the source maxima, heliographic grid, GOES, database sources, sliders, dark background. Palette and line width — in the palette menu.</li>
+          <li><b>Sliders</b> beside the chart: left — move the heliographic grid up/down; right — polarization (V) scale. Click the value or double-click the slider to reset.</li>
+          <li><b>Under the chart</b>: GOES X-ray flux of the day with the scan time; RATAN sources from the database (F3/k, F10, forecast criterion). <b>PNG ↓</b> saves the chart, <b>FITS ↓</b> the file.</li>
+        </ul>
+        <p class="muted">Level1 (raw) data are easy to misread without experience; level2 files are calibrated in brightness temperature (K), I and V, with bad channels removed.</p>
+      </details>
     </section>
   </div>
 </main>
@@ -468,12 +484,12 @@ function drawDb() {
   const rows = st.db.rows.map(r => {
     const fk = r.flux_i !== null && r.posykoeff ? r.flux_i / r.posykoeff : null, ratio = fk !== null && r.flux_i10 > 0 ? fk / r.flux_i10 : null;
     const scan = (r.fname || '').replace(/^.*?(\d{8}_\d{6}_sun[^_]*)_out.*$/, '$1');
-    const tr = el('tr', { class: (stem && scan === stem ? 'cur ' : '') + (r.prognoz === '1' ? 'pos' : '') },
-      ...[r.dateobs.slice(11, 19), scan.replace(/^\d{8}_/, ''), n(r.pos, 0), n(r.posy, 0), r.noaa || '', r.location || '', r.area ?? '', n(r.flux_i, 2), n(r.flux_v, 2), n(r.flux_i10, 2), n(r.flux_i2, 2), n(r.posykoeff, 2), n(fk, 2), n(ratio, 2), r.prognoz === '1' ? '▲' : ''].map(v => el('td', { text: String(v) })));
+    const tr = el('tr', { class: (stem && scan === stem ? 'cur ' : '') + (fk !== null && fk >= 10 && r.flux_i10 > 0 && fk >= r.flux_i10 ? 'pos' : '') },
+      ...[r.dateobs.slice(11, 19), scan.replace(/^\d{8}_/, ''), n(r.pos, 0), n(r.posy, 0), r.noaa || '', r.location || '', r.area ?? '', n(r.flux_i, 2), n(r.flux_v, 2), n(r.flux_i10, 2), n(r.flux_i2, 2), n(r.posykoeff, 2), n(fk, 2), n(ratio, 2), fk !== null && fk >= 10 && r.flux_i10 > 0 && fk >= r.flux_i10 ? '▲' : ''].map(v => el('td', { text: String(v) })));
     return tr;
   });
   const table = el('table', { class: 'db-table' }, el('thead', {}, el('tr', {}, ...cols.map(c => el('th', { text: c })))), el('tbody', {}, ...rows));
-  box.replaceChildren(head(st.db.rows.length + ' rows · ' + (st.db.source || '') + ' · ▲ = Tanaka–Enome: F3/k > 10 s.f.u. and (F3/k)/F10 ≥ 1 (k — correction for the source ordinate y); highlighted — the open scan'), el('div', { class: 'table-box' }, table));
+  box.replaceChildren(head(st.db.rows.length + ' rows · ' + (st.db.source || '') + ' · ▲ = Tanaka–Enome as in the old forecast (db_prognoz): F3/k ≥ 10 s.f.u. and F3/k ≥ F10 > 0, k — beam correction for the source ordinate y; highlighted — the open scan'), el('div', { class: 'table-box' }, table));
 }
 const TH_LABEL = () => V.TH.dark ? '#E2E8F0' : '#0F1B2D';
 // heliographic grid behind the scan charts when the Sun disk picture is off

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Солнечная активность · РАТАН-600</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#content">К содержанию</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="7" fill="#F97316"/><circle cx="16" cy="16" r="12" fill="none" stroke="#F97316" stroke-opacity=".45" stroke-width="1.5"/><circle cx="16" cy="16" r="15" fill="none" stroke="#F97316" stroke-opacity=".2"/></svg>
+      <span><b>Прогноз · РАТАН-600</b><small>Радиоастрономический центр прогноза солнечной активности</small></span>
+    </a>
+    <nav class="nav" aria-label="Основное меню">
+      <a href="forecast.html">Прогноз</a>
+      <a href="data.html">Анализ данных</a>
+      <a href="search.html">Поиск</a>
+      <a href="observations.html">Наблюдения</a>
+      <a href="instrument.html">Инструмент</a>
+      <a href="tools.html">Вычисления</a>
+      <a href="activity.html" aria-current="page">Активность</a>
+      <a href="about.html">О проекте</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap stack" id="content" style="gap: 28px">
+  <div class="stack" style="gap: 10px">
+    <p class="eyebrow">Справка</p>
+    <h1 class="page-title">Солнечная активность: классификации и источники данных</h1>
+    <p class="lead">Классификации вспышек, радиовсплесков и групп пятен, которые встречаются в сводках NOAA и в таблицах прогноза, и каталог оперативных источников данных о космической погоде.</p>
+  </div>
+  <div class="doc">
+    <nav class="doc-toc card" aria-label="На странице" style="padding: 14px">
+      <p class="t">На странице</p>
+      <ol>
+        <li><a href="#flares">Вспышки</a></li>
+        <li><a href="#bursts">Радиовсплески</a></li>
+        <li><a href="#spots">Группы пятен</a></li>
+        <li><a href="#ssn">Число пятен</a></li>
+        <li><a href="#links">Источники данных</a></li>
+      </ol>
+    </nav>
+    <div class="doc-body">
+
+      <section class="card prose" id="flares" aria-labelledby="fl-h">
+        <h2 id="fl-h">Классификация вспышек</h2>
+        <h3>Рентгеновская (GOES)</h3>
+        <p>Класс определяется по максимальному потоку мягкого рентгеновского излучения в диапазоне 0,1–0,8 нм (1–8 Å); число после буквы — множитель внутри класса (M2.5 = 2,5·10⁻⁵ Вт/м²). Этот класс показан на панели GOES страницы <a href="data.html">«Анализ данных»</a>.</p>
+        <div class="table-box"><table>
+          <thead><tr><th>Класс</th><th>Пиковый поток, Вт/м²</th><th>Характеристика</th></tr></thead>
+          <tbody>
+            <tr><td><b>A</b></td><td>&lt; 10⁻⁷</td><td>очень слабое излучение</td></tr>
+            <tr><td><b>B</b></td><td>10⁻⁷ … 10⁻⁶</td><td>слабая вспышка</td></tr>
+            <tr><td><b>C</b></td><td>10⁻⁶ … 10⁻⁵</td><td>умеренная</td></tr>
+            <tr><td><b>M</b></td><td>10⁻⁵ … 10⁻⁴</td><td>сильная</td></tr>
+            <tr><td><b>X</b></td><td>≥ 10⁻⁴</td><td>очень сильная</td></tr>
+          </tbody></table></div>
+        <h3>Оптическая (Hα)</h3>
+        <p>Полное обозначение — класс площади и яркость, например «2B»; сильными условно считают вспышки 2B–4B. Яркость: F — слабая, N — обычная, B — яркая.</p>
+        <div class="table-box"><table>
+          <thead><tr><th>Класс площади</th><th>Площадь, кв. градусы</th><th>Млн долей полусферы</th></tr></thead>
+          <tbody>
+            <tr><td><b>S</b> (малая)</td><td>&lt; 2,0</td><td>&lt; 200</td></tr>
+            <tr><td><b>1</b></td><td>2,1–5,1</td><td>200–500</td></tr>
+            <tr><td><b>2</b></td><td>5,2–12,4</td><td>500–1200</td></tr>
+            <tr><td><b>3</b></td><td>12,5–24,7</td><td>1200–2400</td></tr>
+            <tr><td><b>4</b></td><td>&gt; 24,7</td><td>&gt; 2400</td></tr>
+          </tbody></table></div>
+      </section>
+
+      <section class="card prose" id="bursts" aria-labelledby="rb-h">
+        <h2 id="rb-h">Типы радиовсплесков</h2>
+        <p>Радиоизлучение Солнца от сантиметровых до декаметровых волн в возмущённых условиях делят на четыре основных типа.</p>
+        <div class="table-box"><table>
+          <thead><tr><th>Тип</th><th>Что это</th></tr></thead>
+          <tbody>
+            <tr><td><b>I</b></td><td>Радиобуря: множество коротких узкополосных всплесков в метровом диапазоне (300–50 МГц).</td></tr>
+            <tr><td><b>II</b></td><td>Узкополосное излучение, которое за десятки минут медленно дрейфует от метровых (300 МГц) к декаметровым (10 МГц) волнам; связано с крупными вспышками и указывает на ударную волну.</td></tr>
+            <tr><td><b>III</b></td><td>Быстро, за секунды, дрейфующие всплески от дециметровых до декаметровых волн (500–0,5 МГц); пучки ускоренных электронов, часто группами над сложными областями.</td></tr>
+            <tr><td><b>IV</b></td><td>Плавное широкополосное континуальное излучение, в основном 300–30 МГц; начинается через 10–20 минут после максимума крупной вспышки и длится часами, связано с выбросами корональной плазмы.</td></tr>
+          </tbody></table></div>
+      </section>
+
+      <section class="card prose" id="spots" aria-labelledby="sp-h">
+        <h2 id="sp-h">Классификация групп пятен</h2>
+        <p>В сводках SRS NOAA группа описывается трёхбуквенным классом Макинтоша (например, Dkc) и магнитным классом Маунт-Вилсон (например, βγδ). По этим сводкам на сайте отождествляются источники на сканах РАТАН-600.</p>
+        <h3>Макинтош: модифицированный цюрихский класс (первая буква)</h3>
+        <div class="table-box"><table><tbody>
+          <tr><td><b>A</b></td><td>небольшая одиночная униполярная группа на стадии формирования или распада</td></tr>
+          <tr><td><b>B</b></td><td>биполярная группа без полутени</td></tr>
+          <tr><td><b>C</b></td><td>биполярная, полутень у пятен одной полярности (обычно на одном конце)</td></tr>
+          <tr><td><b>D</b></td><td>биполярная, полутень на обоих концах, протяжённость не более 10°</td></tr>
+          <tr><td><b>E</b></td><td>как D, протяжённость 10–15°</td></tr>
+          <tr><td><b>F</b></td><td>как D, протяжённость более 15°</td></tr>
+          <tr><td><b>H</b></td><td>униполярная группа с полутенью — обычно ведущее пятно, оставшееся от старой биполярной группы</td></tr>
+        </tbody></table></div>
+        <p>Классов G и J цюрихской классификации здесь нет: G вошли в E и F, J — в H.</p>
+        <h3>Полутень крупнейшего пятна (вторая буква)</h3>
+        <div class="table-box"><table><tbody>
+          <tr><td><b>x</b></td><td>полутени нет (кайма уже 3″)</td></tr>
+          <tr><td><b>r</b></td><td>зачаточная: неполная, неправильная, около 3″, ярче обычной, зернистая</td></tr>
+          <tr><td><b>s</b></td><td>симметричная, почти круглая, волокнистая; диаметр не более 2,5°</td></tr>
+          <tr><td><b>a</b></td><td>асимметричная или сложная, волокнистая; вдоль меридиана не более 2,5°</td></tr>
+          <tr><td><b>h</b></td><td>большая симметричная, более 2,5°</td></tr>
+          <tr><td><b>k</b></td><td>большая асимметричная, более 2,5°; при протяжённости более 5° в ней почти наверняка обе полярности (Dkc, Ekc, Fkc)</td></tr>
+        </tbody></table></div>
+        <h3>Распределение пятен (третья буква)</h3>
+        <div class="table-box"><table><tbody>
+          <tr><td><b>x</b></td><td>одиночное пятно</td></tr>
+          <tr><td><b>o</b></td><td>открытое: между ведущей и хвостовой частями пятен нет</td></tr>
+          <tr><td><b>i</b></td><td>промежуточное: внутренние пятна есть, но без полутени</td></tr>
+          <tr><td><b>c</b></td><td>компактное: между частями много сильных пятен, хотя бы одно с полутенью</td></tr>
+        </tbody></table></div>
+        <p>Буква «x» во второй позиции означает «полутени нет», в третьей — «одиночное пятно».</p>
+        <h3>Магнитный класс Маунт-Вилсон</h3>
+        <div class="table-box"><table><tbody>
+          <tr><td><b>α</b> (A)</td><td>униполярная группа</td></tr>
+          <tr><td><b>β</b> (B)</td><td>биполярная, полярности чётко и просто разделены</td></tr>
+          <tr><td><b>βγ</b> (BG)</td><td>биполярная, но непрерывную линию раздела полярностей провести нельзя</td></tr>
+          <tr><td><b>γ</b> (G)</td><td>полярности распределены так нерегулярно, что группу нельзя считать биполярной</td></tr>
+          <tr><td><b>δ</b> (D)</td><td>тени противоположной полярности внутри общей полутени — признак высокой вспышечной продуктивности</td></tr>
+        </tbody></table></div>
+        <p class="muted">Источник: Solar-Geophysical Data, Explanation of Data Reports, № 515 (1987); P. S. McIntosh, 1981.</p>
+      </section>
+
+      <section class="card prose" id="ssn" aria-labelledby="ss-h">
+        <h2 id="ss-h">Число солнечных пятен и поток на 10,7 см</h2>
+        <p>Международное число пятен R = N<sub>s</sub> + 10·N<sub>g</sub>, где N<sub>s</sub> — число отдельных пятен, N<sub>g</sub> — число групп. Это индекс, а не мера размеров пятен: каждая группа получает дополнительный вес. Счёт зависит от инструмента и методики (какие мелкие пятна и поры учитывать), поэтому кривые строят по однородным рядам; официальный ряд публикует WDC-SILSO (Королевская обсерватория Бельгии).</p>
+        <p>11-летний цикл хорошо отражает и поток радиоизлучения на 10,7 см (F10.7, обсерватория Пентиктон, Канада) — он также хранится в базе старого сайта и используется для оценки уровня активности.</p>
+      </section>
+
+      <section class="card prose" id="links" aria-labelledby="ln-h">
+        <h2 id="ln-h">Источники данных о космической погоде</h2>
+        <p>Каталог проверен в сентябре 2026 г. Для официальных предупреждений и прогнозов ориентируйтесь в первую очередь на NOAA SWPC, NASA CCMC и российские центры (ИКИ РАН/ИСЗФ — xras.ru, ИЗМИРАН); визуальные сервисы (SolarMonitor, Helioviewer и т. п.) удобны для просмотра, но официальные продукты не заменяют.</p>
+<h3>Оперативные прогнозы и мониторинг</h3>
+<div class="table-box"><table><tbody>
+<tr><td><a href="https://www.swpc.noaa.gov/" target="_blank" rel="noopener">NOAA SWPC</a></td><td>официальный центр прогнозов космической погоды США</td></tr>
+<tr><td><a href="https://xras.ru/" target="_blank" rel="noopener">XRAS.RU</a></td><td>Лаборатория солнечной астрономии ИКИ РАН и ИСЗФ СО РАН, официальный прогноз магнитных бурь и вспышек, наиболее цитируемый российскими СМИ источник</td></tr>
+<tr><td><a href="http://spaceweather.izmiran.ru/" target="_blank" rel="noopener">ИЗМИРАН</a></td><td>Центр прогнозов космической погоды</td></tr>
+<tr><td><a href="https://www.izmiran.ru/services/saf/" target="_blank" rel="noopener">ИЗМИРАН</a></td><td>прогноз солнечной активности</td></tr>
+<tr><td><a href="https://xras.ru/en/about_tesis.html" target="_blank" rel="noopener">ТЕСИС</a></td><td>проект Лаборатории солнечной астрономии и гелиофизического приборостроения ИКИ РАН и ИСЗФ СО РАН (ранее на tesis.lebedev.ru)</td></tr>
+<tr><td><a href="https://solmon.dias.ie/" target="_blank" rel="noopener">SolarMonitor</a></td><td>оперативный мониторинг активных областей и вспышек</td></tr>
+<tr><td><a href="https://helioviewer.org/" target="_blank" rel="noopener">Helioviewer.org (NASA)</a></td><td>популярный интерактивный просмотр солнечных изображений</td></tr>
+<tr><td><a href="https://www.spaceweatherlive.com/" target="_blank" rel="noopener">SpaceWeatherLive.com</a></td><td>популярный трекер вспышек, бурь и полярных сияний в реальном времени</td></tr>
+<tr><td><a href="https://spaceweather.com/" target="_blank" rel="noopener">Spaceweather.com</a></td><td>новости и мониторинг солнечной активности для широкой аудитории</td></tr>
+<tr><td><a href="https://www.solarham.com/" target="_blank" rel="noopener">SolarHam.com</a></td><td>популярный ресурс среди радиолюбителей и наблюдателей за Солнцем</td></tr>
+<tr><td><a href="https://meteoagent.com/ru/solar-activity" target="_blank" rel="noopener">MeteoAgent</a></td><td>популярный агрегатор прогнозов магнитных бурь и солнечной активности для широкой аудитории</td></tr>
+<tr><td><a href="https://heliophysics.ai/" target="_blank" rel="noopener">Heliophysics.ai</a></td><td>независимый агрегатор данных NOAA/NASA/Helioviewer</td></tr>
+<tr><td><a href="http://www.spacew.com/www/absorb.html" target="_blank" rel="noopener">Spacew.com</a></td><td>независимый агрегатор солнечных и геомагнитных данных</td></tr>
+</tbody></table></div>
+<h3>Данные и архивы</h3>
+<div class="table-box"><table><tbody>
+<tr><td><a href="https://www.swpc.noaa.gov/products" target="_blank" rel="noopener">NOAA SWPC</a></td><td>каталог продуктов</td></tr>
+<tr><td><a href="https://services.swpc.noaa.gov/products/" target="_blank" rel="noopener">NOAA SWPC</a></td><td>каталог оперативных продуктов (services)</td></tr>
+<tr><td><a href="https://www.spaceweather.gov/content/data-access" target="_blank" rel="noopener">NOAA SWPC</a></td><td>доступ к данным (data access)</td></tr>
+<tr><td><a href="https://services.swpc.noaa.gov/json/" target="_blank" rel="noopener">NOAA SWPC</a></td><td>машиночитаемые данные в формате JSON (GOES, ACE/DSCOVR и др.)</td></tr>
+<tr><td><a href="https://www.ncei.noaa.gov/" target="_blank" rel="noopener">NOAA NCEI</a></td><td>официальный архив геофизических данных, в т.ч. исторических данных SWPC</td></tr>
+<tr><td><a href="https://ccmc.gsfc.nasa.gov/DONKI/" target="_blank" rel="noopener">NASA CCMC DONKI</a></td><td>база событий космической погоды (вспышки, CME, SEP, бури)</td></tr>
+<tr><td><a href="https://ccmc.gsfc.nasa.gov/tools/DONKI/" target="_blank" rel="noopener">NASA CCMC DONKI</a></td><td>документация и описание</td></tr>
+<tr><td><a href="https://science.nasa.gov/learn/entry-points-to-nasa-data/" target="_blank" rel="noopener">NASA</a></td><td>точки доступа к научным данным (в т.ч. Helioviewer, DONKI)</td></tr>
+<tr><td><a href="https://heliophysics.ai/data-methodology/" target="_blank" rel="noopener">Heliophysics.ai</a></td><td>источники и методика расчётов</td></tr>
+<tr><td><a href="https://www.sidc.be/SILSO/" target="_blank" rel="noopener">WDC-SILSO</a></td><td>международное число солнечных пятен (Королевская обсерватория Бельгии)</td></tr>
+<tr><td><a href="https://www.sidc.be/SILSO/datafiles" target="_blank" rel="noopener">SILSO</a></td><td>файлы данных для скачивания</td></tr>
+<tr><td><a href="https://www.sidc.be/" target="_blank" rel="noopener">SIDC</a></td><td>официальный сайт Королевской обсерватории Бельгии</td></tr>
+<tr><td><a href="https://www.spaceweather.gc.ca/index-eng.php" target="_blank" rel="noopener">Natural Resources Canada</a></td><td>поток радиоизлучения F10.7 и космическая погода</td></tr>
+<tr><td><a href="https://www.ncei.noaa.gov/products/space-weather/legacy-data/solar-radio-datasets" target="_blank" rel="noopener">NOAA NCEI</a></td><td>архив исторических данных солнечных радионаблюдений (в т.ч. сеть RSTN)</td></tr>
+</tbody></table></div>
+<h3>Ионосфера, геомагнитное поле, радиосвязь</h3>
+<div class="table-box"><table><tbody>
+<tr><td><a href="https://www.swpc.noaa.gov/products/ionospheric-d-region-absorption-predictions-d-rap" target="_blank" rel="noopener">NOAA SWPC</a></td><td>ионосферное поглощение, прогноз D-RAP</td></tr>
+<tr><td><a href="https://www.swpc.noaa.gov/communities/radio-communications" target="_blank" rel="noopener">NOAA SWPC</a></td><td>космическая погода и радиосвязь (распространение ВЧ)</td></tr>
+<tr><td><a href="https://wdc.kugi.kyoto-u.ac.jp/dstdir/" target="_blank" rel="noopener">WDC Kyoto</a></td><td>индекс Dst</td></tr>
+<tr><td><a href="https://geomag.bgs.ac.uk/" target="_blank" rel="noopener">British Geological Survey</a></td><td>сервис геомагнитных данных</td></tr>
+<tr><td><a href="https://space.umd.edu/RealTime/RealTime.html" target="_blank" rel="noopener">University of Maryland</a></td><td>оперативный портал ионосферных/космических данных (Real-Time)</td></tr>
+<tr><td><a href="https://serdin.nict.go.jp/sedoss/geoact" target="_blank" rel="noopener">Япония</a></td><td>NICT, геомагнитная активность</td></tr>
+<tr><td><a href="https://geomag-interface.nict.go.jp/magplot/en/" target="_blank" rel="noopener">Япония</a></td><td>NICT, база магнитных измерений</td></tr>
+</tbody></table></div>
+<h3>Солнечные радионаблюдения</h3>
+<div class="table-box"><table><tbody>
+<tr><td><a href="https://solar.nro.nao.ac.jp/norp/" target="_blank" rel="noopener">Nobeyama Radio Polarimeters (NoRP), Nobeyama Radio Observatory, NAOJ</a></td><td>поток солнечного радиоизлучения на нескольких частотах</td></tr>
+<tr><td><a href="https://hinode.isee.nagoya-u.ac.jp/ICCON/" target="_blank" rel="noopener">ICCON</a></td><td>консорциум, эксплуатирующий Nobeyama Radioheliograph (Institute for Space-Earth Environmental Research, Nagoya University)</td></tr>
+<tr><td><a href="https://rsdb.obs-nancay.fr/" target="_blank" rel="noopener">Nançay Radio Solar Data Base</a></td><td>данные радиогелиографа NRH, спектрографов ORFEES и NDA (Обсерватория Нансе, Франция)</td></tr>
+<tr><td><a href="https://www.e-callisto.org/" target="_blank" rel="noopener">e-CALLISTO</a></td><td>всемирная сеть солнечных радиоспектрометров (ETH Zürich)</td></tr>
+<tr><td><a href="https://www.ovsa.njit.edu/" target="_blank" rel="noopener">EOVSA (Expanded Owens Valley Solar Array), NJIT</a></td><td>микроволновые наблюдения Солнца</td></tr>
+<tr><td><a href="https://badary.iszf.irk.ru/" target="_blank" rel="noopener">Сибирский радиогелиограф, Институт солнечно-земной физики СО РАН</a></td><td></td></tr>
+</tbody></table></div>
+<h3>Обсерватории и институты</h3>
+<div class="table-box"><table><tbody>
+<tr><td><a href="https://www.sao.ru/" target="_blank" rel="noopener">САО РАН</a></td><td>Специальная астрофизическая обсерватория РАН</td></tr>
+<tr><td><a href="https://nso.edu/" target="_blank" rel="noopener">National Solar Observatory (NSO)</a></td><td>данные и изображения Солнца</td></tr>
+<tr><td><a href="https://www.bbso.njit.edu/" target="_blank" rel="noopener">Big Bear Solar Observatory (BBSO, NJIT)</a></td><td></td></tr>
+<tr><td><a href="https://www.lmsal.com/" target="_blank" rel="noopener">LMSAL / SolarSoft</a></td><td>Lockheed Martin Solar and Astrophysics Laboratory</td></tr>
+<tr><td><a href="https://www.aeronomie.be/" target="_blank" rel="noopener">BIRA-IASB</a></td><td>Бельгийский институт космической аэрономии</td></tr>
+<tr><td><a href="https://lesia.obspm.fr/" target="_blank" rel="noopener">LESIA, Парижская обсерватория (бывший департамент DASOP)</a></td><td></td></tr>
+<tr><td><a href="http://bass2000.obspm.fr/home.php" target="_blank" rel="noopener">BASS2000</a></td><td>архив солнечных наблюдений, Парижская обсерватория</td></tr>
+<tr><td><a href="http://secchirh.obspm.fr/survey.php?hour=0600&amp;amp;dayofyear=20131003&amp;amp;composite=4" target="_blank" rel="noopener">SECCHI/STEREO</a></td><td>браузер данных, Парижская обсерватория</td></tr>
+<tr><td><a href="http://sprg.ssl.berkeley.edu/~tohban/browser/?show=grth+qlpcr" target="_blank" rel="noopener">RHESSI Browser, UC Berkeley SSL (миссия RHESSI завершена в 2018 году)</a></td><td></td></tr>
+<tr><td><a href="http://solar.physics.montana.edu/YPOP/" target="_blank" rel="noopener">YPOP (Yohkoh Public Outreach Project), Montana State University</a> <span class="tag" style="background:#FEE2E2;color:#991B1B">не работает</span></td><td>образовательный проект завершённой миссии Yohkoh</td></tr>
+</tbody></table></div>
+<h3>Национальные службы космической погоды</h3>
+<div class="table-box"><table><tbody>
+<tr><td><a href="https://www.metoffice.gov.uk/weather/specialist-forecasts/space-weather" target="_blank" rel="noopener">UK Met Office</a></td><td>космическая погода</td></tr>
+<tr><td><a href="https://sws.bom.gov.au/" target="_blank" rel="noopener">Австралия</a></td><td>Bureau of Meteorology, Space Weather Services</td></tr>
+<tr><td><a href="https://www.nsmc.org.cn/nsmc/en/home/index.html" target="_blank" rel="noopener">Китай</a></td><td>NSMC</td></tr>
+<tr><td><a href="https://swc.nict.go.jp/en/" target="_blank" rel="noopener">Япония</a></td><td>NICT, центр космической погоды</td></tr>
+<tr><td><a href="https://serdin.nict.go.jp/sedoss/solact4" target="_blank" rel="noopener">Япония</a></td><td>NICT, Solar-Terrestrial Activity Chart</td></tr>
+<tr><td><a href="http://www2.inpe.br/climaespacial/en/" target="_blank" rel="noopener">Бразилия</a></td><td>Embrace / INPE</td></tr>
+<tr><td><a href="https://www.dlr.de/en" target="_blank" rel="noopener">Германия</a></td><td>DLR</td></tr>
+<tr><td><a href="http://www.spaceweather.go.kr/" target="_blank" rel="noopener">Республика Корея</a></td><td>RRA, космическая погода</td></tr>
+<tr><td><a href="http://spaceweather.sansa.org.za/" target="_blank" rel="noopener">ЮАР</a></td><td>SANSA Space Weather</td></tr>
+<tr><td><a href="https://cessi.iiserkol.ac.in/spaceweather/" target="_blank" rel="noopener">Индия</a></td><td>CESSI (IISER Kolkata)</td></tr>
+</tbody></table></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Санкт-Петербургский филиал САО РАН · лаборатория солнечных исследований</span>
+    <span>Преемник сайта «Прогноз» (<a href="http://spbf.sao.ru/prognoz/">spbf.sao.ru/prognoz</a>, 2006–2026), переведённого в архив · <a href="about.html#history">подробнее</a></span>
+    <span>Вопросы и предложения: <a href="mailto:susan@sao.ru">susan@sao.ru</a></span>
+  </div>
+</footer>
+</body>
+</html>
