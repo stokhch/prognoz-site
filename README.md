@@ -47,8 +47,8 @@
 
 Источники перебираются по порядку (`assets/archive.js`):
 1. `/data/ratan/` того же сервера, если сайт открыт с spbf.sao.ru;
-2. адреса из `data/config.json` (`"archives": [{"name": …, "url": …}]`), сейчас `http://spbf.sao.ru/data/ratan/`;
-3. `data/ratan/` — копия на сайте (листинги в формате autoindex делает `tools/make_mirror_index.py`).
+2. `data/ratan/` — копия на сайте с реальным сканом (листинги в формате autoindex делает `tools/make_mirror_index.py`); пока архив из браузера недоступен, она идёт первой (`"prefer": "local"` в `data/config.json`);
+3. адреса из `data/config.json` (`"archives": [{"name": …, "url": …}]`), сейчас `http://spbf.sao.ru/data/ratan/`. Когда архив станет доступен по https с CORS, поставьте `"prefer": "remote"`.
 
 Чтобы читать архив с хранилища через solar.sao.ru, добавьте в `data/config.json` первым элементом его https-адрес (каталог, внутри которого `ГГГГ/ММ/…_out.fits`), например `{"name": "solar.sao.ru", "url": "https://solar.sao.ru/data/<каталог level2>/"}`. На стороне solar для этого каталога нужны: листинг каталогов (Apache `Options +Indexes` или nginx `autoindex on`) и заголовок CORS (`Access-Control-Allow-Origin: https://stokhch.github.io` или `*`; Apache — `Header set …` с mod_headers, nginx — `add_header … always`).
 

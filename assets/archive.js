@@ -46,14 +46,14 @@ export function parseName(name) {
 // data/config.json ("archives": [{name, url}], e.g. an https address on solar.sao.ru), and the copy shipped
 // with the site. A remote archive needs Apache autoindex and, for another site, https and CORS.
 export async function sources() {
-  const list = [];
-  if (location.hostname === 'spbf.sao.ru') list.push({ name: 'spbf.sao.ru', url: location.origin + '/data/ratan/' });
-  try {
-    const r = await fetch('data/config.json', { cache: 'no-cache' });
-    if (r.ok) for (const a of (await r.json()).archives || []) if (a && a.url) list.push({ name: a.name || a.url, url: a.url.endsWith('/') ? a.url : a.url + '/' });
-  } catch (e) { /* no config: defaults below */ }
-  list.push({ name: 'копия на сайте', url: new URL('data/ratan/', location.href).href });
-  return list;
+  const local = { name: 'копия на сайте (реальный скан 06.11.2026)', url: new URL('data/ratan/', location.href).href };
+  let cfg = {};
+  try { const r = await fetch('data/config.json', { cache: 'no-cache' }); if (r.ok) cfg = await r.json(); } catch (e) { /* no config */ }
+  const remote = [];
+  if (location.hostname === 'spbf.sao.ru') remote.push({ name: 'spbf.sao.ru', url: location.origin + '/data/ratan/' });
+  for (const a of cfg.archives || []) if (a && a.url) remote.push({ name: a.name || a.url, url: a.url.endsWith('/') ? a.url : a.url + '/' });
+  // while the real archive is not reachable from the browser, the copy shipped with the site goes first
+  return cfg.prefer === 'remote' ? [...remote, local] : [local, ...remote];
 }
 
 export async function openArchive() {

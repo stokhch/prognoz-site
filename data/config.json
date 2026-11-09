@@ -1,5 +1,9 @@
 {
  "archives": [
-  {"name": "spbf.sao.ru", "url": "http://spbf.sao.ru/data/ratan/"}
- ]
+  {
+   "name": "spbf.sao.ru",
+   "url": "http://spbf.sao.ru/data/ratan/"
+  }
+ ],
+ "prefer": "local"
 }

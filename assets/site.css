@@ -273,3 +273,30 @@ figure.photo img { max-width: 820px; }
 .mrow button[aria-selected="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
 .mrow button[aria-selected="true"] svg { stroke: var(--sun); }
 @media (max-width: 640px) { .mrow button { width: 56px; height: 50px; font-size: 10px; } .mgroup + .mgroup { padding-left: 0; border-left: 0; } }
+/* denser analysis page */
+.mrow button { width: 62px; height: 44px; font-size: 10.5px; border-radius: 9px; gap: 1px; }
+.mrow button svg { width: 18px; height: 18px; }
+.mrow button span { max-width: 58px; }
+.mgroup { gap: 2px; }
+.modebar { gap: 4px 12px; }
+.mgroup + .mgroup { padding-left: 12px; }
+.ctl { padding: 5px 8px; gap: 5px 12px; border-radius: 10px; }
+.seg button { height: 24px; padding: 0 8px; font-size: 12px; }
+.pop > summary { height: 28px; padding: 0 9px; font-size: 12px; }
+.mini-select { height: 26px; font-size: 12px; }
+.mini-btn { height: 26px; padding: 0 9px; font-size: 12px; }
+.icon-btn { width: 26px; height: 26px; font-size: 14px; }
+.cap { font-size: 10px; }
+.with-sun { display: grid; grid-template-columns: minmax(280px, 0.85fr) minmax(0, 1.4fr); gap: 10px; align-items: start; }
+@media (max-width: 1000px) { .with-sun { grid-template-columns: 1fr; } }
+.plot { padding: 10px; }
+.seg-tall { padding: 3px; }
+.seg-tall button { height: 36px; padding: 0 11px; }
+
+.mgroup:first-child .mrow button { width: 70px; }
+.mgroup:first-child .mrow button span { max-width: 66px; }
+.row > .archive { flex: 0 0 230px; max-width: 230px; }
+.row > .archive.folded { flex-basis: 56px; max-width: 56px; }
+.archive .tree .kids { margin-left: 8px; padding-left: 6px; }
+.archive .tree details > summary { white-space: nowrap; }
+.archive .tree .file { gap: 4px; }

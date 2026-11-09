@@ -8,7 +8,10 @@ maxima) are dropped before drawing and export; they are listed in the JSON as "d
 
 The JSON keeps the +-2 solar radii window of the picture, thinned to about STEP_ARCSEC per point.
 
-Usage: python3 tools/make_site_data.py --src /path/to/ratan-forecast/src file1_out.fits [file2_out.fits ...]
+With --sun the SDO pictures for the observation time are downloaded from Helioviewer (takeScreenshot) into
+data/sun/<file>-<layer>.png, so the analysis page shows them without asking Helioviewer from the browser.
+
+Usage: python3 tools/make_site_data.py --src /path/to/ratan-forecast/src [--sun] file1_out.fits [file2_out.fits ...]
 """
 from __future__ import annotations
 
@@ -24,6 +27,42 @@ SITE = Path(__file__).resolve().parent.parent
 BAD_FACTOR = 10.0
 STEP_ARCSEC = 8.0
 N_CHANNELS_FULL = 90      # channels of the new complex before the level1 -> level2 cleaning
+SUN_LAYERS = {             # same keys as assets/views.js SUN_LAYERS
+    "aia193": "[SDO,AIA,AIA,193,1,100]", "aia171": "[SDO,AIA,AIA,171,1,100]", "aia304": "[SDO,AIA,AIA,304,1,100]",
+    "aia1600": "[SDO,AIA,AIA,1600,1,100]", "aia94": "[SDO,AIA,AIA,94,1,100]",
+    "hmimag": "[SDO,HMI,HMI,magnetogram,1,100]", "hmicont": "[SDO,HMI,HMI,continuum,1,100]",
+}
+
+
+def fetch_sun(path: Path, when, layers=("aia193", "hmimag", "hmicont", "aia304")) -> None:
+    """Download the Helioviewer screenshots (900 px, 2.8 arcsec/px, disk centre in the middle) for the scan."""
+    import time
+    import urllib.request
+    out = SITE / "data" / "sun"
+    out.mkdir(parents=True, exist_ok=True)
+    stem = path.name[:-5] if path.name.lower().endswith(".fits") else path.stem
+    for lay in layers:
+        dst = out / f"{stem}-{lay}.png"
+        if dst.exists() and dst.stat().st_size > 10000:
+            continue
+        url = ("https://api.helioviewer.org/v2/takeScreenshot/?date=" + when.strftime("%Y-%m-%dT%H:%M:%SZ")
+               + "&imageScale=2.8&layers=" + SUN_LAYERS[lay]
+               + "&x0=0&y0=0&width=900&height=900&display=true&watermark=false&events=[AR,all,1]&eventLabels=true")
+        req = urllib.request.Request(url.replace("[", "%5B").replace("]", "%5D").replace(",", "%2C"),
+                                     headers={"User-Agent": "prognoz-site"})
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                data = r.read()
+                ctype = r.headers.get("Content-Type", "")
+        except Exception as e:  # noqa: BLE001
+            print(f"  {lay}: {e}")
+            continue
+        if not data.startswith(b"\x89PNG") and "image" not in ctype:
+            print(f"  {lay}: not an image ({ctype}): {data[:200]!r}")
+            continue
+        dst.write_bytes(data)
+        print(f"  {lay}: {dst.name} ({len(data)} bytes)")
+        time.sleep(1)
 
 
 def obs_id(t, az: float) -> str:
@@ -73,6 +112,7 @@ def export(path: Path, out: Path) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--src", required=True, help="ratan-forecast/src")
+    ap.add_argument("--sun", action="store_true", help="also download SDO pictures from Helioviewer")
     ap.add_argument("files", nargs="+", type=Path)
     a = ap.parse_args()
     sys.path.insert(0, a.src)
@@ -84,6 +124,9 @@ def main() -> int:
     for f in a.files:
         o = export(f, out)
         obs[o["id"]] = o
+        if a.sun:
+            from ratan_forecast.level2 import read_level2
+            fetch_sun(f, read_level2(f).obs_time)
     items = sorted(obs.values(), key=lambda o: (o["date"], o["time_ut"]))
     per_day = {}
     for o in items:

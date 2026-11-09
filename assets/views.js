@@ -500,80 +500,94 @@ export function helioviewerUrl(s, layer, events, size = 900, scale = 2.8) {
   return u;
 }
 
-// opts: {layer, events, rot (extra degrees), flip, curves:[{y:[], color}], x, pos, beam, onPick}
+// The Sun image with the scans drawn OVER the disk, in the image's own frame (round Sun, the scan axis horizontal
+// after turning the image by P + q). Curves: [{y, color, dash, band}] — curves without `band` share one scale
+// from the bottom of the disk upwards; with band = [k, n] a curve gets its own strip k of n (vertical mode).
+// opts: {urls, layer, rot, flip, curves, x, pos, beam, onPick}; done(state, url, log)
 export function sunOverlay(s, opts, done) {
-  const S = 900, scale = 2.8, cx = S / 2, cy = S / 2, k = 1 / scale;      // px per arcsec
+  const S = 900, scale = 2.8, cx = S / 2, cy = S / 2, k = 1 / scale;
   const cv = document.createElement('canvas');
   const dpr = Math.min(2, window.devicePixelRatio || 1);
-  cv.width = S * dpr; cv.height = S * dpr; cv.style.width = '100%'; cv.style.height = 'auto'; cv.style.display = 'block'; cv.style.maxWidth = '600px'; cv.style.margin = '0 auto';
+  cv.width = S * dpr; cv.height = S * dpr; cv.style.cssText = 'width:100%;height:auto;display:block;margin:0 auto;border-radius:10px';
   const g = cv.getContext('2d'); g.scale(dpr, dpr);
   const P = s.header.SOLAR_P || 0, q = transitAngle(s), turn = P + q + (opts.rot || 0);
-  const sgn = opts.flip ? -1 : 1, R = s.solarR;
+  const sgn = opts.flip ? -1 : 1, R = s.solarR, tq = Math.tan(q * Math.PI / 180);
+  const X = (x, v = 0) => cx + sgn * (x + v * tq) * k;
   const draw = img => {
-    g.fillStyle = '#000'; g.fillRect(0, 0, S, S);
+    g.fillStyle = '#05080F'; g.fillRect(0, 0, S, S);
     if (img) { g.save(); g.translate(cx, cy); g.rotate(-turn * Math.PI / 180); g.drawImage(img, -S / 2, -S / 2, S, S); g.restore(); }
-    else { g.strokeStyle = '#F5C451'; g.beginPath(); g.arc(cx, cy, R * k, 0, 2 * Math.PI); g.stroke(); }
-    const tq = Math.tan(q * Math.PI / 180);
-    const X = (x, v = 0) => cx + sgn * (x + v * tq) * k;                     // celestial frame after the turn
-    // limbs and centre along the scan
-    g.setLineDash([5, 5]); g.strokeStyle = 'rgba(255,255,255,0.45)'; g.lineWidth = 1;
-    for (const x of [-R, 0, R]) { g.beginPath(); g.moveTo(X(x, 1.3 * R), cy - 1.3 * R * k); g.lineTo(X(x, -1.3 * R), cy + 1.3 * R * k); g.stroke(); }
-    g.setLineDash([]);
+    // heliographic grid (every 15 deg, B0 from the header) and the limb, in the solar frame turned like the image
+    if (opts.grid !== false) {
+      const B0 = (s.header.SOLAR_B || 0) * Math.PI / 180, r = R * k;
+      g.save(); g.translate(cx, cy); g.rotate(-turn * Math.PI / 180);
+      const proj = (lat, lon) => {
+        const z = Math.sin(lat) * Math.sin(B0) + Math.cos(lat) * Math.cos(B0) * Math.cos(lon);
+        return { x: r * Math.cos(lat) * Math.sin(lon), y: -r * (Math.sin(lat) * Math.cos(B0) - Math.cos(lat) * Math.sin(B0) * Math.cos(lon)), z };
+      };
+      const line = pts => { g.beginPath(); let pen = false; for (const p of pts) { if (p.z < 0) { pen = false; continue; } pen ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y); pen = true; } g.stroke(); };
+      const d = Math.PI / 180;
+      g.lineWidth = 0.8;
+      for (let lat = -75; lat <= 75; lat += 15) {
+        g.strokeStyle = lat === 0 ? 'rgba(125,211,252,0.85)' : 'rgba(125,211,252,0.45)';
+        const pts = []; for (let lon = -90; lon <= 90; lon += 2) pts.push(proj(lat * d, lon * d)); line(pts);
+      }
+      for (let lon = -90; lon <= 90; lon += 15) {
+        g.strokeStyle = lon === 0 ? 'rgba(125,211,252,0.85)' : 'rgba(125,211,252,0.45)';
+        const pts = []; for (let lat = -90; lat <= 90; lat += 2) pts.push(proj(lat * d, lon * d)); line(pts);
+      }
+      const np = proj(Math.PI / 2, 0);
+      g.fillStyle = 'rgba(125,211,252,0.95)'; g.font = 'bold 22px Inter, sans-serif'; g.textAlign = 'center';
+      if (np.z >= 0) g.fillText('N', np.x, np.y - 6); else g.fillText('N', 0, -r - 8);
+      g.textAlign = 'start';
+      g.restore();
+    }
+    g.strokeStyle = '#F5C451'; g.lineWidth = 1.6; g.setLineDash([]);
+    g.beginPath(); g.arc(cx, cy, R * k, 0, 2 * Math.PI); g.stroke();
     // beam strip at the picked point
     if (opts.pos !== null && opts.pos !== undefined) {
-      const w = (opts.beam || 30) / 2, L = 1.4 * R;
-      g.fillStyle = 'rgba(249,115,22,0.30)'; g.strokeStyle = '#F97316'; g.lineWidth = 1.5;
-      g.beginPath(); g.moveTo(X(opts.pos - w, L), cy - L * k); g.lineTo(X(opts.pos + w, L), cy - L * k); g.lineTo(X(opts.pos + w, -L), cy + L * k); g.lineTo(X(opts.pos - w, -L), cy + L * k); g.closePath(); g.fill(); g.stroke();
+      const w = Math.max(1.5, (opts.beam || 30) * k) / 2, L = 1.25 * R;
+      g.fillStyle = 'rgba(249,115,22,0.28)'; g.strokeStyle = 'rgba(249,115,22,0.9)';
+      g.beginPath(); g.moveTo(X(opts.pos, L) - w, cy - L * k); g.lineTo(X(opts.pos, L) + w, cy - L * k); g.lineTo(X(opts.pos, -L) + w, cy + L * k); g.lineTo(X(opts.pos, -L) - w, cy + L * k); g.closePath(); g.fill(); g.stroke();
     }
-    // scans drawn along the scan axis, baseline under the disk
-    const base = cy + 1.22 * R * k, hgt = 0.55 * R * k;
-    let lo = Infinity, hi = -Infinity;
-    for (const c of opts.curves) for (const v of c.y) if (Number.isFinite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
-    g.strokeStyle = 'rgba(255,255,255,0.5)'; g.beginPath(); g.moveTo(X(opts.x[0]), base); g.lineTo(X(opts.x[opts.x.length - 1]), base); g.stroke();
+    // scans over the disk
+    const shared = opts.curves.filter(c => !c.band);
+    let lo = 0, hi = -Infinity;
+    for (const c of shared) for (const v of c.y) if (Number.isFinite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    const base = cy + 0.95 * R * k, top = cy - 0.9 * R * k;
+    g.lineJoin = 'round';
     for (const c of opts.curves) {
-      g.strokeStyle = c.color; g.globalAlpha = 0.9; g.lineWidth = 1.4; g.beginPath(); let pen = false;
-      opts.x.forEach((x, i) => { const v = c.y[i]; if (!Number.isFinite(v)) { pen = false; return; } const yy = base - (v - Math.min(0, lo)) / (hi - Math.min(0, lo)) * hgt; pen ? g.lineTo(X(x), yy) : g.moveTo(X(x), yy); pen = true; });
-      g.stroke(); g.globalAlpha = 1;
+      let Y;
+      if (c.band) {
+        const [b, n] = c.band, h = (base - top) / n, y0 = base - b * h;
+        let a = Infinity, z = -Infinity; for (const v of c.y) if (Number.isFinite(v)) { a = Math.min(a, v); z = Math.max(z, v); }
+        Y = v => y0 - (v - a) / ((z - a) || 1) * h * 0.9;
+      } else Y = v => base - (v - lo) / ((hi - lo) || 1) * (base - top);
+      g.strokeStyle = c.color; g.lineWidth = c.width || 1.8; g.setLineDash(c.dash || []);
+      g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 2;
+      g.beginPath(); let pen = false;
+      opts.x.forEach((x, i) => { const v = c.y[i]; if (!Number.isFinite(v)) { pen = false; return; } const px = X(x), py = Y(v); pen ? g.lineTo(px, py) : g.moveTo(px, py); pen = true; });
+      g.stroke(); g.shadowBlur = 0; g.setLineDash([]);
     }
-    // labels
-    g.fillStyle = '#fff'; g.font = '13px Inter, sans-serif';
-    g.fillText(sgn > 0 ? 'В ← скан → З' : 'З ← скан → В', 14, S - 14);
-    g.fillText(`P = ${P.toFixed(1)}°, q = ${q.toFixed(1)}°${opts.rot ? ', поправка ' + opts.rot + '°' : ''}`, 14, 22);
-    if (img) g.fillText(SUN_LAYERS[opts.layer][0] + ' · Helioviewer', 14, 40);
+    if (shared.length) { g.strokeStyle = 'rgba(255,255,255,0.45)'; g.beginPath(); g.moveTo(X(opts.x[0]), base); g.lineTo(X(opts.x[opts.x.length - 1]), base); g.stroke(); }
+    g.fillStyle = '#fff'; g.font = '22px Inter, sans-serif';
+    g.fillText(sgn > 0 ? 'В ← скан → З' : 'З ← скан → В', 16, S - 18);
+    g.fillText(`P = ${P.toFixed(1)}°, q = ${q.toFixed(1)}°${opts.rot ? ', поправка ' + opts.rot + '°' : ''}`, 16, 32);
+    if (img) g.fillText(SUN_LAYERS[opts.layer][0], 16, 60);
   };
   draw(null);
-  if (opts.layer && opts.layer !== 'none') {
-    // several ways to get the picture: with region labels, without them, and the two-step API (id -> download)
-    const tries = [helioviewerUrl(s, opts.layer, opts.events, S, scale), helioviewerUrl(s, opts.layer, false, S, scale)];
-    const log = [];
-    const viaId = async () => {
-      const u = helioviewerUrl(s, opts.layer, false, S, scale).replace('display=true', 'display=false');
-      const r = await fetch(u, { signal: AbortSignal.timeout(60000) });
-      const j = await r.json();
-      if (!j || !j.id) throw new Error(j && (j.error || j.message) || 'нет id в ответе');
-      return 'https://api.helioviewer.org/v2/downloadScreenshot/?id=' + j.id;
-    };
-    const next = k => {
-      if (k < tries.length) {
-        const img = new Image(), t0 = Date.now();
-        img.onload = () => { draw(img); done && done(null, tries[k], log); };
-        img.onerror = () => { log.push(tries[k] + ' — ошибка (' + Math.round((Date.now() - t0) / 1000) + ' с)'); next(k + 1); };
-        img.src = tries[k];
-        done && done('loading', tries[k], log);
-      } else if (k === tries.length) {
-        viaId().then(u => { tries.push(u); next(k + 1); })
-          .catch(e => { log.push('двухшаговый запрос: ' + (e.message || e)); done && done(new Error('снимок Helioviewer не загрузился'), tries[0], log); });
-      } else done && done(new Error('снимок Helioviewer не загрузился'), tries[0], log);
-    };
-    next(0);
-  } else done && done(null);
+  if (opts.urls && opts.urls.length) {
+    done && done('loading', opts.urls[0], []);
+    sunImage(opts.urls).then(r => { draw(r.img); done && done('ok', r.url, r.log); })
+      .catch(e => done && done('error', e.url || opts.urls[0], e.log || []));
+  }
   if (opts.onPick) {
     cv.style.cursor = 'crosshair';
     cv.addEventListener('click', e => {
       const b = cv.getBoundingClientRect(), px = (e.clientX - b.left) / b.width * S, py = (e.clientY - b.top) / b.height * S;
-      const v = -(py - cy) / k, x = sgn * (px - cx) / k - v * Math.tan(q * Math.PI / 180);
-      opts.onPick(x);
+      const v = -(py - cy) / k;
+      opts.onPick(sgn * (px - cx) / k - v * tq);
     });
   }
   return cv;
 }
+
