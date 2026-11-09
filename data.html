@@ -616,7 +616,7 @@ function sunPanel(g, sel) {
   }
   let timer = null;
   const msg = el('p', { class: 'muted', role: 'status', style: 'font-size:12px;margin:6px 0 0;text-align:center' });
-  const cv = V.sunOverlay(sc, { urls: sunUrls(sc), layer: st.sunLayer, rot: st.sunRot, flip: st.sunFlip, grid: st.sunGrid, regions: st.arOn && st.regs ? st.regs.regions : [], curves, x: g.x, pos: st.pos, beam: V.beamArcsec(sc.freq[c0]), guides: st.guides, xLabel: 'arcsec from disk centre', yLabel: (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit(),
+  const cv = V.sunOverlay(sc, { urls: sunUrls(sc), layer: st.sunLayer, rot: st.sunRot, flip: st.sunFlip, grid: st.sunGrid, regions: st.arOn && st.regs ? st.regs.regions : [], curves, x: g.x, pos: st.pos, beam: V.beamArcsec(sc.freq[c0]), guides: st.guides, marks: marks(), xLabel: 'arcsec from disk centre', yLabel: (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit(),
     onPick: x => { st.pos = Math.round(x); draw(); } }, (state, url, log) => {
       clearInterval(timer);
       if (state === 'loading') {

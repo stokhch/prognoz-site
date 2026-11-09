@@ -634,7 +634,8 @@ export function sunOverlay(s, opts, done) {
     g.strokeStyle = '#F5C451'; g.lineWidth = 1.6; g.setLineDash([]);
     g.beginPath(); g.arc(cx, cy, R * k, 0, 2 * Math.PI); g.stroke();
     // NOAA active regions: marker and number at the heliographic position
-    if (opts.regions && opts.regions.length) {
+    const noImage = !opts.urls || !opts.urls.length;
+    if (opts.regions && opts.regions.length && !(noImage && opts.marks)) {
       const B0 = s.header.SOLAR_B || 0;
       g.save(); g.translate(cx, cy); g.rotate(-turn * Math.PI / 180);
       for (const r of opts.regions) {
@@ -665,6 +666,7 @@ export function sunOverlay(s, opts, done) {
     const base = cy + 0.95 * R * k, top = cy - 0.9 * R * k, vzero = base - 0.25 * (base - top);
     if (vmax > 0) { g.strokeStyle = 'rgba(147,197,253,0.5)'; g.setLineDash([2, 4]); g.beginPath(); g.moveTo(X(opts.x[0]), vzero); g.lineTo(X(opts.x[opts.x.length - 1]), vzero); g.stroke(); g.setLineDash([]); }
     g.lineJoin = 'round';
+    const drawn = [];                                     // screen points of the main curves, for AR labels
     for (const c of opts.curves) {
       let Y;
       if (c.band) {
@@ -676,10 +678,23 @@ export function sunOverlay(s, opts, done) {
       g.strokeStyle = c.color; g.lineWidth = (c.width || 1.8) * lineScale; g.setLineDash(c.dash || []);
       g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 2;
       g.beginPath(); let pen = false;
-      opts.x.forEach((x, i) => { const v = c.y[i]; if (!Number.isFinite(v)) { pen = false; return; } const px = X(x), py = Y(v); pen ? g.lineTo(px, py) : g.moveTo(px, py); pen = true; });
+      const keep = !c.own && !c.dash;
+      opts.x.forEach((x, i) => { const v = c.y[i]; if (!Number.isFinite(v)) { pen = false; return; } const px = X(x), py = Y(v); pen ? g.lineTo(px, py) : g.moveTo(px, py); pen = true; if (keep) drawn.push([x, px, py]); });
       g.stroke(); g.shadowBlur = 0; g.setLineDash([]);
     }
     if (shared.length) { g.strokeStyle = 'rgba(255,255,255,0.45)'; g.beginPath(); g.moveTo(X(opts.x[0]), base); g.lineTo(X(opts.x[opts.x.length - 1]), base); g.stroke(); }
+    // without a 2D image the NOAA numbers stand right above the scan maximum nearest to the computed position
+    if (noImage && opts.marks) {
+      g.font = 'bold 20px Inter, sans-serif'; g.textAlign = 'center';
+      for (const m of opts.marks) {
+        let best = null; for (const d of drawn) if (Math.abs(d[0] - m.x) <= (m.snap || 90) && (!best || d[2] < best[2])) best = d;
+        const bx = best ? best[1] : X(m.x), by = best ? Math.max(30, best[2] - 12) : top;
+        g.fillStyle = '#F0ABFC'; g.beginPath(); g.moveTo(X(m.x) - 6, base + 1); g.lineTo(X(m.x) + 6, base + 1); g.lineTo(X(m.x), base - 9); g.closePath(); g.fill();
+        if (best) { g.strokeStyle = '#F0ABFC'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(bx, by + 2); g.lineTo(bx, best[2] - 2); g.stroke(); }
+        g.lineWidth = 4; g.strokeStyle = 'rgba(0,0,0,0.8)'; g.strokeText(String(m.label), bx, by - 4); g.fillStyle = '#F5D0FE'; g.fillText(String(m.label), bx, by - 4);
+      }
+      g.textAlign = 'start';
+    }
     // limb and centre lines across the whole picture
     if (opts.guides) {
       g.lineWidth = 1.4; g.font = 'bold 18px Inter, sans-serif';
