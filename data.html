@@ -477,8 +477,8 @@ function draw() {
     const [lo, hi] = yr(rows, gg), clipped = rows.map(r => r.map(v => Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : v));
     if (st.tab === 'waterfall') {
       const step = Math.max(1, Math.round(sc.nChan / 40)), idx = all.filter(c => c % step === 0);
-      box.replaceChildren(V.waterfall(gg.x, idx.map(c => sc.freq[c]), idx.map(c => clipped[c]), yl, guides()));
-    } else box.replaceChildren(V.map2d(gg.x, sc.freq, clipped, st.tab, yl, pick, 'frequency, GHz', guides()));
+      box.replaceChildren(V.waterfall(gg.x, idx.map(c => sc.freq[c]), idx.map(c => clipped[c]), yl, guides(), CW()));
+    } else box.replaceChildren(V.map2d(gg.x, sc.freq, clipped, st.tab, yl, pick, 'frequency, GHz', guides(), CW()));
     return;
   }
   if (st.tab === 'point') { drawPoint(g, sel); return; }
@@ -501,7 +501,7 @@ function draw() {
   }
   if (st.tab === 'wavelet') {
     const c = sel[0], y = ser(c, g, pp() === 'p' ? 'I' : pp(), st.qsMethod), w = V.wavelet(y, g.step);
-    box.replaceChildren(V.map2d(g.x, w.periods.map(Math.log10), w.rows, 'map', 'amplitude', pick, 'log period, arcsec', guides()));
+    box.replaceChildren(V.map2d(g.x, w.periods.map(Math.log10), w.rows, 'map', 'amplitude', pick, 'log period, arcsec', guides(), CW()));
     extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Channel ' + sc.freq[c].toFixed(3) + ' GHz. Y: log period (' + Math.round(w.periods[0]) + '–' + Math.round(w.periods[w.periods.length - 1]) + '″).' }));
     return;
   }

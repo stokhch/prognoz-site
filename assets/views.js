@@ -178,8 +178,8 @@ function finiteRange(rows) {
 
 // ---------- 2D views ----------
 // rows: channels (low freq at bottom), columns: x. kind: 'map' | 'contour'
-export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'frequency, GHz', guides = []) {
-  const W = 900, H = 460, pad = { l: 64, r: 70, t: 20, b: 40 };
+export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'frequency, GHz', guides = [], size = 0) {
+  const W = size || 900, H = size || 460, pad = { l: 64, r: 70, t: 20, b: 40 };
   const A = axesCanvas(W, H, pad), g = A.g;
   const [lo, hi] = finiteRange(rows);
   const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b, nr = rows.length, nc = x.length;
@@ -247,11 +247,13 @@ export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'frequency, G
 function fmt(v) { return Math.abs(v) >= 1000 ? Math.round(v).toString() : v.toPrecision(3); }
 
 // pseudo-3D "waterfall": curves from back (high freq) to front, each hiding what is behind it
-export function waterfall(x, freqs, rows, label, guides = []) {
-  const W = 900, H = 520, pad = { l: 40, r: 30, t: 20, b: 40 };
+export function waterfall(x, freqs, rows, label, guides = [], size = 0) {
+  const W = size || 900, H = size || 520, pad = { l: 40, r: 30, t: 20, b: 40 };
   const A = axesCanvas(W, H, pad), g = A.g;
   const n = rows.length, [lo, hi] = finiteRange(rows);
-  const dx = 180 / n, dy = 230 / n, pw = W - pad.l - pad.r - 180, ph = 230;
+  // depth offsets and curve height scale with the canvas (old fixed 900x520 layout kept for the default size)
+  const avail = H - pad.t - pad.b, ox0 = size ? 0.2 * W : 180, dep = size ? 0.34 * avail : 230;
+  const dx = ox0 / n, dy = dep / n, pw = W - pad.l - pad.r - ox0, ph = size ? 0.64 * avail : 230;
   for (let k = n - 1; k >= 0; k--) {
     const ox = pad.l + k * dx, oy = H - pad.b - k * dy;
     const X = i => ox + i / (x.length - 1) * pw, Y = v => oy - (Number.isFinite(v) ? (v - lo) / (hi - lo) : 0) * ph;
