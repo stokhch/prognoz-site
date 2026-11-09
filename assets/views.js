@@ -2,6 +2,34 @@
 // buttons). Everything is computed in the browser from one level2 scan (see fits.js).
 import { value } from './fits.js';
 import { palette } from './scanplot.js';
+
+// ---------- colour maps ----------
+// Std Gamma-II is the table of the forecast picture; the others are the usual perceptual maps (9 stops each).
+export const PALETTES = {
+  gamma: { name: 'Std Gamma-II (как в прогнозе)', f: t => palette(255 * t) },
+  viridis: { name: 'viridis', stops: ['#440154', '#472d7b', '#3b528b', '#2c728e', '#21918c', '#28ae80', '#5ec962', '#addc30', '#fde725'] },
+  inferno: { name: 'inferno', stops: ['#000004', '#1b0c41', '#4a0c6b', '#781c6d', '#a52c60', '#cf4446', '#ed6925', '#fb9b06', '#fcffa4'] },
+  plasma: { name: 'plasma', stops: ['#0d0887', '#4c02a1', '#7e03a8', '#a92395', '#cc4778', '#e66c5c', '#f89540', '#fdc527', '#f0f921'] },
+  cividis: { name: 'cividis (различима при нарушениях цветового зрения)', stops: ['#00224e', '#123570', '#3b496c', '#575d6d', '#707173', '#8a8678', '#a59c74', '#c3b369', '#fee838'] },
+  turbo: { name: 'turbo (радуга)', stops: ['#30123b', '#4662d7', '#36aaf9', '#1ae4b6', '#72fe5e', '#c8ef34', '#faba39', '#f66b19', '#7a0403'] },
+  coolwarm: { name: 'холодно–тепло (для V)', stops: ['#3b4cc0', '#6788ee', '#9abbff', '#c9d7f0', '#edd1c2', '#f7a889', '#e26952', '#b40426'] },
+  gray: { name: 'серая', stops: ['#000000', '#ffffff'] }
+};
+let currentPal = 'gamma';
+export function setPalette(name) { if (PALETTES[name]) currentPal = name; }
+export function paletteName() { return currentPal; }
+function hexRgb(h) { return [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)); }
+// colour at t in [0, 1] of the chosen (or given) map
+export function cmap(t, name = currentPal) {
+  const p = PALETTES[name] || PALETTES.gamma;
+  t = Math.min(1, Math.max(0, Number.isFinite(t) ? t : 0));
+  if (p.f) return p.f(t);
+  const n = p.stops.length - 1, i = Math.min(n - 1, Math.floor(t * n)), u = t * n - i;
+  const a = hexRgb(p.stops[i]), b = hexRgb(p.stops[i + 1]);
+  return 'rgb(' + a.map((v, k) => Math.round(v + (b[k] - v) * u)).join(',') + ')';
+}
+export function gradientCss(name) { return 'linear-gradient(90deg,' + Array.from({ length: 12 }, (_, k) => cmap(k / 11, name)).join(',') + ')'; }
+
 import { template as qsTemplate } from './quietsun.js';
 
 // ---------- data access ----------
@@ -159,7 +187,7 @@ export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'частот
     for (let r = 0; r < nr; r++) {
       for (let c = 0; c < nc; c++) {
         const v = rows[r][c], o = c * 4;
-        const col = Number.isFinite(v) ? palette(255 * (v - lo) / (hi - lo)).match(/\d+/g).map(Number) : [255, 255, 255];
+        const col = Number.isFinite(v) ? cmap((v - lo) / (hi - lo)).match(/\d+/g).map(Number) : [255, 255, 255];
         img.data[o] = col[0]; img.data[o + 1] = col[1]; img.data[o + 2] = col[2]; img.data[o + 3] = 255;
       }
       tg.putImageData(img, 0, 0);
@@ -172,7 +200,7 @@ export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'частот
     const X = c => pad.l + c / (nc - 1) * pw, Y = r => Yv(fAt(r));
     const levels = niceTicks(lo, hi, 12);
     levels.forEach((L, li) => {
-      g.strokeStyle = palette(40 + 200 * li / levels.length); g.lineWidth = 1;
+      g.strokeStyle = cmap(0.12 + 0.76 * li / Math.max(1, levels.length - 1)); g.lineWidth = 1.1;
       g.beginPath();
       for (let r = 0; r < nr - 1; r++) for (let c = 0; c < nc - 1; c++) {
         const v = [rows[r][c], rows[r][c + 1], rows[r + 1][c + 1], rows[r + 1][c]];
@@ -188,7 +216,7 @@ export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'частот
   }
   drawAxes(A, x[0], x[nc - 1], freqs[0], freqs[nr - 1], 'угл. с от центра диска', yAxis);
   // colour bar
-  for (let k = 0; k < ph; k++) { g.fillStyle = palette(255 * (1 - k / ph)); g.fillRect(W - pad.r + 14, pad.t + k, 14, 1); }
+  for (let k = 0; k < ph; k++) { g.fillStyle = cmap(1 - k / ph); g.fillRect(W - pad.r + 14, pad.t + k, 14, 1); }
   g.strokeStyle = '#9AA6B5'; g.strokeRect(W - pad.r + 14, pad.t, 14, ph);
   g.fillStyle = '#4A5668'; g.textAlign = 'left'; g.font = '11px "JetBrains Mono", monospace';
   g.fillText(fmt(hi), W - pad.r + 32, pad.t + 10); g.fillText(fmt(lo), W - pad.r + 32, pad.t + ph);
@@ -216,7 +244,7 @@ export function waterfall(x, freqs, rows, label) {
     rows[k].forEach((v, i) => g.lineTo(X(i), Y(v)));
     g.lineTo(X(x.length - 1), oy); g.closePath();
     g.fillStyle = 'rgba(255,255,255,0.92)'; g.fill();
-    g.strokeStyle = palette(255 - 200 * k / n); g.lineWidth = 1.2; g.stroke();
+    g.strokeStyle = cmap(0.1 + 0.75 * k / Math.max(1, n - 1)); g.lineWidth = 1.2; g.stroke();
   }
   g.fillStyle = '#4A5668'; g.font = '12px "JetBrains Mono", monospace';
   g.fillText(freqs[0].toFixed(2) + ' ГГц', pad.l + pw + 6, H - pad.b);
@@ -452,9 +480,9 @@ function sunBackground(svg, bg, X, k, cy, clip, yTop, yBot, W, H, xL, xR) {
 // colour by frequency on a white background: blue (low) -> orange (high), equal lightness steps
 export function freqColor(f, fmin, fmax) {
   const t = fmax > fmin ? (f - fmin) / (fmax - fmin) : 0;
-  const a = [30, 79, 184], b = [194, 65, 12], m = [15, 118, 110];
-  const c = t < 0.5 ? a.map((v, i) => v + (m[i] - v) * t * 2) : m.map((v, i) => v + (b[i] - v) * (t - 0.5) * 2);
-  return `rgb(${c.map(Math.round).join(',')})`;
+  if (currentPal === 'gray') return cmap(0.05 + 0.55 * t);
+  if (currentPal === 'coolwarm') return cmap(t < 0.5 ? 0.0 + 0.4 * t / 0.5 : 0.6 + 0.4 * (t - 0.5) / 0.5);
+  return cmap(0.06 + 0.72 * t);
 }
 
 // local maximum of a curve within +-half arcsec of x (for the point analysis), on a lightly smoothed curve

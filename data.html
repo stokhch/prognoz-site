@@ -97,6 +97,10 @@
             </div>
           </div>
         </details>
+        <details class="pop" id="pal-pop">
+          <summary><span class="cap" style="letter-spacing: 0">Палитра</span> <span class="swatch" id="pal-sw" aria-hidden="true"></span> <span aria-hidden="true">▾</span></summary>
+          <div class="pop-body" id="pal-list" style="min-width: 250px; gap: 4px"></div>
+        </details>
         <details class="pop" id="sun-pop">
           <summary><span class="dot" id="sun-dot" aria-hidden="true"></span> Снимок Солнца <span aria-hidden="true">▾</span></summary>
           <div class="pop-body" style="min-width: 270px">
@@ -380,7 +384,7 @@ function draw() {
   if (st.tab === 'group') {
     const series = [];
     sel.forEach((c, k) => {
-      const col = sel.length <= 10 ? PALETTE[k % 10] : colorOf(c);
+      const col = colorOf(c);
       series.push({ name: sc.freq[c].toFixed(3) + ' ГГц', color: col, x: g.x, y: ser(c, g), width: sel.length > 20 ? 1 : 1.5 });
       if (isPair()) series.push({ name: '', color: col, x: g.x, y: second(c, g), dash: '3 3', width: 1.2, qs: true, axis: st.param === 'IV' ? 2 : 1 });
       if (showQs) series.push({ name: '', color: col, x: g.x, y: qsCurve(c, g), dash: '6 4', width: 1.1, qs: true });
@@ -645,6 +649,15 @@ function selectTab(v) {
 // ---------- events ----------
 for (const [k, v] of Object.entries(V.QUIET)) if (k !== 'none') $('qs').append(el('option', { value: k, text: v }));
 for (const [k, v] of Object.entries(V.SUN_LAYERS)) $('sun-layer').append(el('option', { value: k, text: v[0] }));
+// palette chooser: gradient swatches; the choice is remembered in the browser
+function palList() {
+  $('pal-sw').style.background = V.gradientCss(V.paletteName());
+  $('pal-list').replaceChildren(...Object.entries(V.PALETTES).map(([k, p]) => el('button', { type: 'button', class: 'pal-item', 'aria-pressed': String(k === V.paletteName()), onclick: () => {
+    V.setPalette(k); try { localStorage.setItem('palette', k); } catch (e) { /* no storage */ } palList(); draw(); } },
+    el('span', { class: 'swatch wide', style: 'background:' + V.gradientCss(k) }), el('span', { text: p.name }))));
+}
+try { const p = localStorage.getItem('palette'); if (p) V.setPalette(p); } catch (e) { /* no storage */ }
+palList();
 function chips(id, key) {
   $(id).addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
