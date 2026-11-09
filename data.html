@@ -82,6 +82,7 @@
             <label class="switch" title="Vertical lines at ±R☉ and centre"><input type="checkbox" id="guides" checked><span></span> limb & centre</label>
             <label class="switch" title="NOAA AR numbers at their scan position"><input type="checkbox" id="ar-on" checked><span></span> NOAA ARs</label>
             <label class="switch" title="Heliographic grid on the Sun disk (Sun disk option)"><input type="checkbox" id="mk-grid" checked><span></span> heliographic grid</label>
+            <label class="switch" title="Vertical sliders beside the chart: grid position (left), polarization scale (right)"><input type="checkbox" id="mk-sliders" checked><span></span> show scrollbars</label>
             <label class="switch" title="Black background of the charts"><input type="checkbox" id="bg-dark"><span></span> dark background</label>
             <span class="ar-badge" id="ar-msg" hidden></span>
           </div>
@@ -201,7 +202,7 @@ const TABS = {
   azim: ['Day azimuths', 'All scans of the day, first channel, top to bottom by time.']
 };
 const $ = id => document.getElementById(id);
-const st = { vSlider: 50, gridShift: 0, guides: true, arOn: true, sunGrid: true, regs: null, regsMsg: '', raw: null, excluded: [], auto: [], qsMode: 'off', qsMethod: 'model', sunOn: false, single: null, sunLayer: 'aia193', sunEvents: true, sunRot: 0, sunFlip: false, arc: null, path: null, level2: null, param: 'I', range: 'sun2', scale: 'full', tab: 'group', freqOn: null, pos: null, zoom: null, buttons: new Map(), dayCache: new Map() };
+const st = { sliders: true, vSlider: 50, gridShift: 0, guides: true, arOn: true, sunGrid: true, regs: null, regsMsg: '', raw: null, excluded: [], auto: [], qsMode: 'off', qsMethod: 'model', sunOn: false, single: null, sunLayer: 'aia193', sunEvents: true, sunRot: 0, sunFlip: false, arc: null, path: null, level2: null, param: 'I', range: 'sun2', scale: 'full', tab: 'group', freqOn: null, pos: null, zoom: null, buttons: new Map(), dayCache: new Map() };
 
 // ---------- archive tree ----------
 // archive path from the address (#YYYY/MM/<file>_out.fits); anything else (old #obs-… links) is ignored
@@ -426,8 +427,8 @@ function draw() {
   $('t-text').textContent = describe(); $('t-line').title = TABS[st.tab][0] + '. ' + describe();
   $('pos-box').hidden = st.tab !== 'point';
   const sunHere = st.sunOn && ['single', 'group', 'vertical', 'grid'].includes(st.tab);
-  $('vgain-box').hidden = !(polShown() && ['single', 'group', 'vertical', 'grid', 'map', 'contour', 'waterfall', 'point'].includes(st.tab));
-  $('gshift-box').hidden = !(st.sunGrid && (sunHere || ['single', 'group'].includes(st.tab)));
+  $('vgain-box').hidden = !st.sliders || !(polShown() && ['single', 'group', 'vertical', 'grid', 'map', 'contour', 'waterfall', 'point'].includes(st.tab));
+  $('gshift-box').hidden = !st.sliders || !(st.sunGrid && (sunHere || ['single', 'group'].includes(st.tab)));
   $('unzoom').hidden = !st.zoom;
   extra.replaceChildren();
   const g = G(), sel = selected(), xl = 'arcsec from disk centre', yl = (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit();
@@ -828,6 +829,10 @@ $('png').addEventListener('click', async () => {
   sl.addEventListener('input', () => { st.gridShift = +sl.value; show(); cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); });
   const reset = () => { sl.value = 0; st.gridShift = 0; show(); draw(); };
   sl.addEventListener('dblclick', reset); $('gshift-v').addEventListener('click', reset);
+}
+{ try { st.sliders = localStorage.getItem('sliders') !== 'off'; } catch (e) {}
+  $('mk-sliders').checked = st.sliders;
+  $('mk-sliders').addEventListener('change', e => { st.sliders = e.target.checked; try { localStorage.setItem('sliders', st.sliders ? 'on' : 'off'); } catch (er) {} draw(); });
 }
 $('noisy').addEventListener('click', e => { if (st.level2) stepNoisy(e.shiftKey ? -1 : 1); });
 $('noisy-prev').addEventListener('click', () => { if (st.level2) stepNoisy(-1); });
