@@ -12,8 +12,9 @@ With --sun the SDO pictures for the observation time are downloaded from Heliovi
 data/sun/<file>-<layer>.png, so the analysis page shows them without asking Helioviewer from the browser.
 
 With --regions the NOAA active regions of the day are saved to data/regions/<date>.json.
+With --goes the GOES X-ray flux of the day (SWPC, last 7 days only) is saved to data/goes/<date>.json.
 
-Usage: python3 tools/make_site_data.py --src /path/to/ratan-forecast/src [--sun] [--regions] file1_out.fits [...]
+Usage: python3 tools/make_site_data.py --src /path/to/ratan-forecast/src [--sun] [--regions] [--goes] file1_out.fits [...]
 """
 from __future__ import annotations
 
@@ -34,6 +35,33 @@ SUN_LAYERS = {             # same keys as assets/views.js SUN_LAYERS
     "aia1600": "[SDO,AIA,AIA,1600,1,100]", "aia94": "[SDO,AIA,AIA,94,1,100]",
     "hmimag": "[SDO,HMI,HMI,magnetogram,1,100]", "hmicont": "[SDO,HMI,HMI,continuum,1,100]",
 }
+
+
+def fetch_goes(date: str) -> None:
+    """GOES X-ray flux of the day from SWPC xrays-7-day.json -> data/goes/<date>.json
+    ({source, long: [[minute, flux]], short: [...]}); SWPC keeps only the last 7 days."""
+    out = SITE / "data" / "goes"
+    out.mkdir(parents=True, exist_ok=True)
+    try:
+        req = urllib.request.Request("https://services.swpc.noaa.gov/json/goes/primary/xrays-7-day.json", headers={"User-Agent": "prognoz-site"})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            rows = json.load(r)
+    except Exception as e:  # network problems must not stop the export
+        print(f"  goes: {e}")
+        return
+    long, short, sat = [], [], ""
+    for x in rows:
+        t = str(x.get("time_tag", ""))
+        if t[:10] != date or not (x.get("flux") or 0) > 0:
+            continue
+        m = int(t[11:13]) * 60 + int(t[14:16])
+        (long if str(x.get("energy", "")).startswith("0.1") else short).append([m, x["flux"]])
+        sat = x.get("satellite", sat)
+    if not long:
+        print(f"  goes: no SWPC data for {date} (only the last 7 days are kept)")
+        return
+    (out / f"{date}.json").write_text(json.dumps({"source": f"NOAA SWPC, GOES-{sat} (copy)", "long": long, "short": short}))
+    print(f"  goes: {len(long)} minutes -> data/goes/{date}.json")
 
 
 def fetch_regions(date: str) -> None:
@@ -138,6 +166,7 @@ def main() -> int:
     ap.add_argument("--src", required=True, help="ratan-forecast/src")
     ap.add_argument("--sun", action="store_true", help="also download SDO pictures from Helioviewer")
     ap.add_argument("--regions", action="store_true", help="also save the NOAA regions of the day (SWPC) to data/regions/")
+    ap.add_argument("--goes", action="store_true", help="also save the GOES X-ray flux of the day (SWPC, last 7 days) to data/goes/")
     ap.add_argument("files", nargs="+", type=Path)
     a = ap.parse_args()
     sys.path.insert(0, a.src)
@@ -154,6 +183,8 @@ def main() -> int:
             fetch_sun(f, read_level2(f).obs_time)
         if a.regions:
             fetch_regions(o["date"])
+        if a.goes:
+            fetch_goes(o["date"])
     items = sorted(obs.values(), key=lambda o: (o["date"], o["time_ut"]))
     per_day = {}
     for o in items:

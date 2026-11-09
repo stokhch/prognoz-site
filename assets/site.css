@@ -360,3 +360,8 @@ section.main > #plot { margin-top: 0; padding-top: 0; }
 .vgain .cap { font-size: 9px; letter-spacing: 0; text-transform: none; }
 .vgain .mono { font-size: 9.5px; cursor: pointer; white-space: nowrap; }
 .vgain input[type=range] { width: 16px; min-height: 120px; margin: 0; }
+/* GOES panel under the chart */
+.goes-box { border: 1px solid var(--line); border-radius: 14px; padding: 8px 12px; background: var(--surface); }
+.goes-head { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; font-size: 12.5px; margin-bottom: 4px; }
+.goes-box.darkbg { background: #000; border-color: #1F2937; color: #CBD5E1; } .goes-box.darkbg .muted, .goes-box.darkbg .legend * { color: #CBD5E1; }
+.goes-leg { display: flex; gap: 14px; font-size: 12px; font-family: var(--mono); } .goes-leg i { display: inline-block; width: 16px; height: 3px; margin-right: 5px; vertical-align: middle; border-radius: 2px; }
