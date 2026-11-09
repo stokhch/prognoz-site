@@ -98,7 +98,7 @@
           <button type="button" class="icon-btn" id="unzoom" hidden title="Reset zoom" aria-label="Reset zoom">⤢</button></div>
         <div class="grp"><span class="cap">Y</span>
           <div class="seg" id="scale">
-            <button type="button" data-v="auto" aria-pressed="true" title="robust: 0.5–99.5% on disk">auto</button><button type="button" data-v="full" aria-pressed="false" title="full range">full</button>
+            <button type="button" data-v="auto" aria-pressed="false" title="robust: 0.5–99.5% on disk">auto</button><button type="button" data-v="full" aria-pressed="true" title="full range">full</button>
           </div></div>
         <details class="pop" id="freq-pop">
           <summary><span class="cap" style="letter-spacing: 0">Channels</span> <b id="freq-n">—</b><span class="muted" id="excl-n" style="font-weight: 500"></span> <span aria-hidden="true">▾</span></summary>
@@ -188,7 +188,7 @@ const TABS = {
   azim: ['Day azimuths', 'All scans of the day, first channel, top to bottom by time.']
 };
 const $ = id => document.getElementById(id);
-const st = { guides: true, arOn: true, sunGrid: true, regs: null, regsMsg: '', raw: null, excluded: [], auto: [], qsMode: 'off', qsMethod: 'model', sunOn: false, single: null, sunLayer: 'aia193', sunEvents: true, sunRot: 0, sunFlip: false, arc: null, path: null, level2: null, param: 'I', range: 'sun2', scale: 'auto', tab: 'plot', freqOn: null, pos: null, zoom: null, buttons: new Map(), dayCache: new Map() };
+const st = { guides: true, arOn: true, sunGrid: true, regs: null, regsMsg: '', raw: null, excluded: [], auto: [], qsMode: 'off', qsMethod: 'model', sunOn: false, single: null, sunLayer: 'aia193', sunEvents: true, sunRot: 0, sunFlip: false, arc: null, path: null, level2: null, param: 'I', range: 'sun2', scale: 'full', tab: 'plot', freqOn: null, pos: null, zoom: null, buttons: new Map(), dayCache: new Map() };
 
 // ---------- archive tree ----------
 // archive path from the address (#YYYY/MM/<file>_out.fits); anything else (old #obs-… links) is ignored
