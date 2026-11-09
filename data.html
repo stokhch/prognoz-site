@@ -42,7 +42,7 @@
   </div>
 </header>
 
-<main class="wrap stack" id="content" style="gap: 10px; padding-top: 14px; padding-bottom: 32px; max-width: 1840px">
+<main class="wrap stack" id="content" style="gap: 10px; padding: 14px 12px 32px; max-width: none">
   <h1 class="sr-only">RATAN-600 data analysis</h1>
 
   <div class="row" style="align-items: flex-start; gap: 12px; flex-wrap: nowrap" id="layout">
@@ -361,7 +361,10 @@ function G(maxN = 900) {
   return { idx, x, step: g.step * k };
 }
 // chart width in viewBox units: narrower when the Sun picture stands beside the plot, so labels stay readable
-const CW = () => st.sunOn && ['single', 'group', 'vertical', 'grid'].includes(st.tab) ? 780 : 1300;
+// Chart width in px = real width of the plot box, so text keeps its size; with the Sun disk beside it, a fixed share.
+const CW = () => st.sunOn && ['single', 'group', 'vertical', 'grid'].includes(st.tab) ? 780 : Math.max(600, Math.round($('plot').clientWidth - 24));
+let lastW = 0;
+window.addEventListener('resize', () => { clearTimeout(window._rz); window._rz = setTimeout(() => { const w = $('plot').clientWidth; if (Math.abs(w - lastW) > 20 && st.level2) { lastW = w; draw(); } }, 250); });
 const qsSub = () => st.qsMode === 'sub' ? st.qsMethod : 'none';
 // a pair of Stokes parameters (I+V, R+L) or a single one; views without pair support use the first
 const comps = () => st.param === 'IV' ? ['I', 'V'] : st.param === 'RL' ? ['R', 'L'] : [st.param];
@@ -424,7 +427,7 @@ function draw() {
     });
     const main = series.filter(s => !s.qs);
     const firstRows = st.param === 'RL' ? series.filter(s => !s.dash || s.axis === 1).map(s => s.y) : main.map(s => s.y);
-    put(V.chart(series, { ...common, width: CW(), height: Math.round(0.5 * CW()) < 440 ? 440 : Math.round(0.5 * CW()), yLabel: yl, yr: yr0(firstRows, g), y2: y2opt(series.filter(s => s.axis === 2).map(s => s.y), g) }), sel.length <= 24 ? legend(main) : el('p', { class: 'muted', style: 'font-size:12px;margin:6px 0 0', text: sel.length + ' ch: blue ' + sc.freq[sel[0]].toFixed(2) + ' GHz, orange ' + sc.freq[sel[sel.length - 1]].toFixed(2) + ' GHz' }));
+    put(V.chart(series, { ...common, width: CW(), height: CW(), yLabel: yl, yr: yr0(firstRows, g), y2: y2opt(series.filter(s => s.axis === 2).map(s => s.y), g) }), sel.length <= 24 ? legend(main) : el('p', { class: 'muted', style: 'font-size:12px;margin:6px 0 0', text: sel.length + ' ch: blue ' + sc.freq[sel[0]].toFixed(2) + ' GHz, orange ' + sc.freq[sel[sel.length - 1]].toFixed(2) + ' GHz' }));
     if (isPair()) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: st.param === 'IV' ? 'Solid I (left axis), dotted V (right axis).' : 'Solid R, dotted L, common axis.' }));
     if (showQs) { extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: qsNote() }), qsDetails()); }
     return;
@@ -442,7 +445,7 @@ function draw() {
       if (showQs) series.push({ x: g.x, y: qsCurve(c, g).map(sc1), color: '#0F1B2D', dash: '5 4', width: 1 });
       labels.push({ y: off + 0.1, text: sc.freq[c].toFixed(2) + ' GHz', color: colorOf(c) });
     });
-    put(V.chart(series, { ...common, width: CW(), yLabel: yl + ' (own scale)', yr: [-0.2, n + 0.1], yTicks: false, labels, height: Math.max(Math.round(0.62 * CW()), 40 * n + 60) }));
+    put(V.chart(series, { ...common, width: CW(), yLabel: yl + ' (own scale)', yr: [-0.2, n + 0.1], yTicks: false, labels, height: Math.max(CW(), 40 * n + 60) }));
     if (isPair()) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: st.param === 'IV' ? 'Solid I, dashed V (own scale, zero mid-band).' : 'Solid R, dashed L, common per channel.' }));
     if (showQs) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: qsNote() }), qsDetails());
     return;
@@ -536,7 +539,7 @@ function drawSingle(g, sel, sunEl) {
   if (y2) sr.push({ name: comps()[1] + (st.param === 'IV' ? ' (right axis)' : ''), x: g.x, y: y2, color: '#1E4FB8', dash: '4 3', width: 1.5, axis: st.param === 'IV' ? 2 : 1 });
   let t = null;
   if (withQs) { t = qsCurve(c, g); sr.push({ name: 'quiet Sun', x: g.x, y: t, color: '#0F1B2D', dash: '6 4', width: 1.5 }); }
-  const parts = [tb, V.chart(sr, { xLabel: 'arcsec from disk centre', yLabel: (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit(), guides: guides(), marks: marks(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, width: CW(), height: Math.max(440, Math.round(0.5 * CW())), yr: yr0(sr.filter(s => s.axis !== 2).map(s => s.y), g), y2: y2 ? y2opt([y2], g) : undefined }), legend(sr)];
+  const parts = [tb, V.chart(sr, { xLabel: 'arcsec from disk centre', yLabel: (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit(), guides: guides(), marks: marks(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, width: CW(), height: CW(), yr: yr0(sr.filter(s => s.axis !== 2).map(s => s.y), g), y2: y2 ? y2opt([y2], g) : undefined }), legend(sr)];
   box.replaceChildren(...(sunEl ? [el('div', { class: 'with-sun' }, sunEl, el('div', { style: 'min-width:0' }, ...parts))] : parts));
   if (withQs) {
     const res = y.map((v, i) => v - t[i]);
@@ -762,7 +765,7 @@ $('copy-link').addEventListener('click', async () => {
 document.addEventListener('click', e => { const path = e.composedPath(); for (const d of document.querySelectorAll('details.pop[open]')) if (!path.includes(d)) d.open = false; });
 $('fold').addEventListener('click', () => {
   const a = $('archive'), f = a.classList.toggle('folded');
-  $('fold').textContent = f ? '›' : '‹'; $('fold').setAttribute('aria-expanded', String(!f)); $('fold').title = f ? 'Expand' : 'Collapse';
+  if (st.level2) setTimeout(draw, 50); $('fold').textContent = f ? '›' : '‹'; $('fold').setAttribute('aria-expanded', String(!f)); $('fold').title = f ? 'Expand' : 'Collapse';
 });
 buildTree();
 </script>
