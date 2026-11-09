@@ -334,3 +334,8 @@ section.main > #plot { margin-top: 0; padding-top: 0; }
 .seg.iseg button svg { flex: none; }
 .seg.iseg button[aria-pressed="true"] { box-shadow: 0 0 0 2px rgba(249,115,22,.35); }
 .noisy-btn { font-weight: 700; color: #B45309; border-color: #FDBA74; background: #FFF7ED; }
+/* black chart background */
+#plot.darkbg { background: #000; border-color: #1F2937; color: #CBD5E1; }
+#plot.darkbg .muted, #plot.darkbg .legend, #plot.darkbg .legend * { color: #CBD5E1; }
+#plot.darkbg .btn, #plot.darkbg .mini-btn, #plot.darkbg select { background: #111827; color: #E5E7EB; border-color: #374151; }
+#plot.darkbg .noisy-btn { background: #431407; color: #FDBA74; border-color: #9A3412; }

@@ -3,6 +3,18 @@ let lineScale = 1;
 export function setLineScale(k) { lineScale = +k > 0 ? +k : 1; }
 export function getLineScale() { return lineScale; }
 
+// Chart background theme: light (default) or black. TH holds the colours every view reads at draw time.
+const LIGHT = { bg: '#FFFFFF', text: '#4A5668', grid: '#E3E8EF', grid2: '#F0F3F7', frame: '#C5CFDB', axis: '#9AA6B5', guide: '#8A5A00', guide0: '#B45309', fill: 'rgba(255,255,255,0.92)', dark: false };
+const DARK = { bg: '#000000', text: '#CBD5E1', grid: '#1F2937', grid2: '#141B26', frame: '#475569', axis: '#64748B', guide: '#FDBA74', guide0: '#FB923C', fill: 'rgba(0,0,0,0.92)', dark: true };
+export let TH = LIGHT;
+export function setDark(on) { TH = on ? DARK : LIGHT; }
+// very dark series colours become light grey on black so they stay visible
+function vis(c) {
+  if (!TH.dark || typeof c !== 'string' || !/^#[0-9a-f]{6}$/i.test(c)) return c;
+  const n = parseInt(c.slice(1), 16), l = (0.2126 * (n >> 16) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+  return l < 0.22 ? '#CBD5E1' : c;
+}
+
 // View modes of the analysis page (port of the old ION "Type" / "Stokes" / "SubQuietSun" options and analysis
 // buttons). Everything is computed in the browser from one level2 scan (see fits.js).
 import { value } from './fits.js';
@@ -143,8 +155,8 @@ function axesCanvas(W, H, pad) {
   cv.style.width = '100%'; cv.style.height = 'auto'; cv.style.display = 'block';
   const g = cv.getContext('2d');
   g.scale(dpr, dpr);
-  g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
-  g.font = '12px "JetBrains Mono", monospace'; g.fillStyle = '#4A5668'; g.strokeStyle = '#C5CFDB';
+  g.fillStyle = TH.bg; g.fillRect(0, 0, W, H);
+  g.font = '12px "JetBrains Mono", monospace'; g.fillStyle = TH.text; g.strokeStyle = TH.frame;
   return { cv, g, pad, W, H };
 }
 
@@ -159,9 +171,9 @@ function niceTicks(lo, hi, n) {
 
 function drawAxes(A, x0, x1, y0, y1, xl, yl, yLog = false) {
   const { g, pad, W, H } = A;
-  g.strokeStyle = '#9AA6B5'; g.lineWidth = 1;
+  g.strokeStyle = TH.axis; g.lineWidth = 1;
   g.strokeRect(pad.l, pad.t, W - pad.l - pad.r, H - pad.t - pad.b);
-  g.fillStyle = '#4A5668'; g.textAlign = 'center';
+  g.fillStyle = TH.text; g.textAlign = 'center';
   for (const v of niceTicks(x0, x1, 7)) { const X = pad.l + (v - x0) / (x1 - x0) * (W - pad.l - pad.r); g.fillText(String(v), X, H - pad.b + 16); }
   g.textAlign = 'right';
   for (const v of niceTicks(y0, y1, 6)) { const Y = H - pad.b - (v - y0) / (y1 - y0) * (H - pad.t - pad.b); g.fillText(yLog ? '1e' + v : String(v), pad.l - 6, Y + 4); }
@@ -228,12 +240,12 @@ export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'frequency, G
     g.strokeStyle = 'rgba(255,255,255,0.85)'; g.beginPath(); g.moveTo(px, pad.t); g.lineTo(px, pad.t + ph); g.stroke();
     g.strokeStyle = 'rgba(15,27,45,0.55)'; g.lineDashOffset = 4; g.beginPath(); g.moveTo(px + 1, pad.t); g.lineTo(px + 1, pad.t + ph); g.stroke();
     g.restore();
-    g.fillStyle = '#8A5A00'; g.font = '600 12px Inter, sans-serif'; g.textAlign = 'center'; g.fillText(gd.label, px, pad.t - 2 > 10 ? pad.t - 2 : 11);
+    g.fillStyle = TH.guide; g.font = '600 12px Inter, sans-serif'; g.textAlign = 'center'; g.fillText(gd.label, px, pad.t - 2 > 10 ? pad.t - 2 : 11);
   }
   // colour bar
   for (let k = 0; k < ph; k++) { g.fillStyle = cmap(1 - k / ph); g.fillRect(W - pad.r + 14, pad.t + k, 14, 1); }
-  g.strokeStyle = '#9AA6B5'; g.strokeRect(W - pad.r + 14, pad.t, 14, ph);
-  g.fillStyle = '#4A5668'; g.textAlign = 'left'; g.font = '11px "JetBrains Mono", monospace';
+  g.strokeStyle = TH.axis; g.strokeRect(W - pad.r + 14, pad.t, 14, ph);
+  g.fillStyle = TH.text; g.textAlign = 'left'; g.font = '11px "JetBrains Mono", monospace';
   g.fillText(fmt(hi), W - pad.r + 32, pad.t + 10); g.fillText(fmt(lo), W - pad.r + 32, pad.t + ph);
   g.save(); g.translate(W - 8, pad.t + ph / 2); g.rotate(-Math.PI / 2); g.textAlign = 'center'; g.fillText(label, 0, 0); g.restore();
   if (onPick) A.cv.addEventListener('click', e => {
@@ -267,7 +279,7 @@ export function waterfall(x, freqs, rows, label, guides = [], size = 0) {
     g.beginPath(); g.moveTo(X(0), oy);
     rows[k].forEach((v, i) => g.lineTo(X(i), Y(v)));
     g.lineTo(X(x.length - 1), oy); g.closePath();
-    g.fillStyle = 'rgba(255,255,255,0.92)'; g.fill();
+    g.fillStyle = TH.fill; g.fill();
     g.strokeStyle = cmap(0.1 + 0.75 * k / Math.max(1, n - 1)); g.lineWidth = 1.2 * lineScale; g.stroke();
   }
   for (const gd of guides) {
@@ -275,9 +287,9 @@ export function waterfall(x, freqs, rows, label, guides = [], size = 0) {
     const t = (gd.x - x[0]) / (x[x.length - 1] - x[0]), x0 = pad.l + t * pw, y0 = H - pad.b;
     g.save(); g.setLineDash(gd.x === 0 ? [7, 4] : [4, 4]); g.strokeStyle = 'rgba(138,90,0,0.8)'; g.lineWidth = 1.2;
     g.beginPath(); g.moveTo(x0, y0); g.lineTo(x0 + (n - 1) * dx, y0 - (n - 1) * dy); g.stroke(); g.restore();
-    g.fillStyle = '#8A5A00'; g.font = '600 12px Inter, sans-serif'; g.textAlign = 'center'; g.fillText(gd.label, x0, y0 + 16); g.textAlign = 'start';
+    g.fillStyle = TH.guide; g.font = '600 12px Inter, sans-serif'; g.textAlign = 'center'; g.fillText(gd.label, x0, y0 + 16); g.textAlign = 'start';
   }
-  g.fillStyle = '#4A5668'; g.font = '12px "JetBrains Mono", monospace';
+  g.fillStyle = TH.text; g.font = '12px "JetBrains Mono", monospace';
   g.fillText(freqs[0].toFixed(2) + ' GHz', pad.l + pw + 6, H - pad.b);
   g.fillText(freqs[n - 1].toFixed(2) + ' GHz', pad.l + (n - 1) * dx + pw + 6, H - pad.b - (n - 1) * dy);
   g.textAlign = 'center'; g.fillText('arcsec: ' + Math.round(x[0]) + ' … ' + Math.round(x[x.length - 1]) + ' · Y: ' + label, W / 2, H - 10);
@@ -395,17 +407,18 @@ export function chart(series, opts = {}) {
   const Y2 = v => H - P.b - (v - v0) / (v1 - v0) * (H - P.t - P.b);
   const svg = se('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': (opts.yLabel || '') + ' vs ' + (opts.xLabel || ''), style: 'width:100%;height:auto;display:block;touch-action:pan-y' });
   const clip = 'c' + Math.random().toString(36).slice(2);
+  svg.append(se('rect', { x: 0, y: 0, width: W, height: H, fill: TH.bg }));
   const d = se('defs', {}); const cp = se('clipPath', { id: clip }); cp.append(se('rect', { x: P.l, y: P.t, width: W - P.l - P.r, height: H - P.t - P.b })); d.append(cp); svg.append(d);
-  const t = (x, y, s, a = {}) => { const e = se('text', { x, y, 'font-size': 12, fill: '#4A5668', 'font-family': 'JetBrains Mono, monospace', ...a }); e.textContent = s; svg.append(e); };
+  const t = (x, y, s, a = {}) => { const e = se('text', { x, y, 'font-size': 12, fill: TH.text, 'font-family': 'JetBrains Mono, monospace', ...a }); e.textContent = s; svg.append(e); };
   const bgCanvas = opts.bg ? sunBackground(svg, opts.bg, X, kxBg, (P.t + H - P.b) / 2, clip, P.t, H - P.b, W, H, P.l, W - P.r) : null;
-  for (const v of niceTicks(y0, y1, 6)) { svg.append(se('line', { x1: P.l, x2: W - P.r, y1: Y(v), y2: Y(v), stroke: '#E3E8EF' })); if (opts.yTicks !== false) t(P.l - 6, Y(v) + 4, fmt(v), { 'text-anchor': 'end' }); }
+  for (const v of niceTicks(y0, y1, 6)) { svg.append(se('line', { x1: P.l, x2: W - P.r, y1: Y(v), y2: Y(v), stroke: TH.grid })); if (opts.yTicks !== false) t(P.l - 6, Y(v) + 4, fmt(v), { 'text-anchor': 'end' }); }
   const xt = opts.logX ? [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000].filter(v => v >= x0 && v <= x1) : niceTicks(x0, x1, 8);
-  for (const v of xt) { svg.append(se('line', { x1: X(v), x2: X(v), y1: P.t, y2: H - P.b, stroke: '#F0F3F7' })); t(X(v), H - P.b + 16, String(v), { 'text-anchor': 'middle' }); }
-  svg.append(se('rect', { x: P.l, y: P.t, width: W - P.l - P.r, height: H - P.t - P.b, fill: 'none', stroke: '#C5CFDB' }));
-  if (y0 < 0 && y1 > 0) svg.append(se('line', { x1: P.l, x2: W - P.r, y1: Y(0), y2: Y(0), stroke: '#9AA6B5' }));
+  for (const v of xt) { svg.append(se('line', { x1: X(v), x2: X(v), y1: P.t, y2: H - P.b, stroke: TH.grid2 })); t(X(v), H - P.b + 16, String(v), { 'text-anchor': 'middle' }); }
+  svg.append(se('rect', { x: P.l, y: P.t, width: W - P.l - P.r, height: H - P.t - P.b, fill: 'none', stroke: TH.frame }));
+  if (y0 < 0 && y1 > 0) svg.append(se('line', { x1: P.l, x2: W - P.r, y1: Y(0), y2: Y(0), stroke: TH.axis }));
   for (const gd of opts.guides || []) if (gd.x >= x0 && gd.x <= x1) {
-    svg.append(se('line', { x1: X(gd.x), x2: X(gd.x), y1: P.t, y2: H - P.b, stroke: gd.x === 0 ? '#B45309' : '#8A5A00', 'stroke-width': gd.x === 0 ? 1.4 : 1.2, 'stroke-dasharray': gd.x === 0 ? '7 4' : '4 4', 'stroke-opacity': 0.85 }));
-    if (gd.label) t(X(gd.x) + 4, P.t + 13, gd.label, { fill: '#8A5A00', 'font-size': 12, 'font-weight': 600, 'font-family': 'Inter, sans-serif' });
+    svg.append(se('line', { x1: X(gd.x), x2: X(gd.x), y1: P.t, y2: H - P.b, stroke: gd.x === 0 ? TH.guide0 : TH.guide, 'stroke-width': gd.x === 0 ? 1.4 : 1.2, 'stroke-dasharray': gd.x === 0 ? '7 4' : '4 4', 'stroke-opacity': 0.85 }));
+    if (gd.label) t(X(gd.x) + 4, P.t + 13, gd.label, { fill: TH.guide, 'font-size': 12, 'font-weight': 600, 'font-family': 'Inter, sans-serif' });
   }
   if (opts.y2) {
     for (const v of niceTicks(v0, v1, 6)) t(W - P.r + 6, Y2(v) + 4, fmt(v), { 'text-anchor': 'start', fill: opts.y2.color || '#4A5668' });
@@ -416,7 +429,7 @@ export function chart(series, opts = {}) {
     let dstr = '', pen = false;
     const YY = s.axis === 2 ? Y2 : Y;
     s.x.forEach((xv, i) => { const yv = s.y[i]; if (!Number.isFinite(yv)) { pen = false; return; } dstr += (pen ? 'L' : 'M') + X(xv).toFixed(1) + ',' + YY(yv).toFixed(1); pen = true; });
-    g.append(se('path', { d: dstr, fill: 'none', stroke: s.color, 'stroke-width': (s.width || 1.5) * lineScale, 'stroke-linejoin': 'round', ...(s.dash ? { 'stroke-dasharray': s.dash } : {}) }));
+    g.append(se('path', { d: dstr, fill: 'none', stroke: vis(s.color), 'stroke-width': (s.width || 1.5) * lineScale, 'stroke-linejoin': 'round', ...(s.dash ? { 'stroke-dasharray': s.dash } : {}) }));
   }
   for (const l of opts.labels || []) t(P.l + 4, Y(l.y) - 3, l.text, { fill: l.color || '#4A5668', 'font-size': 11 });
   for (const m of opts.marks || []) if (m.x >= x0 && m.x <= x1) {
@@ -425,7 +438,7 @@ export function chart(series, opts = {}) {
   }
   if (opts.mark !== undefined && opts.mark !== null && opts.mark >= x0 && opts.mark <= x1) svg.append(se('line', { x1: X(opts.mark), x2: X(opts.mark), y1: P.t, y2: H - P.b, stroke: '#C2410C', 'stroke-width': 1.5 }));
   t((P.l + W - P.r) / 2, H - 6, opts.xLabel || '', { 'text-anchor': 'middle', 'font-family': 'Inter, sans-serif' });
-  const yl = se('text', { x: 14, y: (P.t + H - P.b) / 2, 'font-size': 12, fill: '#4A5668', 'text-anchor': 'middle', transform: `rotate(-90 14 ${(P.t + H - P.b) / 2})` }); yl.textContent = opts.yLabel || ''; svg.append(yl);
+  const yl = se('text', { x: 14, y: (P.t + H - P.b) / 2, 'font-size': 12, fill: TH.text, 'text-anchor': 'middle', transform: `rotate(-90 14 ${(P.t + H - P.b) / 2})` }); yl.textContent = opts.yLabel || ''; svg.append(yl);
   if (opts.onClick || opts.onZoom) {
     const inv = px => { const f = (px - P.l) / (W - P.l - P.r); return opts.logX ? Math.pow(10, tx(x0) + f * (tx(x1) - tx(x0))) : x0 + f * (x1 - x0); };
     const toSvg = e => { const b = svg.getBoundingClientRect(); return (e.clientX - b.left) / b.width * W; };
@@ -571,16 +584,16 @@ export function sunOverlay(s, opts, done) {
   const S = 900, scale = 2.8, cx = S / 2, cy = S / 2, k = 1 / scale;
   // margins around the S x S picture hold the axes: x in arcsec, left y for the shared scale, right y for own-scale V
   const hasOwn = opts.curves.some(c => c.own && !c.band), hasShared = opts.curves.some(c => !c.band && !c.own);
-  const M = { l: hasShared ? 92 : 20, r: hasOwn ? 92 : 20, t: 12, b: 64 }, TW = S + M.l + M.r, TH = S + M.t + M.b;
+  const M = { l: hasShared ? 92 : 20, r: hasOwn ? 92 : 20, t: 12, b: 64 }, TW = S + M.l + M.r, THt = S + M.t + M.b;
   const cv = document.createElement('canvas');
   const dpr = Math.min(2, window.devicePixelRatio || 1);
-  cv.width = TW * dpr; cv.height = TH * dpr; cv.style.cssText = 'width:100%;height:auto;display:block;margin:0 auto';
+  cv.width = TW * dpr; cv.height = THt * dpr; cv.style.cssText = 'width:100%;height:auto;display:block;margin:0 auto';
   const g = cv.getContext('2d'); g.scale(dpr, dpr);
   const P = s.header.SOLAR_P || 0, q = transitAngle(s), turn = P + q + (opts.rot || 0);
   const sgn = opts.flip ? -1 : 1, R = s.solarR, tq = Math.tan(q * Math.PI / 180);
   const X = (x, v = 0) => cx + sgn * (x + v * tq) * k;
   const draw = img => {
-    g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, TW, TH);
+    g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = TH.bg; g.fillRect(0, 0, TW, THt);
     g.translate(M.l, M.t);
     g.save(); g.beginPath(); g.rect(0, 0, S, S); g.clip();
     g.fillStyle = '#05080F'; g.fillRect(0, 0, S, S);
@@ -674,8 +687,8 @@ export function sunOverlay(s, opts, done) {
     if (img) g.fillText(SUN_LAYERS[opts.layer][0], 12, 74);
     g.restore();
     // frame and axes
-    g.strokeStyle = '#94A3B8'; g.lineWidth = 1; g.strokeRect(0.5, 0.5, S - 1, S - 1);
-    g.fillStyle = '#334155'; g.strokeStyle = '#64748B'; g.font = '17px "JetBrains Mono", monospace'; g.textAlign = 'center';
+    g.strokeStyle = TH.frame; g.lineWidth = 1; g.strokeRect(0.5, 0.5, S - 1, S - 1);
+    g.fillStyle = TH.text; g.strokeStyle = TH.axis; g.font = '17px "JetBrains Mono", monospace'; g.textAlign = 'center';
     const half = S / 2 / k;
     for (const t of niceTicks(-half, half, 8)) {
       const px = cx + sgn * t * k; if (px < 1 || px > S - 1) continue;
@@ -707,7 +720,7 @@ export function sunOverlay(s, opts, done) {
   if (opts.onPick) {
     cv.style.cursor = 'crosshair';
     cv.addEventListener('click', e => {
-      const b = cv.getBoundingClientRect(), px = (e.clientX - b.left) / b.width * TW - M.l, py = (e.clientY - b.top) / b.height * TH - M.t;
+      const b = cv.getBoundingClientRect(), px = (e.clientX - b.left) / b.width * TW - M.l, py = (e.clientY - b.top) / b.height * THt - M.t;
       if (px < 0 || px > S || py < 0 || py > S) return;
       const v = -(py - cy) / k;
       opts.onPick(sgn * (px - cx) / k - v * tq);
@@ -726,7 +739,7 @@ export async function exportPng(box, name) {
   let x0 = Infinity, y0 = Infinity; for (const r of rects) { x0 = Math.min(x0, r.left - b0.left); y0 = Math.min(y0, r.top - b0.top); }
   const pad = 8, out = document.createElement('canvas');
   out.width = Math.ceil((x1 - x0 + 2 * pad) * K); out.height = Math.ceil((y1 - y0 + 2 * pad) * K);
-  const g = out.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, out.width, out.height);
+  const g = out.getContext('2d'); g.fillStyle = TH.bg; g.fillRect(0, 0, out.width, out.height);
   for (let i = 0; i < items.length; i++) {
     const e = items[i], r = rects[i], dx = (r.left - b0.left - x0 + pad) * K, dy = (r.top - b0.top - y0 + pad) * K;
     if (e.tagName.toLowerCase() === 'canvas') { g.drawImage(e, dx, dy, r.width * K, r.height * K); continue; }
