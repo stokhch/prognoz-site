@@ -325,3 +325,7 @@ section.main > #plot { margin-top: 0; padding-top: 0; }
 .vgroup { margin-left: auto; }
 .vgroup .pop-body { left: auto; right: 0; }
 #mark-pop .ar-badge { margin-left: 0; }
+/* controls under the chart; popovers open upwards */
+.ctl.below { margin-top: 2px; }
+.ctl.below .pop-body { top: auto; bottom: 36px; }
+.ctl.below .an-sum { height: 30px !important; }
