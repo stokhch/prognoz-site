@@ -252,8 +252,15 @@ export function waterfall(x, freqs, rows, label, guides = [], size = 0) {
   const A = axesCanvas(W, H, pad), g = A.g;
   const n = rows.length, [lo, hi] = finiteRange(rows);
   // depth offsets and curve height scale with the canvas (old fixed 900x520 layout kept for the default size)
-  const avail = H - pad.t - pad.b, ox0 = size ? 0.2 * W : 180, dep = size ? 0.34 * avail : 230;
-  const dx = ox0 / n, dy = dep / n, pw = W - pad.l - pad.r - ox0, ph = size ? 0.64 * avail : 230;
+  const avail = H - pad.t - pad.b, ox0 = size ? 0.2 * W : 180, dep = size ? 0.3 * avail : 230;
+  const dx = ox0 / n, dy = dep / n, pw = W - pad.l - pad.r - ox0;
+  // curve height: the tallest point over all (shifted) curves just reaches the top of the canvas
+  let ph = 230;
+  if (size) {
+    ph = Infinity;
+    rows.forEach((r, k) => { let m = -Infinity; for (const v of r) if (Number.isFinite(v)) m = Math.max(m, v); const t = (m - lo) / ((hi - lo) || 1); if (t > 0) ph = Math.min(ph, (avail - k * dy) / t); });
+    if (!Number.isFinite(ph)) ph = 0.6 * avail;
+  }
   for (let k = n - 1; k >= 0; k--) {
     const ox = pad.l + k * dx, oy = H - pad.b - k * dy;
     const X = i => ox + i / (x.length - 1) * pw, Y = v => oy - (Number.isFinite(v) ? (v - lo) / (hi - lo) : 0) * ph;
