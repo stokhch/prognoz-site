@@ -410,7 +410,7 @@ function draw() {
     });
     const main = series.filter(s => !s.qs);
     const firstRows = st.param === 'RL' ? series.filter(s => !s.dash || s.axis === 1).map(s => s.y) : main.map(s => s.y);
-    put(V.chart(series, { ...common, width: CW(), height: 560, yLabel: yl, yr: yr0(firstRows, g), y2: y2opt(series.filter(s => s.axis === 2).map(s => s.y), g) }), sel.length <= 24 ? legend(main) : el('p', { class: 'muted', style: 'font-size:12px;margin:6px 0 0', text: sel.length + ' каналов: синий — ' + sc.freq[sel[0]].toFixed(2) + ' ГГц, оранжевый — ' + sc.freq[sel[sel.length - 1]].toFixed(2) + ' ГГц' }));
+    put(V.chart(series, { ...common, width: CW(), height: Math.round(0.5 * CW()) < 440 ? 440 : Math.round(0.5 * CW()), yLabel: yl, yr: yr0(firstRows, g), y2: y2opt(series.filter(s => s.axis === 2).map(s => s.y), g) }), sel.length <= 24 ? legend(main) : el('p', { class: 'muted', style: 'font-size:12px;margin:6px 0 0', text: sel.length + ' каналов: синий — ' + sc.freq[sel[0]].toFixed(2) + ' ГГц, оранжевый — ' + sc.freq[sel[sel.length - 1]].toFixed(2) + ' ГГц' }));
     if (isPair()) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: st.param === 'IV' ? 'Сплошные — I (шкала слева), мелкий пунктир — V (шкала справа).' : 'Сплошные — R, мелкий пунктир — L, шкала общая.' }));
     if (showQs) { extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: qsNote() }), qsDetails()); }
     return;
@@ -428,7 +428,7 @@ function draw() {
       if (showQs) series.push({ x: g.x, y: qsCurve(c, g).map(sc1), color: '#0F1B2D', dash: '5 4', width: 1 });
       labels.push({ y: off + 0.1, text: sc.freq[c].toFixed(2) + ' ГГц', color: colorOf(c) });
     });
-    put(V.chart(series, { ...common, width: CW(), yLabel: yl + ' (своя шкала)', yr: [-0.2, n + 0.1], yTicks: false, labels, height: Math.max(560, 34 * n + 60) }));
+    put(V.chart(series, { ...common, width: CW(), yLabel: yl + ' (своя шкала)', yr: [-0.2, n + 0.1], yTicks: false, labels, height: Math.max(Math.round(0.62 * CW()), 40 * n + 60) }));
     if (isPair()) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: st.param === 'IV' ? 'Сплошные — I в своей шкале канала; пунктир — V в своей шкале, ноль V — посередине полосы канала.' : 'Сплошные — R, пунктир — L, шкала канала общая.' }));
     if (showQs) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: qsNote() }), qsDetails());
     return;
@@ -522,7 +522,7 @@ function drawSingle(g, sel, sunEl) {
   if (y2) sr.push({ name: comps()[1] + (st.param === 'IV' ? ' (шкала справа)' : ''), x: g.x, y: y2, color: '#1E4FB8', dash: '4 3', width: 1.5, axis: st.param === 'IV' ? 2 : 1 });
   let t = null;
   if (withQs) { t = qsCurve(c, g); sr.push({ name: 'спокойное Солнце', x: g.x, y: t, color: '#0F1B2D', dash: '6 4', width: 1.5 }); }
-  const parts = [tb, V.chart(sr, { xLabel: 'угл. с от центра диска', yLabel: (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit(), guides: guides(), marks: marks(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, width: CW(), height: 560, yr: yr0(sr.filter(s => s.axis !== 2).map(s => s.y), g), y2: y2 ? y2opt([y2], g) : undefined }), legend(sr)];
+  const parts = [tb, V.chart(sr, { xLabel: 'угл. с от центра диска', yLabel: (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit(), guides: guides(), marks: marks(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, width: CW(), height: Math.max(440, Math.round(0.5 * CW())), yr: yr0(sr.filter(s => s.axis !== 2).map(s => s.y), g), y2: y2 ? y2opt([y2], g) : undefined }), legend(sr)];
   box.replaceChildren(...(sunEl ? [el('div', { class: 'with-sun' }, sunEl, el('div', { style: 'min-width:0' }, ...parts))] : parts));
   if (withQs) {
     const res = y.map((v, i) => v - t[i]);
@@ -546,15 +546,24 @@ function sunPanel(g, sel) {
   if (st.pos === null) { const y = ser(c0, g), i = y.indexOf(Math.max(...y.filter(Number.isFinite))); st.pos = Math.round(g.x[i]); }
   const pal = ['#FDBA74', '#93C5FD', '#5EEAD4', '#F0ABFC', '#FDE68A', '#FCA5A5', '#A5B4FC', '#86EFAC'];
   let curves;
+  const pairOwn = st.param === 'IV';                       // V of I+V in its own scale, L of R+L in the common one
   if (st.tab === 'single') {
     curves = [{ y: ser(c0, g), color: '#FDBA74', width: 2.2 }];
+    if (isPair()) curves.push({ y: second(c0, g), color: '#93C5FD', dash: [4, 3], width: 1.6, own: pairOwn });
     if (st.qsMode === 'show' && canQs()) curves.push({ y: qsCurve(c0, g), color: '#FFFFFF', dash: [6, 4], width: 1.4 });
   } else if (st.tab === 'vertical') {
     const list = sel.slice(0, 12);
-    curves = list.map((c, k) => ({ y: ser(c, g), color: pal[k % pal.length], band: [list.length - 1 - k, list.length], width: 1.5 }));
+    curves = [];
+    list.forEach((c, k) => {
+      const band = [list.length - 1 - k, list.length];
+      curves.push({ y: ser(c, g), color: pal[k % pal.length], band, width: 1.5 });
+      if (isPair()) curves.push({ y: second(c, g), color: pal[k % pal.length], band, dash: [3, 3], width: 1.1, own: pairOwn });
+    });
   } else {
-    curves = sel.slice(0, 8).map((c, k) => ({ y: ser(c, g), color: pal[k % pal.length] }));
-    if (st.qsMode === 'show' && canQs()) sel.slice(0, 8).forEach((c, k) => curves.push({ y: qsCurve(c, g), color: pal[k % pal.length], dash: [5, 4], width: 1.1 }));
+    const list = sel.slice(0, 8);
+    curves = list.map((c, k) => ({ y: ser(c, g), color: pal[k % pal.length] }));
+    if (isPair()) list.forEach((c, k) => curves.push({ y: second(c, g), color: pal[k % pal.length], dash: [3, 3], width: 1.2, own: pairOwn }));
+    if (st.qsMode === 'show' && canQs()) list.forEach((c, k) => curves.push({ y: qsCurve(c, g), color: pal[k % pal.length], dash: [5, 4], width: 1.1 }));
   }
   let timer = null;
   const msg = el('p', { class: 'muted', role: 'status', style: 'font-size:12px;margin:6px 0 0;text-align:center' });
@@ -565,7 +574,7 @@ function sunPanel(g, sel) {
         const t0 = Date.now(); msg.textContent = 'Снимок Солнца: загрузка…';
         timer = setInterval(() => { if (!msg.isConnected) return clearInterval(timer); msg.textContent = 'Снимок Солнца: загрузка с Helioviewer… ' + Math.round((Date.now() - t0) / 1000) + ' с'; }, 1000);
       } else if (state === 'error') msg.replaceChildren('Снимок не загрузился — сканы нарисованы на диске с сеткой. ', el('a', { href: url.includes('helioviewer') ? url : sunUrls(sc)[1], text: 'Открыть запрос к Helioviewer' }), ' и прислать, что он показывает. ' + (log && log.length ? 'Попытки: ' + log.join('; ') : ''));
-      else if (state === 'none') msg.textContent = 'Без снимка: край диска, гелиографическая сетка и активные области; сканы — поверх диска.';
+      else if (state === 'none') msg.textContent = 'Без снимка: край диска, гелиографическая сетка и активные области; сканы — поверх диска' + (st.param === 'IV' ? ' (V — пунктир, своя шкала, ноль — точечная линия).' : '.');
       else if (state === 'ok') msg.replaceChildren(`${V.SUN_LAYERS[st.sunLayer][0]} (${url.includes('helioviewer') ? 'Helioviewer.org' : 'копия на сайте'}, SDO/NASA), ${sc.obs.date} ${sc.obs.time.slice(0, 5)} UT; сканы — поверх диска, положительное x — запад; оранжевая полоса — диаграмма в точке ${st.pos}″. `, el('a', { href: url, text: 'исходный снимок' }));
     });
   return el('div', { style: 'margin-bottom:10px' }, cv, msg);

@@ -615,18 +615,23 @@ export function sunOverlay(s, opts, done) {
       g.beginPath(); g.moveTo(X(opts.pos, L) - w, cy - L * k); g.lineTo(X(opts.pos, L) + w, cy - L * k); g.lineTo(X(opts.pos, -L) + w, cy + L * k); g.lineTo(X(opts.pos, -L) - w, cy + L * k); g.closePath(); g.fill(); g.stroke();
     }
     // scans over the disk
-    const shared = opts.curves.filter(c => !c.band);
-    let lo = 0, hi = -Infinity;
+    // curves of the main scale share one range; curves with own: true (V of the I+V pair) get a symmetric scale
+    // of their own with the zero line at a quarter of the height above the base
+    const shared = opts.curves.filter(c => !c.band && !c.own);
+    let lo = 0, hi = -Infinity, vmax = 0;
     for (const c of shared) for (const v of c.y) if (Number.isFinite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
-    const base = cy + 0.95 * R * k, top = cy - 0.9 * R * k;
+    for (const c of opts.curves) if (c.own && !c.band) for (const v of c.y) if (Number.isFinite(v)) vmax = Math.max(vmax, Math.abs(v));
+    const base = cy + 0.95 * R * k, top = cy - 0.9 * R * k, vzero = base - 0.25 * (base - top);
+    if (vmax > 0) { g.strokeStyle = 'rgba(147,197,253,0.5)'; g.setLineDash([2, 4]); g.beginPath(); g.moveTo(X(opts.x[0]), vzero); g.lineTo(X(opts.x[opts.x.length - 1]), vzero); g.stroke(); g.setLineDash([]); }
     g.lineJoin = 'round';
     for (const c of opts.curves) {
       let Y;
       if (c.band) {
         const [b, n] = c.band, h = (base - top) / n, y0 = base - b * h;
-        let a = Infinity, z = -Infinity; for (const v of c.y) if (Number.isFinite(v)) { a = Math.min(a, v); z = Math.max(z, v); }
-        Y = v => y0 - (v - a) / ((z - a) || 1) * h * 0.9;
-      } else Y = v => base - (v - lo) / ((hi - lo) || 1) * (base - top);
+        if (c.own) { let m = 0; for (const v of c.y) if (Number.isFinite(v)) m = Math.max(m, Math.abs(v)); Y = v => y0 - h * 0.45 - v / (m || 1) * h * 0.42; }
+        else { let a = Infinity, z = -Infinity; for (const v of c.y) if (Number.isFinite(v)) { a = Math.min(a, v); z = Math.max(z, v); } Y = v => y0 - (v - a) / ((z - a) || 1) * h * 0.9; }
+      } else if (c.own) Y = v => vzero - v / (vmax || 1) * 0.22 * (base - top);
+      else Y = v => base - (v - lo) / ((hi - lo) || 1) * (base - top);
       g.strokeStyle = c.color; g.lineWidth = c.width || 1.8; g.setLineDash(c.dash || []);
       g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 2;
       g.beginPath(); let pen = false;
