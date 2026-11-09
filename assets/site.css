@@ -365,3 +365,11 @@ section.main > #plot { margin-top: 0; padding-top: 0; }
 .goes-head { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; font-size: 12.5px; margin-bottom: 4px; }
 .goes-box.darkbg { background: #000; border-color: #1F2937; color: #CBD5E1; } .goes-box.darkbg .muted, .goes-box.darkbg .legend * { color: #CBD5E1; }
 .goes-leg { display: flex; gap: 14px; font-size: 12px; font-family: var(--mono); } .goes-leg i { display: inline-block; width: 16px; height: 3px; margin-right: 5px; vertical-align: middle; border-radius: 2px; }
+.db-table { font-size: 12px; font-family: var(--mono); border-collapse: collapse; width: 100%; }
+.db-table th { position: sticky; top: 0; font-family: Inter, sans-serif; font-size: 11px; padding: 6px 8px; }
+.db-table td { padding: 3px 8px; border-top: 1px solid var(--line); white-space: nowrap; text-align: right; }
+.db-table td:nth-child(2), .db-table td:nth-child(5), .db-table td:nth-child(6) { text-align: left; }
+.db-table tr.cur td { background: #FFF7ED; }
+.db-table tr.pos td:last-child { color: #B91C1C; font-weight: 700; }
+#srcdb .table-box { max-height: 420px; overflow: auto; }
+.goes-box.darkbg .db-table tr.cur td { background: #3B1D0A; }

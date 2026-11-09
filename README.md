@@ -85,3 +85,11 @@ python3 -m http.server 8000
 - Экспорт настоящих данных из `ratan-forecast` (PostgreSQL) в `data/`.
 - Английская версия.
 - Перенос вычислений (EFRAT, ДНА, моделирование) — пока ссылки ведут на старый сайт.
+
+## GOES and the source database on the analysis page
+
+- GOES X-ray flux of the scan day: `data/goes/<date>.json` (written by `tools/make_site_data.py --goes`), otherwise the SWPC 7-day list in the browser.
+- RATAN sources from the prognoz database (view `V_RAT_AR_NOAA`): on the prognoz VM
+  `ORA_RO_PASS=... bash tools/export_sources.sh 2026-11-01 2026-11-09 > sources.tsv`,
+  then anywhere with Python 3 `python3 tools/sources_to_json.py sources.tsv` → `data/sources/<date>.json`.
+  Without the file the panel links to the old site table (`dbtables` in `data/config.json`).

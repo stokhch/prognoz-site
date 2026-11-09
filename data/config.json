@@ -5,5 +5,6 @@
    "url": "http://spbf.sao.ru/data/ratan/"
   }
  ],
- "prefer": "local"
+ "prefer": "local",
+ "dbtables": "http://spbf.sao.ru/cgi-bin/ion-p?page=rat_dbtables.ion&tab=2&n=1000&mode=1&year={y}&month={m}&day={d}"
 }

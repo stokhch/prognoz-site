@@ -83,6 +83,7 @@
             <label class="switch" title="NOAA AR numbers at their scan position"><input type="checkbox" id="ar-on" checked><span></span> NOAA ARs</label>
             <label class="switch" title="Heliographic grid on the Sun disk (Sun disk option)"><input type="checkbox" id="mk-grid" checked><span></span> heliographic grid</label>
             <label class="switch" title="GOES X-ray flux of the observation day under the chart"><input type="checkbox" id="mk-goes" checked><span></span> GOES X-ray</label>
+            <label class="switch" title="Table of RATAN sources from the prognoz database for the scan date"><input type="checkbox" id="mk-db" checked><span></span> DB sources</label>
             <label class="switch" title="Vertical sliders beside the chart: grid position (left), polarization scale (right)"><input type="checkbox" id="mk-sliders" checked><span></span> show scrollbars</label>
             <label class="switch" title="Black background of the charts"><input type="checkbox" id="bg-dark"><span></span> dark background</label>
             <span class="ar-badge" id="ar-msg" hidden></span>
@@ -163,6 +164,7 @@
         </details></div>
       </div>
       <div id="goes" class="goes-box" hidden></div>
+      <div id="srcdb" class="goes-box" hidden></div>
       <div id="extra"></div>
     </section>
   </div>
@@ -205,7 +207,7 @@ const TABS = {
   azim: ['Day azimuths', 'All scans of the day, first channel, top to bottom by time.']
 };
 const $ = id => document.getElementById(id);
-const st = { goesOn: true, sliders: true, vSlider: 50, gridShift: 0, guides: true, arOn: true, sunGrid: true, regs: null, regsMsg: '', raw: null, excluded: [], auto: [], qsMode: 'off', qsMethod: 'model', sunOn: false, single: null, sunLayer: 'aia193', sunEvents: true, sunRot: 0, sunFlip: false, arc: null, path: null, level2: null, param: 'I', range: 'sun2', scale: 'full', tab: 'group', freqOn: null, pos: null, zoom: null, buttons: new Map(), dayCache: new Map() };
+const st = { dbOn: true, goesOn: true, sliders: true, vSlider: 50, gridShift: 0, guides: true, arOn: true, sunGrid: true, regs: null, regsMsg: '', raw: null, excluded: [], auto: [], qsMode: 'off', qsMethod: 'model', sunOn: false, single: null, sunLayer: 'aia193', sunEvents: true, sunRot: 0, sunFlip: false, arc: null, path: null, level2: null, param: 'I', range: 'sun2', scale: 'full', tab: 'group', freqOn: null, pos: null, zoom: null, buttons: new Map(), dayCache: new Map() };
 
 // ---------- archive tree ----------
 // archive path from the address (#YYYY/MM/<file>_out.fits); anything else (old #obs-… links) is ignored
@@ -436,6 +438,42 @@ function drawGoes() {
   const ch = V.chart(series, { xLabel: 'UT, hours', yLabel: 'log flux, W/m²', yr: [-9, -3], xr: [0, 24], labels, mark: tScan, width: CW(), height: Math.max(200, Math.round(0.22 * CW())) });
   box.replaceChildren(head(`at the scan ${sc.obs.time.slice(0, 5)} UT: ${flareClass(near[1])} · day maximum ${flareClass(peak)} at ${String(Math.floor(at / 60)).padStart(2, '0')}:${String(at % 60).padStart(2, '0')} UT`, g.source), ch, el('div', { class: 'goes-leg' }, ...series.map(x => el('span', {}, el('i', { style: 'background:' + x.color }), x.name))));
 }
+// RATAN sources of the scan date from the prognoz database (view V_RAT_AR_NOAA), exported to
+// data/sources/<date>.json by tools/export_sources.sh + tools/sources_to_json.py; rows of the open scan are
+// highlighted. Without the file: a link to the database page of the old site for that date.
+const dbCache = new Map();
+function dbFor(date) {
+  if (!dbCache.has(date)) dbCache.set(date, fetch('data/sources/' + date + '.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error('no export for this date'); return r.json(); }));
+  return dbCache.get(date);
+}
+let siteConfig = null;
+fetch('data/config.json', { cache: 'no-cache' }).then(r => r.json()).then(c => { siteConfig = c; }).catch(() => {});
+function drawDb() {
+  const box = $('srcdb'), sc = st.level2;
+  if (!sc || !st.dbOn) { box.hidden = true; return; }
+  box.hidden = false;
+  const date = sc.obs.date, [y, m, d] = date.split('-');
+  const link = siteConfig && siteConfig.dbtables ? siteConfig.dbtables.replace('{y}', +y).replace('{m}', +m).replace('{d}', +d) : '';
+  const head = (txt) => el('div', { class: 'goes-head' }, el('b', { text: 'RATAN sources (database), ' + date }), el('span', { class: 'muted', text: txt }),
+    link ? el('a', { href: link, target: '_blank', rel: 'noopener', text: 'old site table ↗' }) : '');
+  if (st.dbKey !== date) {
+    st.dbKey = date; st.db = null; st.dbErr = '';
+    dbFor(date).then(j => { if (st.dbKey === date) { st.db = j; drawDb(); } }).catch(e => { dbCache.delete(date); if (st.dbKey === date) { st.dbErr = e.message; drawDb(); } });
+  }
+  if (!st.db) { box.replaceChildren(head(st.dbErr ? st.dbErr + ' — run tools/export_sources.sh on the prognoz VM, then tools/sources_to_json.py.' : 'loading…')); return; }
+  const stem = (st.path || '').split('/').pop().replace(/_out\.fits$/i, '');
+  const n = (v, k = 1) => v === null || v === undefined ? '' : (+v).toFixed(k);
+  const cols = ['UT', 'scan', 'x, ″', 'y, ″', 'NOAA', 'location', 'area', 'F 3 cm, s.f.u.', 'V 3 cm', 'F 10 cm', 'F 2 cm', 'k(y)', 'F·k', 'F·k/F10', 'forecast'];
+  const rows = st.db.rows.map(r => {
+    const fk = r.flux_i !== null && r.posykoeff !== null ? r.flux_i * r.posykoeff : null, ratio = fk !== null && r.flux_i10 > 0 ? fk / r.flux_i10 : null;
+    const scan = (r.fname || '').replace(/^.*?(\d{8}_\d{6}_sun[^_]*)_out.*$/, '$1');
+    const tr = el('tr', { class: (stem && scan === stem ? 'cur ' : '') + (r.prognoz === '1' ? 'pos' : '') },
+      ...[r.dateobs.slice(11, 19), scan.replace(/^\d{8}_/, ''), n(r.pos, 0), n(r.posy, 0), r.noaa || '', r.location || '', r.area ?? '', n(r.flux_i, 2), n(r.flux_v, 2), n(r.flux_i10, 2), n(r.flux_i2, 2), n(r.posykoeff, 2), n(fk, 2), n(ratio, 2), r.prognoz === '1' ? '▲' : ''].map(v => el('td', { text: String(v) })));
+    return tr;
+  });
+  const table = el('table', { class: 'db-table' }, el('thead', {}, el('tr', {}, ...cols.map(c => el('th', { text: c })))), el('tbody', {}, ...rows));
+  box.replaceChildren(head(st.db.rows.length + ' rows · ' + (st.db.source || '') + ' · ▲ = F·k > 10 s.f.u. and F·k > F10 (forecast criterion); highlighted — the open scan'), el('div', { class: 'table-box' }, table));
+}
 const TH_LABEL = () => V.TH.dark ? '#E2E8F0' : '#0F1B2D';
 // heliographic grid behind the scan charts when the Sun disk picture is off
 function helio() {
@@ -447,7 +485,7 @@ function colorOf(c) { const f = st.level2.freq; return V.freqColor(f[c], f[0], f
 const pick = x => { st.pos = Math.round(x); if (st.sunOn && ['single', 'group', 'vertical', 'grid'].includes(st.tab)) draw(); else if (st.tab !== 'point') selectTab('point'); else draw(); };
 const zoom = (a, b) => { st.zoom = [a, b]; draw(); };
 
-function draw() { drawMain(); drawGoes(); }
+function draw() { drawMain(); drawGoes(); drawDb(); }
 function drawMain() {
   const sc = st.level2, box = $('plot'), extra = $('extra');
   if (!sc) return;
@@ -865,6 +903,10 @@ $('png').addEventListener('click', async () => {
 { try { st.goesOn = localStorage.getItem('goes') !== 'off'; } catch (e) {}
   $('mk-goes').checked = st.goesOn;
   $('mk-goes').addEventListener('change', e => { st.goesOn = e.target.checked; try { localStorage.setItem('goes', st.goesOn ? 'on' : 'off'); } catch (er) {} drawGoes(); });
+}
+{ try { st.dbOn = localStorage.getItem('dbsrc') !== 'off'; } catch (e) {}
+  $('mk-db').checked = st.dbOn;
+  $('mk-db').addEventListener('change', e => { st.dbOn = e.target.checked; try { localStorage.setItem('dbsrc', st.dbOn ? 'on' : 'off'); } catch (er) {} drawDb(); });
 }
 $('noisy').addEventListener('click', e => { if (st.level2) stepNoisy(e.shiftKey ? -1 : 1); });
 $('noisy-prev').addEventListener('click', () => { if (st.level2) stepNoisy(-1); });
