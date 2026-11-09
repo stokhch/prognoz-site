@@ -179,7 +179,7 @@ const TABS = {
   grid: ['Grid', 'Small plot per channel; click to open in Scan.'],
   map: ['Map', 'Frequency × position. Click: point spectrum.'],
   contour: ['Contours', 'Isolines, frequency × position.'],
-  waterfall: ['3D', 'Channels in depth, low frequencies in front.'],
+  waterfall: ['3D', 'Channels in depth, high frequencies in front (bottom).'],
   sun: ['Scan on Sun image', 'SDO image (Helioviewer) rotated so the scan is horizontal; orange strip = beam at the point. Click to pick a point.'],
   point: ['Point spectrum', 'Scan with point; below: spectrum, nearest-peak shift (within ¼ beam) and peak spectrum.'],
   qsview: ['Quiet-Sun template', 'Scan (solid) vs quiet-Sun estimate (dashed).'],
@@ -477,7 +477,8 @@ function draw() {
     const rows = all.map(c => ser(c, gg));
     const [lo, hi] = yr(rows, gg), clipped = rows.map(r => r.map(v => Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : v));
     if (st.tab === 'waterfall') {
-      const step = Math.max(1, Math.round(sc.nChan / 40)), idx = all.filter(c => c % step === 0);
+      // high frequencies in front (at the bottom), low ones behind
+      const step = Math.max(1, Math.round(sc.nChan / 40)), idx = all.filter(c => c % step === 0).reverse();
       box.replaceChildren(V.waterfall(gg.x, idx.map(c => sc.freq[c]), idx.map(c => clipped[c]), yl, guides(), CW()));
     } else box.replaceChildren(V.map2d(gg.x, sc.freq, clipped, st.tab, yl, pick, 'frequency, GHz', guides(), CW()));
     return;

@@ -280,7 +280,8 @@ export function waterfall(x, freqs, rows, label, guides = [], size = 0) {
     rows[k].forEach((v, i) => g.lineTo(X(i), Y(v)));
     g.lineTo(X(x.length - 1), oy); g.closePath();
     g.fillStyle = TH.fill; g.fill();
-    g.strokeStyle = cmap(0.1 + 0.75 * k / Math.max(1, n - 1)); g.lineWidth = 1.2 * lineScale; g.stroke();
+    const fmin = Math.min(...freqs), fmax = Math.max(...freqs);   // colour by frequency, whatever the order
+    g.strokeStyle = cmap(0.1 + 0.75 * (freqs[k] - fmin) / ((fmax - fmin) || 1)); g.lineWidth = 1.2 * lineScale; g.stroke();
   }
   for (const gd of guides) {
     if (gd.x < x[0] || gd.x > x[x.length - 1]) continue;
