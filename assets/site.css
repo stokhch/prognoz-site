@@ -345,3 +345,12 @@ section.main > #plot { margin-top: 0; padding-top: 0; }
 .noisy-grp #noisy-prev { border-top-right-radius: 0; border-bottom-right-radius: 0; padding: 0 9px; }
 .noisy-grp #noisy { border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: -1px; }
 #mark-pop .ar-badge { align-self: flex-start; }
+/* vertical sliders left (grid position) and right (polarization scale) of the chart */
+.plot-row { display: flex; gap: 6px; align-items: stretch; min-width: 0; }
+.plot-row > .plot { flex: 1 1 auto; min-width: 0; }
+.vgain { flex: none; width: 44px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 0; background: #FAFBFC; border: 1px solid var(--line); border-radius: 12px; position: sticky; top: 8px; max-height: 92vh; }
+.vgain[hidden] { display: none; }
+.vgain .mono { font-size: 11px; color: var(--ink-2); }
+.vgain input[type=range] { writing-mode: vertical-lr; direction: rtl; flex: 1 1 auto; min-height: 160px; width: 22px; accent-color: #1E4FB8; cursor: ns-resize; }
+#gshift-box input[type=range] { accent-color: #0E7490; }
+.vgain .mini-btn { padding: 0 6px; font-size: 11px; }

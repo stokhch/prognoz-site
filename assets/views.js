@@ -411,7 +411,7 @@ export function chart(series, opts = {}) {
   svg.append(se('rect', { x: 0, y: 0, width: W, height: H, fill: TH.bg }));
   const d = se('defs', {}); const cp = se('clipPath', { id: clip }); cp.append(se('rect', { x: P.l, y: P.t, width: W - P.l - P.r, height: H - P.t - P.b })); d.append(cp); svg.append(d);
   const t = (x, y, s, a = {}) => { const e = se('text', { x, y, 'font-size': 12, fill: TH.text, 'font-family': 'JetBrains Mono, monospace', ...a }); e.textContent = s; svg.append(e); };
-  if (opts.helio) helioGrid(svg, opts.helio, X, (W - P.l - P.r) / (x1 - x0), (P.t + H - P.b) / 2, clip);
+  if (opts.helio) helioGrid(svg, opts.helio, X, (W - P.l - P.r) / (x1 - x0), (P.t + H - P.b) / 2 - (opts.helio.shift || 0) * (H - P.t - P.b), clip);
   const bgCanvas = opts.bg ? sunBackground(svg, opts.bg, X, kxBg, (P.t + H - P.b) / 2, clip, P.t, H - P.b, W, H, P.l, W - P.r) : null;
   for (const v of niceTicks(y0, y1, 6)) { svg.append(se('line', { x1: P.l, x2: W - P.r, y1: Y(v), y2: Y(v), stroke: TH.grid })); if (opts.yTicks !== false) t(P.l - 6, Y(v) + 4, fmt(v), { 'text-anchor': 'end' }); }
   const xt = opts.logX ? [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000].filter(v => v >= x0 && v <= x1) : niceTicks(x0, x1, 8);
@@ -602,16 +602,17 @@ export function sunOverlay(s, opts, done) {
   const P = s.header.SOLAR_P || 0, q = transitAngle(s), turn = P + q + (opts.rot || 0);
   const sgn = opts.flip ? -1 : 1, R = s.solarR, tq = Math.tan(q * Math.PI / 180);
   const X = (x, v = 0) => cx + sgn * (x + v * tq) * k;
+  const dyS = -(opts.gridShift || 0) * S;           // disk, grid and picture moved up/down by the left slider
   const draw = img => {
     g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = TH.bg; g.fillRect(0, 0, TW, THt);
     g.translate(M.l, M.t);
     g.save(); g.beginPath(); g.rect(0, 0, S, S); g.clip();
     g.fillStyle = '#05080F'; g.fillRect(0, 0, S, S);
-    if (img) { g.save(); g.translate(cx, cy); g.rotate(-turn * Math.PI / 180); g.drawImage(img, -S / 2, -S / 2, S, S); g.restore(); }
+    if (img) { g.save(); g.translate(cx, cy + dyS); g.rotate(-turn * Math.PI / 180); g.drawImage(img, -S / 2, -S / 2, S, S); g.restore(); }
     // heliographic grid (every 15 deg, B0 from the header) and the limb, in the solar frame turned like the image
     if (opts.grid) {
       const B0 = (s.header.SOLAR_B || 0) * Math.PI / 180, r = R * k;
-      g.save(); g.translate(cx, cy); g.rotate(-turn * Math.PI / 180);
+      g.save(); g.translate(cx, cy + dyS); g.rotate(-turn * Math.PI / 180);
       const proj = (lat, lon) => {
         const z = Math.sin(lat) * Math.sin(B0) + Math.cos(lat) * Math.cos(B0) * Math.cos(lon);
         return { x: r * Math.cos(lat) * Math.sin(lon), y: -r * (Math.sin(lat) * Math.cos(B0) - Math.cos(lat) * Math.sin(B0) * Math.cos(lon)), z };
@@ -634,12 +635,12 @@ export function sunOverlay(s, opts, done) {
       g.restore();
     }
     g.strokeStyle = '#F5C451'; g.lineWidth = 1.6; g.setLineDash([]);
-    g.beginPath(); g.arc(cx, cy, R * k, 0, 2 * Math.PI); g.stroke();
+    g.beginPath(); g.arc(cx, cy + dyS, R * k, 0, 2 * Math.PI); g.stroke();
     // NOAA active regions: marker and number at the heliographic position
     const noImage = !opts.urls || !opts.urls.length;
     if (opts.regions && opts.regions.length && !(noImage && opts.marks)) {
       const B0 = s.header.SOLAR_B || 0;
-      g.save(); g.translate(cx, cy); g.rotate(-turn * Math.PI / 180);
+      g.save(); g.translate(cx, cy + dyS); g.rotate(-turn * Math.PI / 180);
       for (const r of opts.regions) {
         const p = projectHelio(r.lat, r.lon, B0, R * k);
         if (p.z < 0) continue;
@@ -665,6 +666,7 @@ export function sunOverlay(s, opts, done) {
     let lo = 0, hi = -Infinity, vmax = 0;
     for (const c of shared) for (const v of c.y) if (Number.isFinite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
     for (const c of opts.curves) if (c.own && !c.band) for (const v of c.y) if (Number.isFinite(v)) vmax = Math.max(vmax, Math.abs(v));
+    vmax /= opts.vGain || 1;
     const base = cy + 0.95 * R * k, top = cy - 0.9 * R * k, vzero = base - 0.25 * (base - top);
     if (vmax > 0) { g.strokeStyle = 'rgba(147,197,253,0.5)'; g.setLineDash([2, 4]); g.beginPath(); g.moveTo(X(opts.x[0]), vzero); g.lineTo(X(opts.x[opts.x.length - 1]), vzero); g.stroke(); g.setLineDash([]); }
     g.lineJoin = 'round';
