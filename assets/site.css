@@ -306,3 +306,22 @@ figure.photo img { max-width: 820px; }
 .pal-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 8px; border: 1px solid transparent; border-radius: 8px; background: transparent; font: inherit; font-size: 12.5px; text-align: left; color: var(--ink); cursor: pointer; }
 .pal-item:hover { background: var(--ground); }
 .pal-item[aria-pressed="true"] { border-color: var(--ink); background: var(--ground); font-weight: 600; }
+.an-sum { height: 44px !important; min-width: 150px; justify-content: space-between; font-size: 12.5px !important; }
+#an-pop.active > summary { background: var(--ink); color: #fff; border-color: var(--ink); box-shadow: 0 0 0 2px rgba(249,115,22,.35); }
+.an-list { min-width: 200px; gap: 2px !important; padding: 6px !important; }
+.an-list button { text-align: left; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; font: inherit; font-size: 13px; color: var(--ink); cursor: pointer; }
+.an-list button:hover { background: var(--ground); }
+.an-list button[aria-selected="true"] { background: var(--ink); color: #fff; }
+/* quiet-Sun popover and tight gap between modes and chart */
+#qs-pop #qs-cur { font-weight: 600; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#qs-pop.active > summary { border-color: var(--ink); box-shadow: 0 0 0 2px rgba(249,115,22,.30); }
+#qs-pop .pop-body { gap: 8px; }
+section.main > #msg:empty { display: none; }
+section.main > .head-row { min-height: 0; }
+section.main > #plot { margin-top: 0; padding-top: 0; }
+.ar-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; margin-left: -6px; border-radius: 9px; background: var(--ground); color: var(--muted); font-size: 11px; font-weight: 700; cursor: help; }
+.ar-badge.bad { background: #FEF3C7; color: #92400E; }
+.vrow { display: flex; gap: 6px; align-items: center; height: 44px; }
+.vgroup { margin-left: auto; }
+.vgroup .pop-body { left: auto; right: 0; }
+#mark-pop .ar-badge { margin-left: 0; }

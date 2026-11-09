@@ -1,3 +1,8 @@
+// Global multiplier for scan line widths (chosen by the user).
+let lineScale = 1;
+export function setLineScale(k) { lineScale = +k > 0 ? +k : 1; }
+export function getLineScale() { return lineScale; }
+
 // View modes of the analysis page (port of the old ION "Type" / "Stokes" / "SubQuietSun" options and analysis
 // buttons). Everything is computed in the browser from one level2 scan (see fits.js).
 import { value } from './fits.js';
@@ -201,7 +206,7 @@ export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'частот
     const X = c => pad.l + c / (nc - 1) * pw, Y = r => Yv(fAt(r));
     const levels = niceTicks(lo, hi, 12);
     levels.forEach((L, li) => {
-      g.strokeStyle = cmap(0.12 + 0.76 * li / Math.max(1, levels.length - 1)); g.lineWidth = 1.1;
+      g.strokeStyle = cmap(0.12 + 0.76 * li / Math.max(1, levels.length - 1)); g.lineWidth = 1.1 * lineScale;
       g.beginPath();
       for (let r = 0; r < nr - 1; r++) for (let c = 0; c < nc - 1; c++) {
         const v = [rows[r][c], rows[r][c + 1], rows[r + 1][c + 1], rows[r + 1][c]];
@@ -254,7 +259,7 @@ export function waterfall(x, freqs, rows, label, guides = []) {
     rows[k].forEach((v, i) => g.lineTo(X(i), Y(v)));
     g.lineTo(X(x.length - 1), oy); g.closePath();
     g.fillStyle = 'rgba(255,255,255,0.92)'; g.fill();
-    g.strokeStyle = cmap(0.1 + 0.75 * k / Math.max(1, n - 1)); g.lineWidth = 1.2; g.stroke();
+    g.strokeStyle = cmap(0.1 + 0.75 * k / Math.max(1, n - 1)); g.lineWidth = 1.2 * lineScale; g.stroke();
   }
   for (const gd of guides) {
     if (gd.x < x[0] || gd.x > x[x.length - 1]) continue;
@@ -402,7 +407,7 @@ export function chart(series, opts = {}) {
     let dstr = '', pen = false;
     const YY = s.axis === 2 ? Y2 : Y;
     s.x.forEach((xv, i) => { const yv = s.y[i]; if (!Number.isFinite(yv)) { pen = false; return; } dstr += (pen ? 'L' : 'M') + X(xv).toFixed(1) + ',' + YY(yv).toFixed(1); pen = true; });
-    g.append(se('path', { d: dstr, fill: 'none', stroke: s.color, 'stroke-width': s.width || 1.5, 'stroke-linejoin': 'round', ...(s.dash ? { 'stroke-dasharray': s.dash } : {}) }));
+    g.append(se('path', { d: dstr, fill: 'none', stroke: s.color, 'stroke-width': (s.width || 1.5) * lineScale, 'stroke-linejoin': 'round', ...(s.dash ? { 'stroke-dasharray': s.dash } : {}) }));
   }
   for (const l of opts.labels || []) t(P.l + 4, Y(l.y) - 3, l.text, { fill: l.color || '#4A5668', 'font-size': 11 });
   for (const m of opts.marks || []) if (m.x >= x0 && m.x <= x1) {
@@ -632,7 +637,7 @@ export function sunOverlay(s, opts, done) {
         else { let a = Infinity, z = -Infinity; for (const v of c.y) if (Number.isFinite(v)) { a = Math.min(a, v); z = Math.max(z, v); } Y = v => y0 - (v - a) / ((z - a) || 1) * h * 0.9; }
       } else if (c.own) Y = v => vzero - v / (vmax || 1) * 0.22 * (base - top);
       else Y = v => base - (v - lo) / ((hi - lo) || 1) * (base - top);
-      g.strokeStyle = c.color; g.lineWidth = c.width || 1.8; g.setLineDash(c.dash || []);
+      g.strokeStyle = c.color; g.lineWidth = (c.width || 1.8) * lineScale; g.setLineDash(c.dash || []);
       g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 2;
       g.beginPath(); let pen = false;
       opts.x.forEach((x, i) => { const v = c.y[i]; if (!Number.isFinite(v)) { pen = false; return; } const px = X(x), py = Y(v); pen ? g.lineTo(px, py) : g.moveTo(px, py); pen = true; });

@@ -26,7 +26,7 @@ function ticks(lo, hi, nbins) {
 
 const PT = 100 / 72;      // matplotlib points -> pixels at dpi 100
 
-export function render(scan, { big = true, robust = false, guides = false } = {}) {
+export function render(scan, { big = true, robust = false, guides = false, lineScale = 1 } = {}) {
   const [W, H] = big ? [663, 450] : [221, 150];
   const sel = scan.freq.map((f, i) => f >= 3.0 ? i : -1).filter(i => i >= 0);
   if (!sel.length) throw new Error('нет каналов от 3 ГГц');
@@ -57,7 +57,7 @@ export function render(scan, { big = true, robust = false, guides = false } = {}
   const X = v => L + (v - x[0]) / (x[n - 1] - x[0]) * (R - L);
   const Yi = v => B - (v - m1) / (m2 - m1) * (B - T);
   const Yv = v => B - (v - yv[0]) / (yv[1] - yv[0]) * (B - T);
-  const lw = (big ? 0.8 : 0.6) * PT;
+  const lw = (big ? 0.8 : 0.6) * PT * lineScale;
 
   g.save();
   g.beginPath(); g.rect(L, T, R - L, B - T); g.clip();

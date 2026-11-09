@@ -55,10 +55,37 @@
       <div class="tree compact-tree" id="tree" style="max-height: 70vh"></div>
     </nav>
 
-    <section class="card main stack" aria-label="Результат" style="gap: 6px; padding: 10px 12px; flex: 1 1 auto; min-width: 0">
+    <section class="card main stack" aria-label="Результат" style="gap: 3px; padding: 8px 12px; flex: 1 1 auto; min-width: 0">
       <div id="tabs" role="tablist" aria-label="Режим просмотра" class="modebar">
         <div class="mgroup" role="group" aria-label="Сканы"><span class="cap">Сканы</span><div class="mrow"><button type="button" role="tab" data-v="plot" aria-selected="true" title="Прогноз"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" fill="#0F1B2D" stroke="#94A3B8"/><path d="M5 17c2 0 3-6 5-6s2 4 3 4 2-8 3-8 2 10 3 10" stroke="#EAB308" stroke-width="1.4"/><path d="M5 18c2 0 3-3 5-3s2 2 3 2 2-4 3-4 2 5 3 5" stroke="#F97316" stroke-width="1.2"/></svg><span>Прогноз</span></button><button type="button" role="tab" data-v="single" aria-selected="false" title="Скан"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19h18" stroke="#94A3B8"/><path d="M4 18c3 0 3-9 6-9s2 5 4 5 2-9 4-9 2 13 3 13" stroke="#F97316"/></svg><span>Скан</span></button><button type="button" role="tab" data-v="group" aria-selected="false" title="Наложение"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19h18" stroke="#94A3B8"/><path d="M4 18c3 0 3-10 6-10s2 5 4 5 2-8 4-8 2 13 3 13" stroke="#F97316"/><path d="M4 18c3 0 3-7 6-7s2 4 4 4 2-6 4-6 2 9 3 9" stroke="#3B82F6"/><path d="M4 18c3 0 3-4 6-4s2 2 4 2 2-3 4-3 2 5 3 5" stroke="#14B8A6"/></svg><span>Наложение</span></button><button type="button" role="tab" data-v="vertical" aria-selected="false" title="Разнесение"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8c3 0 3-4 6-4s2 2 4 2 3-3 6-3" stroke="#F97316"/><path d="M4 14c3 0 3-4 6-4s2 2 4 2 3-3 6-3" stroke="#3B82F6"/><path d="M4 20c3 0 3-4 6-4s2 2 4 2 3-3 6-3" stroke="#14B8A6"/></svg><span>Разнесение</span></button><button type="button" role="tab" data-v="grid" aria-selected="false" title="Сетка"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5" stroke="#F97316"/><rect x="13" y="3" width="8" height="8" rx="1.5" stroke="#3B82F6"/><rect x="3" y="13" width="8" height="8" rx="1.5" stroke="#14B8A6"/><rect x="13" y="13" width="8" height="8" rx="1.5" stroke="#A855F7"/></svg><span>Сетка</span></button><button type="button" role="tab" data-v="map" aria-selected="false" title="Карта"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" stroke="#94A3B8"/><rect x="5" y="6" width="5" height="4.5" fill="#1E3A8A" stroke="none"/><rect x="10" y="6" width="4.5" height="4.5" fill="#A855F7" stroke="none"/><rect x="14.5" y="6" width="4.5" height="4.5" fill="#1E3A8A" stroke="none"/><rect x="5" y="10.5" width="5" height="4" fill="#A855F7" stroke="none"/><rect x="10" y="10.5" width="4.5" height="4" fill="#F97316" stroke="none"/><rect x="14.5" y="10.5" width="4.5" height="4" fill="#A855F7" stroke="none"/><rect x="5" y="14.5" width="5" height="3.5" fill="#F97316" stroke="none"/><rect x="10" y="14.5" width="4.5" height="3.5" fill="#EAB308" stroke="none"/><rect x="14.5" y="14.5" width="4.5" height="3.5" fill="#F97316" stroke="none"/></svg><span>Карта</span></button><button type="button" role="tab" data-v="contour" aria-selected="false" title="Контуры"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="12" rx="9" ry="7" stroke="#3B82F6"/><ellipse cx="12" cy="12" rx="5.5" ry="4" stroke="#14B8A6"/><ellipse cx="12" cy="12" rx="2" ry="1.5" stroke="#F97316" fill="#F97316"/></svg><span>Контуры</span></button><button type="button" role="tab" data-v="waterfall" aria-selected="false" title="3D"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12c3 0 3-5 6-5s3 3 6 3" stroke="#14B8A6"/><path d="M6 16c3 0 3-5 6-5s3 3 6 3" stroke="#3B82F6"/><path d="M3 20c3 0 3-5 6-5s3 3 6 3" stroke="#F97316"/></svg><span>3D</span></button></div></div>
-        <div class="mgroup" role="group" aria-label="Анализ"><span class="cap">Анализ</span><div class="seg seg-dark seg-tall"><button type="button" role="tab" data-v="point" aria-selected="false">Спектр в точке</button><button type="button" role="tab" data-v="near" aria-selected="false">Соседние волны</button><button type="button" role="tab" data-v="gauss" aria-selected="false">Гаусс-анализ</button><button type="button" role="tab" data-v="fft" aria-selected="false">Фурье</button><button type="button" role="tab" data-v="wavelet" aria-selected="false">Вейвлет</button><button type="button" role="tab" data-v="azim" aria-selected="false">Азимуты дня</button></div></div>
+        <div class="mgroup" role="group" aria-label="Анализ"><span class="cap">Анализ</span><details class="pop" id="an-pop"><summary class="an-sum"><span id="an-cur">выбрать…</span> <span aria-hidden="true">▾</span></summary><div class="pop-body an-list"><button type="button" role="tab" data-v="point" aria-selected="false">Спектр в точке</button><button type="button" role="tab" data-v="near" aria-selected="false">Соседние волны</button><button type="button" role="tab" data-v="gauss" aria-selected="false">Гаусс-анализ</button><button type="button" role="tab" data-v="fft" aria-selected="false">Фурье-спектр</button><button type="button" role="tab" data-v="wavelet" aria-selected="false">Вейвлет-анализ</button><button type="button" role="tab" data-v="azim" aria-selected="false">Азимуты дня</button></div></details></div>
+        <div class="mgroup vgroup" role="group" aria-label="Вид"><span class="cap">Вид</span><div class="vrow">
+        <details class="pop" id="pal-pop">
+          <summary title="Палитра и толщина линий"><span class="swatch" id="pal-sw" aria-hidden="true"></span> <span aria-hidden="true">▾</span></summary>
+          <div class="pop-body" style="min-width: 320px; gap: 6px"><span class="cap">Толщина линий</span><div class="seg" id="lw"><button type="button" data-v="0.6">тонкие</button><button type="button" data-v="1">обычные</button><button type="button" data-v="1.6">толстые</button><button type="button" data-v="2.4">жирные</button></div><span class="cap">Палитра</span><div id="pal-list" style="display: flex; flex-direction: column; gap: 4px"></div></div>
+        </details>
+        <details class="pop" id="sun-pop">
+          <summary><span class="dot" id="sun-dot" aria-hidden="true"></span> Диск Солнца <span aria-hidden="true">▾</span></summary>
+          <div class="pop-body" style="min-width: 270px">
+            <label class="switch"><input type="checkbox" id="sun-on"><span></span> показать диск со сканами</label>
+            <div id="sun-opts" style="display: flex; flex-direction: column; gap: 8px">
+              <select id="sun-layer" class="mini-select" aria-label="Снимок"></select>
+              <label class="switch"><input type="checkbox" id="sun-grid" checked><span></span> гелиографическая сетка</label>
+              <label class="switch"><input type="checkbox" id="sun-flip"><span></span> отразить скан</label>
+              <label style="display: flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--muted)">поправка угла <input type="number" id="sun-rot" step="0.5" value="0" class="mini-select" style="width: 64px"> °</label>
+            </div>
+            <p class="muted" style="margin: 0; font-size: 11.5px">Снимок SDO можно не загружать — тогда на диске только край, сетка и номера АО. Показывается в режимах «Скан», «Наложение», «Разнесение», «Сетка».</p>
+          </div>
+        </details>
+        <details class="pop" id="mark-pop">
+          <summary title="Линии краёв и центра, номера АО NOAA">Разметка <span aria-hidden="true">▾</span></summary>
+          <div class="pop-body" style="min-width: 220px">
+            <label class="switch" title="Вертикальные линии краёв диска (±R☉) и центра Солнца"><input type="checkbox" id="guides" checked><span></span> края и центр</label>
+            <label class="switch" title="Номера активных областей NOAA в их положении на скане"><input type="checkbox" id="ar-on" checked><span></span> АО NOAA</label>
+            <span class="ar-badge" id="ar-msg" hidden></span>
+          </div>
+        </details>
+        </div></div>
       </div>
       <form class="ctl" id="params" aria-label="Параметры просмотра" onsubmit="return false">
         <div class="grp"><span class="cap">Стокс</span>
@@ -74,11 +101,16 @@
           <div class="seg" id="scale">
             <button type="button" data-v="auto" aria-pressed="true" title="без выбросов: 0,5–99,5% по диску">авто</button><button type="button" data-v="full" aria-pressed="false" title="весь диапазон">полный</button>
           </div></div>
-        <div class="grp"><span class="cap">Спок. Солнце</span>
-          <div class="seg" id="qsmode">
-            <button type="button" data-v="off" aria-pressed="true">нет</button><button type="button" data-v="show" aria-pressed="false" title="показать шаблон пунктиром">шаблон</button><button type="button" data-v="sub" aria-pressed="false" title="вычесть из скана">вычесть</button>
+        <details class="pop" id="qs-pop">
+          <summary><span class="cap" style="letter-spacing: 0">Спок. Солнце</span> <b id="qs-cur">нет</b> <span aria-hidden="true">▾</span></summary>
+          <div class="pop-body" style="min-width: 250px">
+            <div class="seg" id="qsmode">
+              <button type="button" data-v="off" aria-pressed="true">нет</button><button type="button" data-v="show" aria-pressed="false" title="показать шаблон пунктиром">шаблон</button><button type="button" data-v="sub" aria-pressed="false" title="вычесть из скана">вычесть</button>
+            </div>
+            <label for="qs" class="muted" style="font-size: 11.5px">Способ оценки</label>
+            <select id="qs" class="mini-select" aria-label="Способ оценки спокойного Солнца"></select>
           </div>
-          <select id="qs" class="mini-select" aria-label="Способ оценки спокойного Солнца" title="Способ оценки спокойного Солнца"></select></div>
+        </details>
         <details class="pop" id="freq-pop">
           <summary><span class="cap" style="letter-spacing: 0">Каналы</span> <b id="freq-n">—</b><span class="muted" id="excl-n" style="font-weight: 500"></span> <span aria-hidden="true">▾</span></summary>
           <div class="pop-body">
@@ -95,26 +127,6 @@
               <div id="excl-list" style="display: flex; flex-wrap: wrap; gap: 4px"></div>
               <span class="muted" style="font-size: 11px">«авто» — отброшен при чтении (I больше 10 медиан по каналам). Щелчок по метке возвращает канал. Список запоминается для этого файла.</span>
             </div>
-          </div>
-        </details>
-        <label class="switch" title="Вертикальные линии краёв диска (±R☉) и центра Солнца"><input type="checkbox" id="guides" checked><span></span> края и центр</label>
-        <label class="switch" title="Номера активных областей NOAA в их положении на скане"><input type="checkbox" id="ar-on" checked><span></span> АО NOAA</label>
-        <span class="muted" id="ar-msg" style="font-size: 11px"></span>
-        <details class="pop" id="pal-pop">
-          <summary><span class="cap" style="letter-spacing: 0">Палитра</span> <span class="swatch" id="pal-sw" aria-hidden="true"></span> <span aria-hidden="true">▾</span></summary>
-          <div class="pop-body" id="pal-list" style="min-width: 250px; gap: 4px"></div>
-        </details>
-        <details class="pop" id="sun-pop">
-          <summary><span class="dot" id="sun-dot" aria-hidden="true"></span> Диск Солнца <span aria-hidden="true">▾</span></summary>
-          <div class="pop-body" style="min-width: 270px">
-            <label class="switch"><input type="checkbox" id="sun-on"><span></span> показать диск со сканами</label>
-            <div id="sun-opts" style="display: flex; flex-direction: column; gap: 8px">
-              <select id="sun-layer" class="mini-select" aria-label="Снимок"></select>
-              <label class="switch"><input type="checkbox" id="sun-grid" checked><span></span> гелиографическая сетка</label>
-              <label class="switch"><input type="checkbox" id="sun-flip"><span></span> отразить скан</label>
-              <label style="display: flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--muted)">поправка угла <input type="number" id="sun-rot" step="0.5" value="0" class="mini-select" style="width: 64px"> °</label>
-            </div>
-            <p class="muted" style="margin: 0; font-size: 11.5px">Снимок SDO можно не загружать — тогда на диске только край, сетка и номера АО. Показывается в режимах «Скан», «Наложение», «Разнесение», «Сетка».</p>
           </div>
         </details>
       </form>
@@ -362,12 +374,12 @@ function marks() {
   return st.regs.regions.map(r => { const p = projectHelio(r.lat, r.lon, B0, sc.solarR); return p.z > 0.05 ? { x: scanX(p, turn, q, st.sunFlip), label: r.noaa } : null; }).filter(Boolean);
 }
 function loadRegions() {
-  const sc = st.level2; if (!sc || !st.arOn) { $('ar-msg').textContent = ''; return; }
+  const sc = st.level2; if (!sc || !st.arOn) { arMsg('', ''); return; }
   const key = sc.obs.date + ' ' + sc.obs.time;
   if (st.regsKey === key) return;
-  st.regsKey = key; st.regs = null; $('ar-msg').textContent = 'АО: загрузка…';
-  regionsFor(sc.obs.date, sc.obs.time).then(r => { if (st.regsKey !== key) return; st.regs = r; $('ar-msg').textContent = 'АО: ' + r.regions.length + ' · ' + r.source; draw(); })
-    .catch(e => { if (st.regsKey !== key) return; $('ar-msg').textContent = 'АО: ' + e.message; });
+  st.regsKey = key; st.regs = null; arMsg('…', 'АО NOAA: загрузка');
+  regionsFor(sc.obs.date, sc.obs.time).then(r => { if (st.regsKey !== key) return; st.regs = r; arMsg(String(r.regions.length), 'АО NOAA: ' + r.regions.length + ' · ' + r.source); draw(); })
+    .catch(e => { if (st.regsKey !== key) return; arMsg('!', 'АО NOAA: ' + e.message, true); });
 }
 function guides() { if (!st.guides) return []; const R = st.level2.solarR; return [{ x: -R, label: '−R☉' }, { x: 0, label: 'центр' }, { x: R, label: '+R☉' }]; }
 function yr(rows, g) {
@@ -391,7 +403,7 @@ function draw() {
   loadRegions();
   const common = { xLabel: xl, guides: guides(), marks: marks(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined };
   if (st.tab === 'plot') {
-    const cv = render(sc, { big: true, guides: st.guides });
+    const cv = render(sc, { big: true, guides: st.guides, lineScale: V.getLineScale() });
     cv.className = 'scan-canvas'; cv.setAttribute('role', 'img');
     cv.setAttribute('aria-label', 'Скан Солнца ' + fmtDate(sc.obs.date) + ', ' + sc.obs.time + ' UT: параметры Стокса I и V по всем каналам от 3 ГГц');
     box.replaceChildren(cv); return;
@@ -670,7 +682,10 @@ async function drawAzimuths(c) {
 
 function selectTab(v) {
   st.tab = v;
-  for (const b of $('tabs').querySelectorAll('button')) b.setAttribute('aria-selected', String(b.dataset.v === v));
+  for (const b of $('tabs').querySelectorAll('button[role=tab]')) b.setAttribute('aria-selected', String(b.dataset.v === v));
+  const ab = $('an-pop').querySelector('button[data-v="' + v + '"]');
+  $('an-cur').textContent = ab ? ab.textContent : 'выбрать…';
+  $('an-pop').classList.toggle('active', !!ab); $('an-pop').open = false;
   draw();
 }
 
@@ -688,19 +703,35 @@ function palList() {
 }
 try { const p = localStorage.getItem('palette'); if (p) V.setPalette(p); } catch (e) { /* no storage */ }
 palList();
+function arMsg(t, tip, bad) {
+  const b = $('ar-msg'); b.hidden = !t; b.textContent = t; b.title = tip; b.classList.toggle('bad', !!bad);
+}
+function qsLabel() {
+  const m = { off: 'нет', show: 'шаблон', sub: 'вычесть' }[st.qsMode];
+  const sel = $('qs').selectedOptions[0];
+  $('qs-cur').textContent = m; $('qs-pop').title = st.qsMode === 'off' || !sel ? '' : sel.textContent;
+  $('qs-pop').classList.toggle('active', st.qsMode !== 'off');
+}
 function chips(id, key) {
   $(id).addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     st[key] = b.dataset.v;
     for (const x of $(id).children) x.setAttribute('aria-pressed', String(x === b));
+    if (key === 'qsMode') qsLabel();
     if (key === 'range') st.zoom = null;
     draw();
   });
 }
 chips('param', 'param'); chips('range', 'range'); chips('qsmode', 'qsMode'); chips('scale', 'scale');
-$('tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) selectTab(b.dataset.v); });
+$('tabs').addEventListener('click', e => { const b = e.target.closest('button[role=tab]'); if (b) selectTab(b.dataset.v); });
 $('guides').addEventListener('change', e => { st.guides = e.target.checked; draw(); });
-$('qs').addEventListener('change', e => { st.qsMethod = e.target.value; draw(); });
+{ let k = 1; try { k = +localStorage.getItem('lineScale') || 1; } catch (e) {}
+  V.setLineScale(k);
+  const mark = () => { for (const b of $('lw').children) b.setAttribute('aria-pressed', String(+b.dataset.v === V.getLineScale())); };
+  mark();
+  $('lw').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; V.setLineScale(b.dataset.v); try { localStorage.setItem('lineScale', b.dataset.v); } catch (er) {} mark(); draw(); });
+}
+$('qs').addEventListener('change', e => { st.qsMethod = e.target.value; qsLabel(); draw(); });
 $('sun-on').addEventListener('change', e => { st.sunOn = e.target.checked; $('sun-dot').classList.toggle('on', st.sunOn); draw(); });
 $('sun-layer').addEventListener('change', e => { st.sunLayer = e.target.value; draw(); });
 $('sun-grid').addEventListener('change', e => { st.sunGrid = e.target.checked; draw(); });
