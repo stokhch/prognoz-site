@@ -560,14 +560,20 @@ export function helioviewerUrl(s, layer, events, size = 900, scale = 2.8) {
 // opts: {urls, layer, rot, flip, curves, x, pos, beam, onPick}; done(state, url, log)
 export function sunOverlay(s, opts, done) {
   const S = 900, scale = 2.8, cx = S / 2, cy = S / 2, k = 1 / scale;
+  // margins around the S x S picture hold the axes: x in arcsec, left y for the shared scale, right y for own-scale V
+  const hasOwn = opts.curves.some(c => c.own && !c.band), hasShared = opts.curves.some(c => !c.band && !c.own);
+  const M = { l: hasShared ? 92 : 20, r: hasOwn ? 92 : 20, t: 12, b: 64 }, TW = S + M.l + M.r, TH = S + M.t + M.b;
   const cv = document.createElement('canvas');
   const dpr = Math.min(2, window.devicePixelRatio || 1);
-  cv.width = S * dpr; cv.height = S * dpr; cv.style.cssText = 'width:100%;height:auto;display:block;margin:0 auto;border-radius:10px';
+  cv.width = TW * dpr; cv.height = TH * dpr; cv.style.cssText = 'width:100%;height:auto;display:block;margin:0 auto';
   const g = cv.getContext('2d'); g.scale(dpr, dpr);
   const P = s.header.SOLAR_P || 0, q = transitAngle(s), turn = P + q + (opts.rot || 0);
   const sgn = opts.flip ? -1 : 1, R = s.solarR, tq = Math.tan(q * Math.PI / 180);
   const X = (x, v = 0) => cx + sgn * (x + v * tq) * k;
   const draw = img => {
+    g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, TW, TH);
+    g.translate(M.l, M.t);
+    g.save(); g.beginPath(); g.rect(0, 0, S, S); g.clip();
     g.fillStyle = '#05080F'; g.fillRect(0, 0, S, S);
     if (img) { g.save(); g.translate(cx, cy); g.rotate(-turn * Math.PI / 180); g.drawImage(img, -S / 2, -S / 2, S, S); g.restore(); }
     // heliographic grid (every 15 deg, B0 from the header) and the limb, in the solar frame turned like the image
@@ -644,10 +650,43 @@ export function sunOverlay(s, opts, done) {
       g.stroke(); g.shadowBlur = 0; g.setLineDash([]);
     }
     if (shared.length) { g.strokeStyle = 'rgba(255,255,255,0.45)'; g.beginPath(); g.moveTo(X(opts.x[0]), base); g.lineTo(X(opts.x[opts.x.length - 1]), base); g.stroke(); }
-    g.fillStyle = '#fff'; g.font = '22px Inter, sans-serif';
-    g.fillText(sgn > 0 ? 'E ← scan → W' : 'W ← scan → E', 16, S - 18);
-    g.fillText(`P = ${P.toFixed(1)}°, q = ${q.toFixed(1)}°${opts.rot ? ', corr. ' + opts.rot + '°' : ''}`, 16, 32);
-    if (img) g.fillText(SUN_LAYERS[opts.layer][0], 16, 60);
+    // limb and centre lines across the whole picture
+    if (opts.guides) {
+      g.lineWidth = 1.4; g.font = 'bold 18px Inter, sans-serif';
+      for (const [x, lab] of [[-R, '−R☉'], [0, 'centre'], [R, '+R☉']]) {
+        const px = X(x); g.strokeStyle = x === 0 ? 'rgba(251,146,60,0.95)' : 'rgba(253,186,116,0.85)'; g.setLineDash(x === 0 ? [9, 5] : [5, 5]);
+        g.beginPath(); g.moveTo(px, 0); g.lineTo(px, S); g.stroke(); g.setLineDash([]);
+        g.fillStyle = '#FDBA74'; g.fillText(lab, px + 5, 22);
+      }
+    }
+    g.fillStyle = '#fff'; g.font = '20px Inter, sans-serif';
+    g.fillText(sgn > 0 ? 'E ← scan → W' : 'W ← scan → E', 12, S - 14);
+    g.fillText(`P = ${P.toFixed(1)}°, q = ${q.toFixed(1)}°${opts.rot ? ', corr. ' + opts.rot + '°' : ''}`, 12, 48);
+    if (img) g.fillText(SUN_LAYERS[opts.layer][0], 12, 74);
+    g.restore();
+    // frame and axes
+    g.strokeStyle = '#94A3B8'; g.lineWidth = 1; g.strokeRect(0.5, 0.5, S - 1, S - 1);
+    g.fillStyle = '#334155'; g.strokeStyle = '#64748B'; g.font = '17px "JetBrains Mono", monospace'; g.textAlign = 'center';
+    const half = S / 2 / k;
+    for (const t of niceTicks(-half, half, 8)) {
+      const px = cx + sgn * t * k; if (px < 1 || px > S - 1) continue;
+      g.beginPath(); g.moveTo(px, S); g.lineTo(px, S + 6); g.stroke(); g.fillText(String(t), px, S + 24);
+    }
+    g.font = '18px Inter, sans-serif'; g.fillText(opts.xLabel || 'arcsec from disk centre', S / 2, S + 52);
+    const yAxis = (lo0, hi0, y0, y1, side, label) => {
+      g.font = '16px "JetBrains Mono", monospace'; g.textAlign = side < 0 ? 'right' : 'left';
+      const xe = side < 0 ? 0 : S;
+      for (const t of niceTicks(lo0, hi0, 6)) {
+        const py = y0 - (t - lo0) / ((hi0 - lo0) || 1) * (y0 - y1); if (py < 1 || py > S - 1) continue;
+        g.beginPath(); g.moveTo(xe, py); g.lineTo(xe + side * 6, py); g.stroke();
+        g.fillText(Math.abs(t) >= 100 ? String(Math.round(t)) : String(+t.toPrecision(3)), xe + side * 9, py + 5);
+      }
+      g.save(); g.translate(side < 0 ? -M.l + 18 : S + M.r - 10, S / 2); g.rotate(-Math.PI / 2); g.textAlign = 'center'; g.font = '17px Inter, sans-serif';
+      g.fillText(label, 0, 0); g.restore();
+    };
+    if (shared.length) yAxis(lo, hi, base, top, -1, opts.yLabel || 'K');
+    if (vmax > 0) { const h = 0.22 * (base - top); yAxis(-vmax, vmax, vzero + h, vzero - h, 1, opts.y2Label || 'V, K (dashed)'); }
+    g.textAlign = 'start';
   };
   draw(null);
   if (!opts.urls || !opts.urls.length) done && done('none');
@@ -659,7 +698,8 @@ export function sunOverlay(s, opts, done) {
   if (opts.onPick) {
     cv.style.cursor = 'crosshair';
     cv.addEventListener('click', e => {
-      const b = cv.getBoundingClientRect(), px = (e.clientX - b.left) / b.width * S, py = (e.clientY - b.top) / b.height * S;
+      const b = cv.getBoundingClientRect(), px = (e.clientX - b.left) / b.width * TW - M.l, py = (e.clientY - b.top) / b.height * TH - M.t;
+      if (px < 0 || px > S || py < 0 || py > S) return;
       const v = -(py - cy) / k;
       opts.onPick(sgn * (px - cx) / k - v * tq);
     });
@@ -667,3 +707,27 @@ export function sunOverlay(s, opts, done) {
   return cv;
 }
 
+
+// Render every canvas and svg inside `box` into one PNG (2x), keeping their on-page layout; white background.
+export async function exportPng(box, name) {
+  const items = [...box.querySelectorAll('canvas, svg')].filter(e => e.getBoundingClientRect().width > 0 && !e.closest('svg svg'));
+  if (!items.length) throw new Error('nothing to export');
+  const b0 = box.getBoundingClientRect(), K = 2;
+  let x1 = 0, y1 = 0; const rects = items.map(e => { const r = e.getBoundingClientRect(); x1 = Math.max(x1, r.right - b0.left); y1 = Math.max(y1, r.bottom - b0.top); return r; });
+  let x0 = Infinity, y0 = Infinity; for (const r of rects) { x0 = Math.min(x0, r.left - b0.left); y0 = Math.min(y0, r.top - b0.top); }
+  const pad = 8, out = document.createElement('canvas');
+  out.width = Math.ceil((x1 - x0 + 2 * pad) * K); out.height = Math.ceil((y1 - y0 + 2 * pad) * K);
+  const g = out.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, out.width, out.height);
+  for (let i = 0; i < items.length; i++) {
+    const e = items[i], r = rects[i], dx = (r.left - b0.left - x0 + pad) * K, dy = (r.top - b0.top - y0 + pad) * K;
+    if (e.tagName.toLowerCase() === 'canvas') { g.drawImage(e, dx, dy, r.width * K, r.height * K); continue; }
+    const c = e.cloneNode(true);
+    c.setAttribute('xmlns', 'http://www.w3.org/2000/svg'); c.setAttribute('width', r.width); c.setAttribute('height', r.height);
+    c.setAttribute('font-family', getComputedStyle(e).fontFamily || 'sans-serif');
+    const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(c)], { type: 'image/svg+xml' }));
+    await new Promise((ok, bad) => { const im = new Image(); im.onload = () => { g.drawImage(im, dx, dy, r.width * K, r.height * K); URL.revokeObjectURL(url); ok(); }; im.onerror = bad; im.src = url; });
+  }
+  const blob = await new Promise(ok => out.toBlob(ok, 'image/png'));
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}

@@ -124,6 +124,7 @@
           <p id="t-line" style="margin: 0; font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><b id="t-title" style="color: var(--ink); font-size: 14px; margin-right: 6px">Solar scan</b><span id="t-text"></span></p>
         </div>
         <div style="display: flex; gap: 6px; flex: none">
+          <button class="mini-btn" type="button" id="png" title="Save the chart as PNG">PNG ↓</button>
           <a class="mini-btn" id="fits" href="#" title="Download FITS">FITS ↓</a>
           <button class="mini-btn" type="button" id="copy-link" title="Copy link to this scan">Link</button>
         </div>
@@ -584,7 +585,7 @@ function sunPanel(g, sel) {
   }
   let timer = null;
   const msg = el('p', { class: 'muted', role: 'status', style: 'font-size:12px;margin:6px 0 0;text-align:center' });
-  const cv = V.sunOverlay(sc, { urls: sunUrls(sc), layer: st.sunLayer, rot: st.sunRot, flip: st.sunFlip, grid: st.sunGrid, regions: st.arOn && st.regs ? st.regs.regions : [], curves, x: g.x, pos: st.pos, beam: V.beamArcsec(sc.freq[c0]),
+  const cv = V.sunOverlay(sc, { urls: sunUrls(sc), layer: st.sunLayer, rot: st.sunRot, flip: st.sunFlip, grid: st.sunGrid, regions: st.arOn && st.regs ? st.regs.regions : [], curves, x: g.x, pos: st.pos, beam: V.beamArcsec(sc.freq[c0]), guides: st.guides, xLabel: 'arcsec from disk centre', yLabel: (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit(),
     onPick: x => { st.pos = Math.round(x); draw(); } }, (state, url, log) => {
       clearInterval(timer);
       if (state === 'loading') {
@@ -737,6 +738,11 @@ $('guides').addEventListener('change', e => { st.guides = e.target.checked; draw
   mark();
   $('lw').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; V.setLineScale(b.dataset.v); try { localStorage.setItem('lineScale', b.dataset.v); } catch (er) {} mark(); draw(); });
 }
+$('png').addEventListener('click', async () => {
+  const sc = st.level2, stem = st.path ? st.path.split('/').pop().replace(/\.fits$/i, '') : 'ratan';
+  try { await V.exportPng($('plot'), stem + '_' + st.tab + (sc ? '_' + st.param : '') + '.png'); }
+  catch (e) { $('msg').textContent = 'PNG export failed: ' + e.message; }
+});
 $('qs').addEventListener('change', e => { st.qsMethod = e.target.value; qsLabel(); draw(); });
 $('sun-on').addEventListener('change', e => { st.sunOn = e.target.checked; $('sun-dot').classList.toggle('on', st.sunOn); draw(); });
 $('sun-layer').addEventListener('change', e => { st.sunLayer = e.target.value; draw(); });
