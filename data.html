@@ -81,6 +81,7 @@
           <div class="pop-body" style="min-width: 220px">
             <label class="switch" title="Vertical lines at ±R☉ and centre"><input type="checkbox" id="guides" checked><span></span> limb & centre</label>
             <label class="switch" title="NOAA AR numbers at their scan position"><input type="checkbox" id="ar-on" checked><span></span> NOAA ARs</label>
+            <label class="switch" title="Heliographic grid on the Sun disk (Sun disk option)"><input type="checkbox" id="mk-grid" checked><span></span> heliographic grid</label>
             <label class="switch" title="Black background of the charts"><input type="checkbox" id="bg-dark"><span></span> dark background</label>
             <span class="ar-badge" id="ar-msg" hidden></span>
           </div>
@@ -802,7 +803,8 @@ document.addEventListener('keydown', e => {
 $('qs').addEventListener('change', e => { st.qsMethod = e.target.value; qsLabel(); draw(); });
 $('sun-on').addEventListener('change', e => { st.sunOn = e.target.checked; $('sun-dot').classList.toggle('on', st.sunOn); draw(); });
 $('sun-layer').addEventListener('change', e => { st.sunLayer = e.target.value; draw(); });
-$('sun-grid').addEventListener('change', e => { st.sunGrid = e.target.checked; draw(); });
+// the grid switch is in both the Sun disk and the Marks menus; they stay in step
+for (const id of ['sun-grid', 'mk-grid']) $(id).addEventListener('change', e => { st.sunGrid = e.target.checked; $('sun-grid').checked = $('mk-grid').checked = st.sunGrid; draw(); });
 $('ar-on').addEventListener('change', e => { st.arOn = e.target.checked; draw(); });
 $('sun-rot').addEventListener('change', e => { st.sunRot = +e.target.value || 0; draw(); });
 $('sun-flip').addEventListener('change', e => { st.sunFlip = e.target.checked; draw(); });

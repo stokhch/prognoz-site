@@ -344,3 +344,4 @@ section.main > #plot { margin-top: 0; padding-top: 0; }
 .noisy-grp { display: inline-flex; }
 .noisy-grp #noisy-prev { border-top-right-radius: 0; border-bottom-right-radius: 0; padding: 0 9px; }
 .noisy-grp #noisy { border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: -1px; }
+#mark-pop .ar-badge { align-self: flex-start; }
