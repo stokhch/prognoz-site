@@ -329,3 +329,7 @@ section.main > #plot { margin-top: 0; padding-top: 0; }
 .ctl.below { margin-top: 2px; }
 .ctl.below .pop-body { top: auto; bottom: 36px; }
 .ctl.below .an-sum { height: 30px !important; }
+/* X-range buttons with coloured icons */
+.seg.iseg button { display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; }
+.seg.iseg button svg { flex: none; }
+.seg.iseg button[aria-pressed="true"] { box-shadow: 0 0 0 2px rgba(249,115,22,.35); }
