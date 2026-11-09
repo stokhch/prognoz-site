@@ -523,35 +523,46 @@ function qsDetails() {
   return d;
 }
 
-// Noise rank of channels, as WorkScanJ "Next noisy": scan minus its running median over 0.2 beam,
-// mean |residual| over the whole record; I and V, the larger one. Sorted noisiest first; cached per scan.
+// Noise rank of channels, as WorkScanJ NoiseRank: sigma from second differences, d = y[i] - (y[i-1] + y[i+1]) / 2,
+// sigma = sqrt(<d^2> / 1.5), the larger of I and V, divided by the I span (99th - 1st percentile), so channels
+// with different temperature scales compare. Only working channels are ranked: dead ones (no span, no
+// variation) and broken ones (noise far above the neighbouring +-5 channels: > 3x their median and > 8 MAD) are
+// left out. Sorted noisiest first; cached per scan.
 function noiseRank() {
   const sc = st.level2; if (sc._noise) return sc._noise;
-  const n = sc.nX, res = [];
+  const n = sc.nX, rel = [], dead = [];
   for (let c = 0; c < sc.nChan; c++) {
-    const w = Math.max(1, Math.round(0.1 * V.beamArcsec(sc.freq[c]) / Math.abs(sc.cdelt1 || 1)));
-    let worst = 0;
+    let worst = 0, span = 0;
     for (const iv of [0, 1]) {
-      const y = new Float64Array(n); for (let i = 0; i < n; i++) y[i] = value(sc, c, iv, i);
-      let sum = 0, cnt = 0; const buf = [];
-      for (let i = w; i < n - w; i++) {
-        buf.length = 0; for (let j = i - w; j <= i + w; j++) buf.push(y[j]);
-        buf.sort((a, b) => a - b); sum += Math.abs(y[i] - buf[w]); cnt++;
-      }
-      if (cnt) worst = Math.max(worst, sum / cnt);
+      const y = new Float64Array(n); for (let i = 0; i < n; i++) { y[i] = value(sc, c, iv, i); }
+      let s2 = 0, k = 0;
+      for (let i = 1; i < n - 1; i++) { const d = y[i] - (y[i - 1] + y[i + 1]) / 2; s2 += d * d; k++; }
+      worst = Math.max(worst, k ? Math.sqrt(s2 / k / 1.5) : 0);
+      if (iv === 0) { const srt = Array.from(y).sort((a, b) => a - b); span = srt[Math.floor(0.99 * (n - 1))] - srt[Math.floor(0.01 * (n - 1))]; }
     }
-    res.push({ c, noise: worst });
+    const isDead = !(span > 0) || !(worst > 0);
+    rel.push(isDead ? NaN : worst / span); if (isDead) dead.push(c);
   }
-  res.sort((a, b) => b.noise - a.noise);
-  sc._noise = res; return res;
+  const med = a => { const v = a.filter(Number.isFinite).sort((p, q) => p - q); return v.length ? v[Math.floor(v.length / 2)] : NaN; };
+  const ok = [], broken = [];
+  rel.forEach((r, c) => {
+    if (!Number.isFinite(r)) return;
+    const nb = rel.slice(Math.max(0, c - 5), c).concat(rel.slice(c + 1, c + 6)), m = med(nb), mad = 1.4826 * med(nb.map(v => Math.abs(v - m)));
+    if (Number.isFinite(m) && r > 3 * m && r - m > 8 * (mad || m * 0.05)) broken.push(c); else ok.push({ c, noise: r });
+  });
+  ok.sort((a, b) => b.noise - a.noise);
+  sc._noise = { order: ok, skipped: dead.concat(broken).sort((a, b) => a - b) };
+  return sc._noise;
 }
 function stepNoisy(dir) {
-  const order = noiseRank(), n = order.length; if (!n) return;
+  const { order, skipped } = noiseRank(), n = order.length; if (!n) return;
   let pos = st.noisyPos;
-  if (pos === null || pos === undefined || order[pos].c !== st.single) pos = dir > 0 ? 0 : n - 1;
+  if (pos === null || pos === undefined || !order[pos] || order[pos].c !== st.single) pos = dir > 0 ? 0 : n - 1;
   else pos = (pos + dir + n) % n;
   st.noisyPos = pos; st.single = order[pos].c; st.tab === 'single' ? draw() : selectTab('single');
-  $('msg').textContent = 'Noise rank ' + (pos + 1) + '/' + n + ': ' + st.level2.freq[order[pos].c].toFixed(3) + ' GHz, mean |scan − median| = ' + order[pos].noise.toFixed(1) + ' K';
+  const f = st.level2.freq;
+  $('msg').textContent = 'Noisy ' + (pos + 1) + '/' + n + ' working: ' + f[order[pos].c].toFixed(3) + ' GHz, σ/span = ' + (100 * order[pos].noise).toFixed(2) + '%' +
+    (skipped.length ? ' · faulty, not ranked: ' + skipped.map(c => f[c].toFixed(3)).join(', ') + ' GHz' : '');
 }
 function drawSingle(g, sel, sunEl) {
   const sc = st.level2, box = $('plot'), extra = $('extra');
@@ -564,7 +575,7 @@ function drawSingle(g, sel, sunEl) {
   const next = el('button', { type: 'button', class: 'btn', 'aria-label': 'Next channel', text: '▶', onclick: () => { st.single = Math.min(sc.nChan - 1, c + 1); draw(); } });
   for (const b of [prev, next]) b.style.cssText = 'min-height:32px;padding:0 10px';
   const del = el('button', { type: 'button', class: 'mini-btn', title: 'Remove this channel (restore in Channels)', text: '✕ remove', onclick: () => excludeFreqs([sc.freq[c]]) });
-  const noisy = el('button', { type: 'button', class: 'mini-btn noisy-btn', title: 'Next noisy: channels by noise level, the first press goes to the noisiest (scan minus running median over 0.2 beam, mean |residual|, I and V). Shift+click — backwards. Key N / Shift+N.', text: 'Noisy ▶', onclick: e => stepNoisy(e.shiftKey ? -1 : 1) });
+  const noisy = el('button', { type: 'button', class: 'mini-btn noisy-btn', title: 'Next noisy: the noisiest working channel first, then down the ranking. Noise = σ of second differences (I and V) / I span; dead and broken channels are skipped. Shift+click — backwards. Key N / Shift+N.', text: 'Noisy ▶', onclick: e => stepNoisy(e.shiftKey ? -1 : 1) });
   const tb = el('div', { class: 'toolbar' }, prev, chSel, next, noisy, del);
   const sr = [{ name: sc.freq[c].toFixed(3) + ' GHz, ' + pp() + (st.qsMode === 'sub' ? ' − quiet Sun' : ''), x: g.x, y, color: '#C2410C', width: 1.8 }];
   const y2 = second(c, g);
@@ -609,10 +620,11 @@ function sunPanel(g, sel) {
       if (isPair()) curves.push({ y: second(c, g), color: pal[k % pal.length], band, dash: [3, 3], width: 1.1, own: pairOwn });
     });
   } else {
-    const list = sel.slice(0, 8);
-    curves = list.map((c, k) => ({ y: ser(c, g), color: pal[k % pal.length] }));
-    if (isPair()) list.forEach((c, k) => curves.push({ y: second(c, g), color: pal[k % pal.length], dash: [3, 3], width: 1.2, own: pairOwn }));
-    if (st.qsMode === 'show' && canQs()) list.forEach((c, k) => curves.push({ y: qsCurve(c, g), color: pal[k % pal.length], dash: [5, 4], width: 1.1 }));
+    // all selected channels, coloured by frequency as in Overlay; few channels keep the bright palette
+    const list = sel, many = list.length > 8, col = (c, k) => many ? colorOf(c) : pal[k % pal.length], w = many ? 1.1 : 1.8;
+    curves = list.map((c, k) => ({ y: ser(c, g), color: col(c, k), width: w }));
+    if (isPair()) list.forEach((c, k) => curves.push({ y: second(c, g), color: col(c, k), dash: [3, 3], width: many ? 0.9 : 1.2, own: pairOwn }));
+    if (st.qsMode === 'show' && canQs()) list.forEach((c, k) => curves.push({ y: qsCurve(c, g), color: col(c, k), dash: [5, 4], width: 1.1 }));
   }
   let timer = null;
   const msg = el('p', { class: 'muted', role: 'status', style: 'font-size:12px;margin:6px 0 0;text-align:center' });
