@@ -81,6 +81,7 @@
           <div class="pop-body" style="min-width: 220px">
             <label class="switch" title="Vertical lines at ±R☉ and centre"><input type="checkbox" id="guides" checked><span></span> limb & centre</label>
             <label class="switch" title="NOAA AR numbers at their scan position"><input type="checkbox" id="ar-on" checked><span></span> NOAA ARs</label>
+            <label class="switch" title="Black background of the charts"><input type="checkbox" id="bg-dark"><span></span> dark background</label>
             <span class="ar-badge" id="ar-msg" hidden></span>
           </div>
         </details>
@@ -788,8 +789,9 @@ $('png').addEventListener('click', async () => {
   catch (e) { $('msg').textContent = 'PNG export failed: ' + e.message; }
 });
 { let d = false; try { d = localStorage.getItem('chartBg') === 'dark'; } catch (e) {}
-  const apply = on => { V.setDark(on); $('plot').classList.toggle('darkbg', on); for (const b of $('bgc').children) b.setAttribute('aria-pressed', String((b.dataset.v === 'dark') === on)); };
+  const apply = on => { V.setDark(on); $('plot').classList.toggle('darkbg', on); for (const b of $('bgc').children) b.setAttribute('aria-pressed', String((b.dataset.v === 'dark') === on)); $('bg-dark').checked = on; };
   apply(d);
+  $('bg-dark').addEventListener('change', e => { try { localStorage.setItem('chartBg', e.target.checked ? 'dark' : 'light'); } catch (er) {} apply(e.target.checked); draw(); });
   $('bgc').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const on = b.dataset.v === 'dark'; try { localStorage.setItem('chartBg', on ? 'dark' : 'light'); } catch (er) {} apply(on); draw(); });
 }
 $('noisy').addEventListener('click', e => { if (st.level2) stepNoisy(e.shiftKey ? -1 : 1); });
