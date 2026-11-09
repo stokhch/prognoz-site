@@ -46,7 +46,7 @@ export function parseName(name) {
 // data/config.json ("archives": [{name, url}], e.g. an https address on solar.sao.ru), and the copy shipped
 // with the site. A remote archive needs Apache autoindex and, for another site, https and CORS.
 export async function sources() {
-  const local = { name: 'копия на сайте (реальный скан 06.11.2026)', url: new URL('data/ratan/', location.href).href };
+  const local = { name: 'site copy (real scan 06.11.2026)', url: new URL('data/ratan/', location.href).href };
   let cfg = {};
   try { const r = await fetch('data/config.json', { cache: 'no-cache' }); if (r.ok) cfg = await r.json(); } catch (e) { /* no config */ }
   const remote = [];
@@ -62,8 +62,8 @@ export async function openArchive() {
     try {
       const top = await listLevel(s.url, s.url);
       if (top.dirs.length || top.files.length) return { ...s, top, errors };
-      errors.push(s.url + ': пустой список');
+      errors.push(s.url + ': empty listing');
     } catch (e) { errors.push(s.url + ': ' + (e.message || e)); }
   }
-  throw new Error('архив недоступен — ' + errors.join('; '));
+  throw new Error('archive unavailable — ' + errors.join('; '));
 }

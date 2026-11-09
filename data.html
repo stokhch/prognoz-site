@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Анализ данных · РАТАН-600</title>
+<title>Data analysis · RATAN-600</title>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,107 +43,107 @@
 </header>
 
 <main class="wrap stack" id="content" style="gap: 10px; padding-top: 14px; padding-bottom: 32px; max-width: 1840px">
-  <h1 class="sr-only">Анализ данных РАТАН-600</h1>
+  <h1 class="sr-only">RATAN-600 data analysis</h1>
 
   <div class="row" style="align-items: flex-start; gap: 12px; flex-wrap: nowrap" id="layout">
     <nav class="card stack compact side archive" id="archive" aria-labelledby="tree-h">
       <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px">
-        <h2 id="tree-h" style="font-size: 14px">Архив</h2>
-        <span style="display: flex; gap: 4px"><button class="icon-btn" type="button" id="reload" title="Перечитать каталог" aria-label="Перечитать каталог">↻</button><button class="icon-btn" type="button" id="fold" title="Свернуть архив" aria-label="Свернуть архив" aria-expanded="true">‹</button></span>
+        <h2 id="tree-h" style="font-size: 14px">Archive</h2>
+        <span style="display: flex; gap: 4px"><button class="icon-btn" type="button" id="reload" title="Reload" aria-label="Reload">↻</button><button class="icon-btn" type="button" id="fold" title="Collapse" aria-label="Collapse" aria-expanded="true">‹</button></span>
       </div>
-      <p class="muted" id="src" role="status" style="margin: 0; font-size: 11.5px; line-height: 1.4">Чтение каталога…</p>
+      <p class="muted" id="src" role="status" style="margin: 0; font-size: 11.5px; line-height: 1.4">Reading…</p>
       <div class="tree compact-tree" id="tree" style="max-height: 70vh"></div>
     </nav>
 
-    <section class="card main stack" aria-label="Результат" style="gap: 3px; padding: 8px 12px; flex: 1 1 auto; min-width: 0">
-      <div id="tabs" role="tablist" aria-label="Режим просмотра" class="modebar">
-        <div class="mgroup" role="group" aria-label="Сканы"><span class="cap">Сканы</span><div class="mrow"><button type="button" role="tab" data-v="plot" aria-selected="true" title="Прогноз"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" fill="#0F1B2D" stroke="#94A3B8"/><path d="M5 17c2 0 3-6 5-6s2 4 3 4 2-8 3-8 2 10 3 10" stroke="#EAB308" stroke-width="1.4"/><path d="M5 18c2 0 3-3 5-3s2 2 3 2 2-4 3-4 2 5 3 5" stroke="#F97316" stroke-width="1.2"/></svg><span>Прогноз</span></button><button type="button" role="tab" data-v="single" aria-selected="false" title="Скан"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19h18" stroke="#94A3B8"/><path d="M4 18c3 0 3-9 6-9s2 5 4 5 2-9 4-9 2 13 3 13" stroke="#F97316"/></svg><span>Скан</span></button><button type="button" role="tab" data-v="group" aria-selected="false" title="Наложение"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19h18" stroke="#94A3B8"/><path d="M4 18c3 0 3-10 6-10s2 5 4 5 2-8 4-8 2 13 3 13" stroke="#F97316"/><path d="M4 18c3 0 3-7 6-7s2 4 4 4 2-6 4-6 2 9 3 9" stroke="#3B82F6"/><path d="M4 18c3 0 3-4 6-4s2 2 4 2 2-3 4-3 2 5 3 5" stroke="#14B8A6"/></svg><span>Наложение</span></button><button type="button" role="tab" data-v="vertical" aria-selected="false" title="Разнесение"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8c3 0 3-4 6-4s2 2 4 2 3-3 6-3" stroke="#F97316"/><path d="M4 14c3 0 3-4 6-4s2 2 4 2 3-3 6-3" stroke="#3B82F6"/><path d="M4 20c3 0 3-4 6-4s2 2 4 2 3-3 6-3" stroke="#14B8A6"/></svg><span>Разнесение</span></button><button type="button" role="tab" data-v="grid" aria-selected="false" title="Сетка"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5" stroke="#F97316"/><rect x="13" y="3" width="8" height="8" rx="1.5" stroke="#3B82F6"/><rect x="3" y="13" width="8" height="8" rx="1.5" stroke="#14B8A6"/><rect x="13" y="13" width="8" height="8" rx="1.5" stroke="#A855F7"/></svg><span>Сетка</span></button><button type="button" role="tab" data-v="map" aria-selected="false" title="Карта"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" stroke="#94A3B8"/><rect x="5" y="6" width="5" height="4.5" fill="#1E3A8A" stroke="none"/><rect x="10" y="6" width="4.5" height="4.5" fill="#A855F7" stroke="none"/><rect x="14.5" y="6" width="4.5" height="4.5" fill="#1E3A8A" stroke="none"/><rect x="5" y="10.5" width="5" height="4" fill="#A855F7" stroke="none"/><rect x="10" y="10.5" width="4.5" height="4" fill="#F97316" stroke="none"/><rect x="14.5" y="10.5" width="4.5" height="4" fill="#A855F7" stroke="none"/><rect x="5" y="14.5" width="5" height="3.5" fill="#F97316" stroke="none"/><rect x="10" y="14.5" width="4.5" height="3.5" fill="#EAB308" stroke="none"/><rect x="14.5" y="14.5" width="4.5" height="3.5" fill="#F97316" stroke="none"/></svg><span>Карта</span></button><button type="button" role="tab" data-v="contour" aria-selected="false" title="Контуры"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="12" rx="9" ry="7" stroke="#3B82F6"/><ellipse cx="12" cy="12" rx="5.5" ry="4" stroke="#14B8A6"/><ellipse cx="12" cy="12" rx="2" ry="1.5" stroke="#F97316" fill="#F97316"/></svg><span>Контуры</span></button><button type="button" role="tab" data-v="waterfall" aria-selected="false" title="3D"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12c3 0 3-5 6-5s3 3 6 3" stroke="#14B8A6"/><path d="M6 16c3 0 3-5 6-5s3 3 6 3" stroke="#3B82F6"/><path d="M3 20c3 0 3-5 6-5s3 3 6 3" stroke="#F97316"/></svg><span>3D</span></button></div></div>
-        <div class="mgroup vgroup" role="group" aria-label="Вид"><span class="cap">Вид</span><div class="vrow">
+    <section class="card main stack" aria-label="Result" style="gap: 3px; padding: 8px 12px; flex: 1 1 auto; min-width: 0">
+      <div id="tabs" role="tablist" aria-label="View mode" class="modebar">
+        <div class="mgroup" role="group" aria-label="Scans"><span class="cap">Scans</span><div class="mrow"><button type="button" role="tab" data-v="plot" aria-selected="true" title="Forecast"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" fill="#0F1B2D" stroke="#94A3B8"/><path d="M5 17c2 0 3-6 5-6s2 4 3 4 2-8 3-8 2 10 3 10" stroke="#EAB308" stroke-width="1.4"/><path d="M5 18c2 0 3-3 5-3s2 2 3 2 2-4 3-4 2 5 3 5" stroke="#F97316" stroke-width="1.2"/></svg><span>Forecast</span></button><button type="button" role="tab" data-v="single" aria-selected="false" title="Scan"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19h18" stroke="#94A3B8"/><path d="M4 18c3 0 3-9 6-9s2 5 4 5 2-9 4-9 2 13 3 13" stroke="#F97316"/></svg><span>Scan</span></button><button type="button" role="tab" data-v="group" aria-selected="false" title="Overlay"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19h18" stroke="#94A3B8"/><path d="M4 18c3 0 3-10 6-10s2 5 4 5 2-8 4-8 2 13 3 13" stroke="#F97316"/><path d="M4 18c3 0 3-7 6-7s2 4 4 4 2-6 4-6 2 9 3 9" stroke="#3B82F6"/><path d="M4 18c3 0 3-4 6-4s2 2 4 2 2-3 4-3 2 5 3 5" stroke="#14B8A6"/></svg><span>Overlay</span></button><button type="button" role="tab" data-v="vertical" aria-selected="false" title="Stacked"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8c3 0 3-4 6-4s2 2 4 2 3-3 6-3" stroke="#F97316"/><path d="M4 14c3 0 3-4 6-4s2 2 4 2 3-3 6-3" stroke="#3B82F6"/><path d="M4 20c3 0 3-4 6-4s2 2 4 2 3-3 6-3" stroke="#14B8A6"/></svg><span>Stacked</span></button><button type="button" role="tab" data-v="grid" aria-selected="false" title="Grid"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5" stroke="#F97316"/><rect x="13" y="3" width="8" height="8" rx="1.5" stroke="#3B82F6"/><rect x="3" y="13" width="8" height="8" rx="1.5" stroke="#14B8A6"/><rect x="13" y="13" width="8" height="8" rx="1.5" stroke="#A855F7"/></svg><span>Grid</span></button><button type="button" role="tab" data-v="map" aria-selected="false" title="Map"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" stroke="#94A3B8"/><rect x="5" y="6" width="5" height="4.5" fill="#1E3A8A" stroke="none"/><rect x="10" y="6" width="4.5" height="4.5" fill="#A855F7" stroke="none"/><rect x="14.5" y="6" width="4.5" height="4.5" fill="#1E3A8A" stroke="none"/><rect x="5" y="10.5" width="5" height="4" fill="#A855F7" stroke="none"/><rect x="10" y="10.5" width="4.5" height="4" fill="#F97316" stroke="none"/><rect x="14.5" y="10.5" width="4.5" height="4" fill="#A855F7" stroke="none"/><rect x="5" y="14.5" width="5" height="3.5" fill="#F97316" stroke="none"/><rect x="10" y="14.5" width="4.5" height="3.5" fill="#EAB308" stroke="none"/><rect x="14.5" y="14.5" width="4.5" height="3.5" fill="#F97316" stroke="none"/></svg><span>Map</span></button><button type="button" role="tab" data-v="contour" aria-selected="false" title="Contours"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="12" rx="9" ry="7" stroke="#3B82F6"/><ellipse cx="12" cy="12" rx="5.5" ry="4" stroke="#14B8A6"/><ellipse cx="12" cy="12" rx="2" ry="1.5" stroke="#F97316" fill="#F97316"/></svg><span>Contours</span></button><button type="button" role="tab" data-v="waterfall" aria-selected="false" title="3D"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12c3 0 3-5 6-5s3 3 6 3" stroke="#14B8A6"/><path d="M6 16c3 0 3-5 6-5s3 3 6 3" stroke="#3B82F6"/><path d="M3 20c3 0 3-5 6-5s3 3 6 3" stroke="#F97316"/></svg><span>3D</span></button></div></div>
+        <div class="mgroup vgroup" role="group" aria-label="View"><span class="cap">View</span><div class="vrow">
         <details class="pop" id="pal-pop">
-          <summary title="Палитра и толщина линий"><span class="swatch" id="pal-sw" aria-hidden="true"></span> <span aria-hidden="true">▾</span></summary>
-          <div class="pop-body" style="min-width: 320px; gap: 6px"><span class="cap">Толщина линий</span><div class="seg" id="lw"><button type="button" data-v="0.6">тонкие</button><button type="button" data-v="1">обычные</button><button type="button" data-v="1.6">толстые</button><button type="button" data-v="2.4">жирные</button></div><span class="cap">Палитра</span><div id="pal-list" style="display: flex; flex-direction: column; gap: 4px"></div></div>
+          <summary title="Palette & line width"><span class="swatch" id="pal-sw" aria-hidden="true"></span> <span aria-hidden="true">▾</span></summary>
+          <div class="pop-body" style="min-width: 320px; gap: 6px"><span class="cap">Line width</span><div class="seg" id="lw"><button type="button" data-v="0.6">thin</button><button type="button" data-v="1">normal</button><button type="button" data-v="1.6">thick</button><button type="button" data-v="2.4">bold</button></div><span class="cap">Palette</span><div id="pal-list" style="display: flex; flex-direction: column; gap: 4px"></div></div>
         </details>
         <details class="pop" id="sun-pop">
-          <summary><span class="dot" id="sun-dot" aria-hidden="true"></span> Диск Солнца <span aria-hidden="true">▾</span></summary>
+          <summary><span class="dot" id="sun-dot" aria-hidden="true"></span> Sun disk <span aria-hidden="true">▾</span></summary>
           <div class="pop-body" style="min-width: 270px">
-            <label class="switch"><input type="checkbox" id="sun-on"><span></span> показать диск со сканами</label>
+            <label class="switch"><input type="checkbox" id="sun-on"><span></span> show disk with scans</label>
             <div id="sun-opts" style="display: flex; flex-direction: column; gap: 8px">
-              <select id="sun-layer" class="mini-select" aria-label="Снимок"></select>
-              <label class="switch"><input type="checkbox" id="sun-grid" checked><span></span> гелиографическая сетка</label>
-              <label class="switch"><input type="checkbox" id="sun-flip"><span></span> отразить скан</label>
-              <label style="display: flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--muted)">поправка угла <input type="number" id="sun-rot" step="0.5" value="0" class="mini-select" style="width: 64px"> °</label>
+              <select id="sun-layer" class="mini-select" aria-label="Image"></select>
+              <label class="switch"><input type="checkbox" id="sun-grid" checked><span></span> heliographic grid</label>
+              <label class="switch"><input type="checkbox" id="sun-flip"><span></span> flip scan</label>
+              <label style="display: flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--muted)">angle corr. <input type="number" id="sun-rot" step="0.5" value="0" class="mini-select" style="width: 64px"> °</label>
             </div>
-            <p class="muted" style="margin: 0; font-size: 11.5px">Снимок SDO можно не загружать — тогда на диске только край, сетка и номера АО. Показывается в режимах «Скан», «Наложение», «Разнесение», «Сетка».</p>
+            <p class="muted" style="margin: 0; font-size: 11.5px">Without an SDO image: limb, grid and AR numbers only. Modes: Scan, Overlay, Stacked, Grid.</p>
           </div>
         </details>
         <details class="pop" id="mark-pop">
-          <summary title="Линии краёв и центра, номера АО NOAA">Разметка <span aria-hidden="true">▾</span></summary>
+          <summary title="Limb/centre lines, NOAA ARs">Marks <span aria-hidden="true">▾</span></summary>
           <div class="pop-body" style="min-width: 220px">
-            <label class="switch" title="Вертикальные линии краёв диска (±R☉) и центра Солнца"><input type="checkbox" id="guides" checked><span></span> края и центр</label>
-            <label class="switch" title="Номера активных областей NOAA в их положении на скане"><input type="checkbox" id="ar-on" checked><span></span> АО NOAA</label>
+            <label class="switch" title="Vertical lines at ±R☉ and centre"><input type="checkbox" id="guides" checked><span></span> limb & centre</label>
+            <label class="switch" title="NOAA AR numbers at their scan position"><input type="checkbox" id="ar-on" checked><span></span> NOAA ARs</label>
             <span class="ar-badge" id="ar-msg" hidden></span>
           </div>
         </details>
         </div></div>
       </div>
-      <form class="ctl" id="params" aria-label="Параметры просмотра" onsubmit="return false">
-        <div class="grp"><span class="cap">Стокс</span>
+      <form class="ctl" id="params" aria-label="View options" onsubmit="return false">
+        <div class="grp"><span class="cap">Stokes</span>
           <div class="seg" id="param">
-            <button type="button" data-v="I" aria-pressed="true" title="интенсивность">I</button><button type="button" data-v="V" aria-pressed="false" title="круговая поляризация">V</button><button type="button" data-v="R" aria-pressed="false" title="правая поляризация, I + V">R</button><button type="button" data-v="L" aria-pressed="false" title="левая поляризация, I − V">L</button><button type="button" data-v="p" aria-pressed="false" title="степень поляризации V/I, %">p</button><button type="button" data-v="IV" aria-pressed="false" title="I и V (V — шкала справа)">I+V</button><button type="button" data-v="RL" aria-pressed="false" title="R и L в общей шкале">R+L</button>
+            <button type="button" data-v="I" aria-pressed="true" title="intensity">I</button><button type="button" data-v="V" aria-pressed="false" title="circular polarization">V</button><button type="button" data-v="R" aria-pressed="false" title="right pol., I + V">R</button><button type="button" data-v="L" aria-pressed="false" title="left pol., I − V">L</button><button type="button" data-v="p" aria-pressed="false" title="pol. degree V/I, %">p</button><button type="button" data-v="IV" aria-pressed="false" title="I and V (V on right axis)">I+V</button><button type="button" data-v="RL" aria-pressed="false" title="R and L, common axis">R+L</button>
           </div></div>
         <div class="grp"><span class="cap">X</span>
           <div class="seg" id="range">
-            <button type="button" data-v="disk" aria-pressed="false" title="в пределах диска">диск</button><button type="button" data-v="sun2" aria-pressed="true" title="±2 радиуса Солнца">±2R</button><button type="button" data-v="full" aria-pressed="false" title="вся запись">всё</button>
+            <button type="button" data-v="disk" aria-pressed="false" title="disk only">disk</button><button type="button" data-v="sun2" aria-pressed="true" title="±2 solar radii">±2R</button><button type="button" data-v="full" aria-pressed="false" title="whole record">all</button>
           </div>
-          <button type="button" class="icon-btn" id="unzoom" hidden title="Сбросить увеличение" aria-label="Сбросить увеличение">⤢</button></div>
+          <button type="button" class="icon-btn" id="unzoom" hidden title="Reset zoom" aria-label="Reset zoom">⤢</button></div>
         <div class="grp"><span class="cap">Y</span>
           <div class="seg" id="scale">
-            <button type="button" data-v="auto" aria-pressed="true" title="без выбросов: 0,5–99,5% по диску">авто</button><button type="button" data-v="full" aria-pressed="false" title="весь диапазон">полный</button>
+            <button type="button" data-v="auto" aria-pressed="true" title="robust: 0.5–99.5% on disk">auto</button><button type="button" data-v="full" aria-pressed="false" title="full range">full</button>
           </div></div>
         <details class="pop" id="freq-pop">
-          <summary><span class="cap" style="letter-spacing: 0">Каналы</span> <b id="freq-n">—</b><span class="muted" id="excl-n" style="font-weight: 500"></span> <span aria-hidden="true">▾</span></summary>
+          <summary><span class="cap" style="letter-spacing: 0">Channels</span> <b id="freq-n">—</b><span class="muted" id="excl-n" style="font-weight: 500"></span> <span aria-hidden="true">▾</span></summary>
           <div class="pop-body">
             <div style="display: flex; gap: 4px; flex-wrap: wrap">
-              <button type="button" class="mini-btn" id="f-4">4 опорных</button><button type="button" class="mini-btn" id="f-12">каждый 6-й</button><button type="button" class="mini-btn" id="f-all">все</button>
+              <button type="button" class="mini-btn" id="f-4">4 ref.</button><button type="button" class="mini-btn" id="f-12">every 6th</button><button type="button" class="mini-btn" id="f-all">all</button>
             </div>
-            <label for="freqs" class="muted" style="font-size: 11.5px">Частоты, ГГц — Ctrl/Shift для нескольких</label>
+            <label for="freqs" class="muted" style="font-size: 11.5px">GHz — Ctrl/Shift for several</label>
             <select id="freqs" multiple size="10" style="font-family: var(--mono); font-size: 12.5px; border: 1px solid var(--line-2); border-radius: 8px; padding: 4px"></select>
             <div style="border-top: 1px solid var(--line); padding-top: 8px; display: flex; flex-direction: column; gap: 6px">
               <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px">
-                <span class="cap" style="letter-spacing: .04em">Удалённые каналы</span>
-                <span style="display: flex; gap: 4px"><button type="button" class="mini-btn" id="ex-sel" title="Удалить из рассмотрения выбранные в списке выше">удалить выбранные</button><button type="button" class="mini-btn" id="ex-all" title="Вернуть все каналы">вернуть все</button></span>
+                <span class="cap" style="letter-spacing: .04em">Removed</span>
+                <span style="display: flex; gap: 4px"><button type="button" class="mini-btn" id="ex-sel" title="Remove channels selected above">remove sel.</button><button type="button" class="mini-btn" id="ex-all" title="Restore all">restore all</button></span>
               </div>
               <div id="excl-list" style="display: flex; flex-wrap: wrap; gap: 4px"></div>
-              <span class="muted" style="font-size: 11px">«авто» — отброшен при чтении (I больше 10 медиан по каналам). Щелчок по метке возвращает канал. Список запоминается для этого файла.</span>
+              <span class="muted" style="font-size: 11px">“auto”: dropped on read (I > 10× channel median). Click a tag to restore. Saved per file.</span>
             </div>
           </div>
         </details>
       </form>
       <div class="head-row" style="align-items: center">
         <div style="min-width: 0; flex: 1">
-          <p id="t-line" style="margin: 0; font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><b id="t-title" style="color: var(--ink); font-size: 14px; margin-right: 6px">Скан Солнца</b><span id="t-text"></span></p>
+          <p id="t-line" style="margin: 0; font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><b id="t-title" style="color: var(--ink); font-size: 14px; margin-right: 6px">Solar scan</b><span id="t-text"></span></p>
         </div>
         <div style="display: flex; gap: 6px; flex: none">
-          <a class="mini-btn" id="fits" href="#" title="Скачать файл FITS">FITS ↓</a>
-          <button class="mini-btn" type="button" id="copy-link" title="Скопировать ссылку на этот скан">Ссылка</button>
+          <a class="mini-btn" id="fits" href="#" title="Download FITS">FITS ↓</a>
+          <button class="mini-btn" type="button" id="copy-link" title="Copy link to this scan">Link</button>
         </div>
       </div>
       <span class="muted" id="msg" role="status" style="font-size: 12px"></span>
       <div class="field" id="pos-box" hidden>
-        <label for="pos" style="font-size: 12.5px">Точка на скане: <span class="mono" id="pos-v">0</span>″ <span class="muted" style="font-weight: 400">— ползунок или щелчок по скану</span></label>
+        <label for="pos" style="font-size: 12.5px">Point: <span class="mono" id="pos-v">0</span>″ <span class="muted" style="font-weight: 400">— slider or click on scan</span></label>
         <input id="pos" type="range" min="-1900" max="1900" step="2" value="0">
       </div>
-      <div class="plot" id="plot" aria-live="polite" style="overflow-x: auto"><div class="empty">Выберите скан в архиве слева.</div></div>
+      <div class="plot" id="plot" aria-live="polite" style="overflow-x: auto"><div class="empty">Pick a scan in the archive.</div></div>
       <div class="ctl below" id="below">
-        <div class="grp" role="tablist" aria-label="Анализ" id="an-grp"><span class="cap">Анализ</span><details class="pop" id="an-pop"><summary class="an-sum"><span id="an-cur">выбрать…</span> <span aria-hidden="true">▾</span></summary><div class="pop-body an-list"><button type="button" role="tab" data-v="point" aria-selected="false">Спектр в точке</button><button type="button" role="tab" data-v="near" aria-selected="false">Соседние волны</button><button type="button" role="tab" data-v="gauss" aria-selected="false">Гаусс-анализ</button><button type="button" role="tab" data-v="fft" aria-selected="false">Фурье-спектр</button><button type="button" role="tab" data-v="wavelet" aria-selected="false">Вейвлет-анализ</button><button type="button" role="tab" data-v="azim" aria-selected="false">Азимуты дня</button></div></details></div>
+        <div class="grp" role="tablist" aria-label="Analysis" id="an-grp"><span class="cap">Analysis</span><details class="pop" id="an-pop"><summary class="an-sum"><span id="an-cur">choose…</span> <span aria-hidden="true">▾</span></summary><div class="pop-body an-list"><button type="button" role="tab" data-v="point" aria-selected="false">Point spectrum</button><button type="button" role="tab" data-v="near" aria-selected="false">Adjacent diff.</button><button type="button" role="tab" data-v="gauss" aria-selected="false">Gauss fit</button><button type="button" role="tab" data-v="fft" aria-selected="false">Fourier</button><button type="button" role="tab" data-v="wavelet" aria-selected="false">Wavelet</button><button type="button" role="tab" data-v="azim" aria-selected="false">Day azimuths</button></div></details></div>
         <div class="grp"><details class="pop" id="qs-pop">
-          <summary><span class="cap" style="letter-spacing: 0">Спок. Солнце</span> <b id="qs-cur">нет</b> <span aria-hidden="true">▾</span></summary>
+          <summary><span class="cap" style="letter-spacing: 0">Quiet Sun</span> <b id="qs-cur">off</b> <span aria-hidden="true">▾</span></summary>
           <div class="pop-body" style="min-width: 250px">
             <div class="seg" id="qsmode">
-              <button type="button" data-v="off" aria-pressed="true">нет</button><button type="button" data-v="show" aria-pressed="false" title="показать шаблон пунктиром">шаблон</button><button type="button" data-v="sub" aria-pressed="false" title="вычесть из скана">вычесть</button>
+              <button type="button" data-v="off" aria-pressed="true">off</button><button type="button" data-v="show" aria-pressed="false" title="show template dashed">show</button><button type="button" data-v="sub" aria-pressed="false" title="subtract from scan">subtract</button>
             </div>
-            <label for="qs" class="muted" style="font-size: 11.5px">Способ оценки</label>
-            <select id="qs" class="mini-select" aria-label="Способ оценки спокойного Солнца"></select>
+            <label for="qs" class="muted" style="font-size: 11.5px">Method</label>
+            <select id="qs" class="mini-select" aria-label="Quiet-Sun method"></select>
           </div>
         </details></div>
       </div>
@@ -170,22 +170,22 @@ import { readLevel2, clean, subset, badChannels } from './assets/fits.js';
 import { render } from './assets/scanplot.js';
 
 const TABS = {
-  plot: ['Картинка прогноза', 'Все каналы от 3 ГГц, I (сплошные) и V (штрихпунктир), цвет — по частоте; как sunsao1.jpg прогноза. Параметры слева на неё не влияют, кроме линий краёв и центра (выключите их — получится в точности картинка прогноза).'],
-  single: ['Скан', 'Один канал крупно; стрелки — соседние каналы. С шаблоном спокойного Солнца ниже показан остаток «скан − шаблон».'],
-  group: ['Наложение каналов', 'Выбранные каналы на одном графике, цвет — от синего (низкие частоты) к оранжевому (высокие). Щелчок — спектр в точке.'],
-  vertical: ['Разнесение по вертикали', 'Каждый канал в своей шкале (1–98-й процентили), подписаны частоты.'],
-  grid: ['Сетка каналов', 'Отдельный маленький график на каждый выбранный канал; щелчок — открыть канал в режиме «Скан».'],
-  map: ['Цветная карта', 'Частота × положение на скане; ось частот в ГГц. Щелчок — спектр в точке.'],
-  contour: ['Контурная карта', 'Изолинии на плоскости частота × положение.'],
-  waterfall: ['Трёхмерный вид', 'Каналы друг за другом: низкие частоты спереди.'],
-  sun: ['Скан на снимке Солнца', 'Снимок SDO (Helioviewer) на момент наблюдения, повёрнутый так, что скан идёт по горизонтали; под диском — выбранные каналы, оранжевая полоса — диаграмма в выбранной точке. Щелчок по снимку выбирает точку.'],
-  point: ['Спектр в точке', 'Сверху — скан и выбранная точка; ниже — спектр в точке, сдвиг ближайшего максимума по каналам (в пределах ¼ ДНА) и спектр максимумов.'],
-  qsview: ['Шаблон спокойного Солнца', 'Скан (сплошная) и выбранная оценка спокойного Солнца (пунктир) — проверка, насколько хорошо проведён уровень.'],
-  near: ['Вычитание соседних волн', 'Разность соседних выбранных каналов подчёркивает спектральные особенности источников.'],
-  gauss: ['Гаусс-анализ', 'Локальные источники на первом выбранном канале после вычитания спокойного Солнца: положение, амплитуда, ширина, размер, поляризация.'],
-  fft: ['Фурье-спектр', 'Мощность пространственных гармоник выбранных каналов (окно Ханна) в зависимости от периода.'],
-  wavelet: ['Вейвлет-анализ', 'Амплитуда вейвлета Морле для первого выбранного канала: период × положение.'],
-  azim: ['Азимуты дня', 'Все наблюдения этого дня на первом выбранном канале, сверху вниз по времени.']
+  plot: ['Forecast plot', 'All channels ≥3 GHz, I solid, V dash-dot, colour by frequency — as forecast sunsao1.jpg (turn off limb lines for an exact copy).'],
+  single: ['Scan', 'One channel; arrows step channels. With quiet-Sun template the residual is shown below.'],
+  group: ['Overlay', 'Selected channels, blue = low to orange = high frequency. Click: point spectrum.'],
+  vertical: ['Stacked', 'Each channel on its own scale (1–98 percentile).'],
+  grid: ['Grid', 'Small plot per channel; click to open in Scan.'],
+  map: ['Map', 'Frequency × position. Click: point spectrum.'],
+  contour: ['Contours', 'Isolines, frequency × position.'],
+  waterfall: ['3D', 'Channels in depth, low frequencies in front.'],
+  sun: ['Scan on Sun image', 'SDO image (Helioviewer) rotated so the scan is horizontal; orange strip = beam at the point. Click to pick a point.'],
+  point: ['Point spectrum', 'Scan with point; below: spectrum, nearest-peak shift (within ¼ beam) and peak spectrum.'],
+  qsview: ['Quiet-Sun template', 'Scan (solid) vs quiet-Sun estimate (dashed).'],
+  near: ['Adjacent difference', 'Difference of adjacent channels highlights spectral features.'],
+  gauss: ['Gauss fit', 'Sources on the first channel after quiet-Sun removal: position, amplitude, width, size, polarization.'],
+  fft: ['Fourier', 'Spatial power vs period (Hann window).'],
+  wavelet: ['Wavelet', 'Morlet amplitude, period × position, first channel.'],
+  azim: ['Day azimuths', 'All scans of the day, first channel, top to bottom by time.']
 };
 const $ = id => document.getElementById(id);
 const st = { guides: true, arOn: true, sunGrid: true, regs: null, regsMsg: '', raw: null, excluded: [], auto: [], qsMode: 'off', qsMethod: 'model', sunOn: false, single: null, sunLayer: 'aia193', sunEvents: true, sunRot: 0, sunFlip: false, arc: null, path: null, level2: null, param: 'I', range: 'sun2', scale: 'auto', tab: 'plot', freqOn: null, pos: null, zoom: null, buttons: new Map(), dayCache: new Map() };
@@ -211,8 +211,8 @@ function lazyDetails(label, loader, open = false) {
   let done = false;
   const load = async () => {
     if (done) return; done = true;
-    kids.replaceChildren(el('div', { class: 'note', text: 'Загрузка…' }));
-    try { await loader(kids); } catch (e) { done = false; kids.replaceChildren(el('div', { class: 'note', role: 'alert', text: 'Ошибка: ' + e.message })); }
+    kids.replaceChildren(el('div', { class: 'note', text: 'Loading…' }));
+    try { await loader(kids); } catch (e) { done = false; kids.replaceChildren(el('div', { class: 'note', role: 'alert', text: 'Error: ' + e.message })); }
   };
   d.addEventListener('toggle', () => { if (d.open) load(); });
   d._load = load;
@@ -223,17 +223,17 @@ function lazyDetails(label, loader, open = false) {
 async function buildTree() {
   st.buttons.clear();
   $('tree').replaceChildren();
-  $('src').textContent = 'Чтение каталога…';
+  $('src').textContent = 'Reading…';
   try {
     st.arc = await openArchive();
   } catch (e) {
-    $('src').textContent = 'Архив недоступен.';
+    $('src').textContent = 'Archive unavailable.';
     $('tree').append(el('div', { class: 'note', role: 'alert', text: e.message }));
     return;
   }
   const a = st.arc;
-  $('src').replaceChildren('Источник: ', el('a', { href: a.url, text: a.name }),
-    a.errors.length ? el('span', { text: ' — основной архив недоступен из браузера (нужны https и CORS), показана копия' }) : '');
+  $('src').replaceChildren('Source: ', el('a', { href: a.url, text: a.name }),
+    a.errors.length ? el('span', { text: ' — main archive blocked (needs https + CORS), showing copy' }) : '');
   const want = wantedPath().split('/');
   const years = a.top.dirs.filter(d => /^\d{4}\/$/.test(d)).sort().reverse();
   let first = true;
@@ -242,21 +242,21 @@ async function buildTree() {
     const yd = lazyDetails(y.slice(0, 4), async kids => {
       const lv = await listLevel(a.url, a.url + y);
       const months = lv.dirs.filter(d => /^\d{2}\/$/.test(d)).sort().reverse();
-      if (!months.length) { kids.replaceChildren(el('div', { class: 'note', text: 'Нет месяцев' })); return; }
+      if (!months.length) { kids.replaceChildren(el('div', { class: 'note', text: 'No months' })); return; }
       kids.replaceChildren();
       months.forEach((m, mi) => {
         const mOpen = want[1] ? (yOpen && want[1] + '/' === m) : (yOpen && mi === 0);
         kids.append(lazyDetails(y.slice(0, 4) + '-' + m.slice(0, 2), async mk => {
           const lm = await listLevel(a.url, a.url + y + m);
           const days = group(lm.files);
-          if (!days.length) { mk.replaceChildren(el('div', { class: 'note', text: 'Нет файлов *_out.fits' })); return; }
+          if (!days.length) { mk.replaceChildren(el('div', { class: 'note', text: 'No *_out.fits' })); return; }
           mk.replaceChildren();
           days.forEach(([day, files], di) => {
             const dk = el('div', { class: 'kids' });
             for (const f of files) {
               const path = y + m + f.name;
               const b = el('button', { type: 'button', class: 'file', 'aria-current': 'false', onclick: () => openFile(path) },
-                el('span', { text: f.time.slice(0, 5) + ' ' + f.tag }), el('small', { text: 'местн.' }));
+                el('span', { text: f.time.slice(0, 5) + ' ' + f.tag }), el('small', { text: 'LT' }));
               st.buttons.set(path, b);
               dk.append(b);
             }
@@ -289,9 +289,9 @@ async function openFile(path) {
   if (decodeURIComponent(location.hash.slice(1)) !== path) history.replaceState(null, '', '#' + path);
   const url = st.arc.url + path;
   $('fits').href = url;
-  $('plot').replaceChildren(el('div', { class: 'empty', text: 'Загрузка ' + path.split('/').pop() + '…' }));
+  $('plot').replaceChildren(el('div', { class: 'empty', text: 'Loading ' + path.split('/').pop() + '…' }));
   try { st.raw = await loadScan(url); }
-  catch (e) { $('plot').replaceChildren(el('div', { class: 'empty', role: 'alert', text: 'Не удалось прочитать ' + path + ': ' + e.message })); return; }
+  catch (e) { $('plot').replaceChildren(el('div', { class: 'empty', role: 'alert', text: 'Cannot read ' + path + ': ' + e.message })); return; }
   st.zoom = null; st.pos = null; st.freqOn = null; st.single = null;
   st.auto = badChannels(st.raw);
   let saved = null;
@@ -323,9 +323,9 @@ function restoreFreq(i) { st.excluded = st.excluded.filter(k => k !== i); applyE
 function exclList() {
   const box = $('excl-list'); if (!box) return;
   const ex = st.excluded.slice().sort((a, b) => st.raw.freq[a] - st.raw.freq[b]);
-  $('excl-n').textContent = ex.length ? ' · удалено ' + ex.length : '';
-  box.replaceChildren(...(ex.length ? ex.map(i => el('button', { type: 'button', class: 'tag', title: 'Вернуть канал', onclick: () => restoreFreq(i) },
-    st.raw.freq[i].toFixed(3), st.auto.includes(i) ? el('small', { text: ' авто' }) : '', el('span', { 'aria-hidden': 'true', text: ' ×' }))) : [el('span', { class: 'muted', style: 'font-size:12px', text: 'нет' })]));
+  $('excl-n').textContent = ex.length ? ' · removed ' + ex.length : '';
+  box.replaceChildren(...(ex.length ? ex.map(i => el('button', { type: 'button', class: 'tag', title: 'Restore', onclick: () => restoreFreq(i) },
+    st.raw.freq[i].toFixed(3), st.auto.includes(i) ? el('small', { text: ' auto' }) : '', el('span', { 'aria-hidden': 'true', text: ' ×' }))) : [el('span', { class: 'muted', style: 'font-size:12px', text: 'none' })]));
 }
 
 function nearestIdx(t) { const fr = st.level2.freq; return fr.reduce((b, f, i) => Math.abs(f - t) < Math.abs(fr[b] - t) ? i : b, 0); }
@@ -337,7 +337,7 @@ function pickFreqs(kind) {
   else on = on.map(() => true);
   st.freqOn = on; fillFreqs();
 }
-function freqLabel() { const n = st.freqOn.filter(Boolean).length; $('freq-n').textContent = n === st.freqOn.length ? 'все ' + n : String(n); }
+function freqLabel() { const n = st.freqOn.filter(Boolean).length; $('freq-n').textContent = n === st.freqOn.length ? 'all ' + n : String(n); }
 function fillFreqs() {
   setTimeout(freqLabel);
   $('freqs').replaceChildren(...st.level2.freq.map((f, i) => { const o = el('option', { value: String(i), text: f.toFixed(3) }); o.selected = st.freqOn[i]; return o; }));
@@ -346,8 +346,8 @@ function selected() { const s = st.freqOn.map((on, i) => on ? i : -1).filter(i =
 
 function describe() {
   const s = st.level2;
-  let t = TABS[st.tab][1] + ' ' + fmtDate(s.obs.date) + ', ' + s.obs.time + ' UT, ' + s.nChan + ' каналов';
-  if (s.dropped && s.dropped.length) t += '; удалено из рассмотрения: ' + s.dropped.map(f => f.toFixed(3)).join(', ') + ' ГГц';
+  let t = TABS[st.tab][1] + ' ' + fmtDate(s.obs.date) + ', ' + s.obs.time + ' UT, ' + s.nChan + ' ch';
+  if (s.dropped && s.dropped.length) t += '; removed: ' + s.dropped.map(f => f.toFixed(3)).join(', ') + ' GHz';
   return t + '.';
 }
 
@@ -379,11 +379,11 @@ function loadRegions() {
   const sc = st.level2; if (!sc || !st.arOn) { arMsg('', ''); return; }
   const key = sc.obs.date + ' ' + sc.obs.time;
   if (st.regsKey === key) return;
-  st.regsKey = key; st.regs = null; arMsg('…', 'АО NOAA: загрузка');
-  regionsFor(sc.obs.date, sc.obs.time).then(r => { if (st.regsKey !== key) return; st.regs = r; arMsg(String(r.regions.length), 'АО NOAA: ' + r.regions.length + ' · ' + r.source); draw(); })
-    .catch(e => { if (st.regsKey !== key) return; arMsg('!', 'АО NOAA: ' + e.message, true); });
+  st.regsKey = key; st.regs = null; arMsg('…', 'NOAA ARs: loading');
+  regionsFor(sc.obs.date, sc.obs.time).then(r => { if (st.regsKey !== key) return; st.regs = r; arMsg(String(r.regions.length), 'NOAA ARs: ' + r.regions.length + ' · ' + r.source); draw(); })
+    .catch(e => { if (st.regsKey !== key) return; arMsg('!', 'NOAA ARs: ' + e.message, true); });
 }
-function guides() { if (!st.guides) return []; const R = st.level2.solarR; return [{ x: -R, label: '−R☉' }, { x: 0, label: 'центр' }, { x: R, label: '+R☉' }]; }
+function guides() { if (!st.guides) return []; const R = st.level2.solarR; return [{ x: -R, label: '−R☉' }, { x: 0, label: 'centre' }, { x: R, label: '+R☉' }]; }
 function yr(rows, g) {
   if (st.scale === 'full') return V.percentileRange(rows, 0, 100);
   const R = st.level2.solarR, disk = rows.map(r => r.filter((_, i) => Math.abs(g.x[i]) <= 1.1 * R));
@@ -401,13 +401,13 @@ function draw() {
   $('pos-box').hidden = st.tab !== 'point';
   $('unzoom').hidden = !st.zoom;
   extra.replaceChildren();
-  const g = G(), sel = selected(), xl = 'угл. с от центра диска', yl = (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit();
+  const g = G(), sel = selected(), xl = 'arcsec from disk centre', yl = (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit();
   loadRegions();
   const common = { xLabel: xl, guides: guides(), marks: marks(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined };
   if (st.tab === 'plot') {
     const cv = render(sc, { big: true, guides: st.guides, lineScale: V.getLineScale() });
     cv.className = 'scan-canvas'; cv.setAttribute('role', 'img');
-    cv.setAttribute('aria-label', 'Скан Солнца ' + fmtDate(sc.obs.date) + ', ' + sc.obs.time + ' UT: параметры Стокса I и V по всем каналам от 3 ГГц');
+    cv.setAttribute('aria-label', 'Solar scan ' + fmtDate(sc.obs.date) + ', ' + sc.obs.time + ' UT: Stokes I and V, all channels ≥3 GHz');
     box.replaceChildren(cv); return;
   }
   const showQs = st.qsMode === 'show' && canQs();
@@ -418,14 +418,14 @@ function draw() {
     const series = [];
     sel.forEach((c, k) => {
       const col = colorOf(c);
-      series.push({ name: sc.freq[c].toFixed(3) + ' ГГц', color: col, x: g.x, y: ser(c, g), width: sel.length > 20 ? 1 : 1.5 });
+      series.push({ name: sc.freq[c].toFixed(3) + ' GHz', color: col, x: g.x, y: ser(c, g), width: sel.length > 20 ? 1 : 1.5 });
       if (isPair()) series.push({ name: '', color: col, x: g.x, y: second(c, g), dash: '3 3', width: 1.2, qs: true, axis: st.param === 'IV' ? 2 : 1 });
       if (showQs) series.push({ name: '', color: col, x: g.x, y: qsCurve(c, g), dash: '6 4', width: 1.1, qs: true });
     });
     const main = series.filter(s => !s.qs);
     const firstRows = st.param === 'RL' ? series.filter(s => !s.dash || s.axis === 1).map(s => s.y) : main.map(s => s.y);
-    put(V.chart(series, { ...common, width: CW(), height: Math.round(0.5 * CW()) < 440 ? 440 : Math.round(0.5 * CW()), yLabel: yl, yr: yr0(firstRows, g), y2: y2opt(series.filter(s => s.axis === 2).map(s => s.y), g) }), sel.length <= 24 ? legend(main) : el('p', { class: 'muted', style: 'font-size:12px;margin:6px 0 0', text: sel.length + ' каналов: синий — ' + sc.freq[sel[0]].toFixed(2) + ' ГГц, оранжевый — ' + sc.freq[sel[sel.length - 1]].toFixed(2) + ' ГГц' }));
-    if (isPair()) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: st.param === 'IV' ? 'Сплошные — I (шкала слева), мелкий пунктир — V (шкала справа).' : 'Сплошные — R, мелкий пунктир — L, шкала общая.' }));
+    put(V.chart(series, { ...common, width: CW(), height: Math.round(0.5 * CW()) < 440 ? 440 : Math.round(0.5 * CW()), yLabel: yl, yr: yr0(firstRows, g), y2: y2opt(series.filter(s => s.axis === 2).map(s => s.y), g) }), sel.length <= 24 ? legend(main) : el('p', { class: 'muted', style: 'font-size:12px;margin:6px 0 0', text: sel.length + ' ch: blue ' + sc.freq[sel[0]].toFixed(2) + ' GHz, orange ' + sc.freq[sel[sel.length - 1]].toFixed(2) + ' GHz' }));
+    if (isPair()) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: st.param === 'IV' ? 'Solid I (left axis), dotted V (right axis).' : 'Solid R, dotted L, common axis.' }));
     if (showQs) { extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: qsNote() }), qsDetails()); }
     return;
   }
@@ -440,10 +440,10 @@ function draw() {
         else { const m = Math.max(1e-9, ...y2.filter(Number.isFinite).map(Math.abs)); series.push({ x: g.x, y: y2.map(v => off + 0.45 + 0.42 * v / m), color: colorOf(c), dash: '3 3', width: 1 }); }
       }
       if (showQs) series.push({ x: g.x, y: qsCurve(c, g).map(sc1), color: '#0F1B2D', dash: '5 4', width: 1 });
-      labels.push({ y: off + 0.1, text: sc.freq[c].toFixed(2) + ' ГГц', color: colorOf(c) });
+      labels.push({ y: off + 0.1, text: sc.freq[c].toFixed(2) + ' GHz', color: colorOf(c) });
     });
-    put(V.chart(series, { ...common, width: CW(), yLabel: yl + ' (своя шкала)', yr: [-0.2, n + 0.1], yTicks: false, labels, height: Math.max(Math.round(0.62 * CW()), 40 * n + 60) }));
-    if (isPair()) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: st.param === 'IV' ? 'Сплошные — I в своей шкале канала; пунктир — V в своей шкале, ноль V — посередине полосы канала.' : 'Сплошные — R, пунктир — L, шкала канала общая.' }));
+    put(V.chart(series, { ...common, width: CW(), yLabel: yl + ' (own scale)', yr: [-0.2, n + 0.1], yTicks: false, labels, height: Math.max(Math.round(0.62 * CW()), 40 * n + 60) }));
+    if (isPair()) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: st.param === 'IV' ? 'Solid I, dashed V (own scale, zero mid-band).' : 'Solid R, dashed L, common per channel.' }));
     if (showQs) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: qsNote() }), qsDetails());
     return;
   }
@@ -456,13 +456,13 @@ function draw() {
       const y2 = second(c, g);
       if (y2) sr.push({ x: g.x, y: y2, color: colorOf(c), dash: '3 3', width: 1.1, axis: st.param === 'IV' ? 2 : 1 });
       if (showQs) sr.push({ x: g.x, y: qsCurve(c, g), color: '#0F1B2D', dash: '5 4', width: 1.2 });
-      wrap.append(el('div', { style: 'cursor:pointer', title: 'Открыть канал в режиме «Скан»' },
-        el('div', { style: 'display:flex;justify-content:space-between;align-items:center' }, el('span', { class: 'mono', style: 'font-size:12px;color:var(--muted)', text: sc.freq[c].toFixed(3) + ' ГГц' }),
-          el('button', { type: 'button', class: 'x-btn', title: 'Удалить канал ' + sc.freq[c].toFixed(3) + ' ГГц из рассмотрения', 'aria-label': 'Удалить канал ' + sc.freq[c].toFixed(3) + ' ГГц', text: '×', onclick: e => { e.stopPropagation(); excludeFreqs([sc.freq[c]]); } })),
+      wrap.append(el('div', { style: 'cursor:pointer', title: 'Open in Scan' },
+        el('div', { style: 'display:flex;justify-content:space-between;align-items:center' }, el('span', { class: 'mono', style: 'font-size:12px;color:var(--muted)', text: sc.freq[c].toFixed(3) + ' GHz' }),
+          el('button', { type: 'button', class: 'x-btn', title: 'Remove ' + sc.freq[c].toFixed(3) + ' GHz', 'aria-label': 'Remove ' + sc.freq[c].toFixed(3) + ' GHz', text: '×', onclick: e => { e.stopPropagation(); excludeFreqs([sc.freq[c]]); } })),
         V.chart(sr, { width: 420, height: 220, guides: guides(), marks: marks(), y2: y2 ? y2opt([y2], g) : undefined, yr: st.scale === 'full' ? same : yr0(st.param === 'RL' ? [rows[k], y2] : [rows[k]], g), yLabel: '', xLabel: '', xr: st.zoom || undefined, onClick: () => { st.single = c; selectTab('single'); } })));
     });
     put(wrap);
-    if (sel.length > 36) extra.append(el('p', { class: 'muted', text: 'Показаны первые 36 из ' + sel.length + ' выбранных каналов.' }));
+    if (sel.length > 36) extra.append(el('p', { class: 'muted', text: 'First 36 of ' + sel.length + ' channels.' }));
     if (showQs) extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: qsNote() }), qsDetails());
     return;
   }
@@ -474,7 +474,7 @@ function draw() {
     if (st.tab === 'waterfall') {
       const step = Math.max(1, Math.round(sc.nChan / 40)), idx = all.filter(c => c % step === 0);
       box.replaceChildren(V.waterfall(gg.x, idx.map(c => sc.freq[c]), idx.map(c => clipped[c]), yl, guides()));
-    } else box.replaceChildren(V.map2d(gg.x, sc.freq, clipped, st.tab, yl, pick, 'частота, ГГц', guides()));
+    } else box.replaceChildren(V.map2d(gg.x, sc.freq, clipped, st.tab, yl, pick, 'frequency, GHz', guides()));
     return;
   }
   if (st.tab === 'point') { drawPoint(g, sel); return; }
@@ -484,21 +484,21 @@ function draw() {
       const a = sel[k - 1], b = sel[k], ya = ser(a, g), yb = ser(b, g);
       series.push({ name: sc.freq[a].toFixed(2) + '−' + sc.freq[b].toFixed(2), color: sel.length <= 11 ? PALETTE[(k - 1) % 10] : colorOf(a), x: g.x, y: ya.map((v, j) => v - yb[j]) });
     }
-    if (!series.length) { box.replaceChildren(el('div', { class: 'empty', text: 'Выберите хотя бы два канала.' })); return; }
-    box.replaceChildren(V.chart(series, { ...common, width: CW(), height: 560, yLabel: 'разность ' + yl, yr: yr(series.map(s => s.y), g) }), series.length <= 24 ? legend(series) : '');
+    if (!series.length) { box.replaceChildren(el('div', { class: 'empty', text: 'Select at least two channels.' })); return; }
+    box.replaceChildren(V.chart(series, { ...common, width: CW(), height: 560, yLabel: 'diff ' + yl, yr: yr(series.map(s => s.y), g) }), series.length <= 24 ? legend(series) : '');
     return;
   }
   if (st.tab === 'gauss') { drawGauss(g, sel[0]); return; }
   if (st.tab === 'fft') {
-    const series = sel.slice(0, 10).map((c, k) => { const p = V.powerSpectrum(ser(c, g, pp() === 'p' ? 'I' : pp(), st.qsMethod), g.step); return { name: sc.freq[c].toFixed(2) + ' ГГц', color: PALETTE[k % 10], x: p.period, y: p.logPower }; });
-    box.replaceChildren(V.chart(series, { xLabel: 'период, угл. с', yLabel: 'lg мощности', logX: true, height: 380 }), legend(series));
-    extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Перед расчётом вычитается спокойное Солнце (по умолчанию — нижняя огибающая). Периоды меньше ширины диаграммы — шум.' }));
+    const series = sel.slice(0, 10).map((c, k) => { const p = V.powerSpectrum(ser(c, g, pp() === 'p' ? 'I' : pp(), st.qsMethod), g.step); return { name: sc.freq[c].toFixed(2) + ' GHz', color: PALETTE[k % 10], x: p.period, y: p.logPower }; });
+    box.replaceChildren(V.chart(series, { xLabel: 'period, arcsec', yLabel: 'log power', logX: true, height: 380 }), legend(series));
+    extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Quiet Sun removed first. Periods below beam width are noise.' }));
     return;
   }
   if (st.tab === 'wavelet') {
     const c = sel[0], y = ser(c, g, pp() === 'p' ? 'I' : pp(), st.qsMethod), w = V.wavelet(y, g.step);
-    box.replaceChildren(V.map2d(g.x, w.periods.map(Math.log10), w.rows, 'map', 'амплитуда', pick, 'lg периода, угл. с', guides()));
-    extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Канал ' + sc.freq[c].toFixed(3) + ' ГГц. По вертикали — десятичный логарифм периода (от ' + Math.round(w.periods[0]) + ' до ' + Math.round(w.periods[w.periods.length - 1]) + '″).' }));
+    box.replaceChildren(V.map2d(g.x, w.periods.map(Math.log10), w.rows, 'map', 'amplitude', pick, 'log period, arcsec', guides()));
+    extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Channel ' + sc.freq[c].toFixed(3) + ' GHz. Y: log period (' + Math.round(w.periods[0]) + '–' + Math.round(w.periods[w.periods.length - 1]) + '″).' }));
     return;
   }
   if (st.tab === 'azim') { drawAzimuths(sel[0]); return; }
@@ -507,14 +507,14 @@ function draw() {
 function yr0(rows, g) { const r = yr(rows, g); if (pp() !== 'V' && pp() !== 'p') r[0] = Math.min(r[0], -0.03 * Math.abs(r[1])); return r; }
 // second component of a pair on grid g; for I+V it goes to the right axis
 function second(c, g) { return isPair() ? V.series(st.level2, c, comps()[1], g, qsSub()) : null; }
-function y2opt(rows, g) { return st.param === 'IV' ? { yr: V.percentileRange(rows, 0.5, 99.5), label: 'V, K (пунктир)', color: '#1E4FB8' } : undefined; }
+function y2opt(rows, g) { return st.param === 'IV' ? { yr: V.percentileRange(rows, 0.5, 99.5), label: 'V, K (dotted)', color: '#1E4FB8' } : undefined; }
 function canQs() { return ['I', 'R', 'L'].includes(pp()); }
 // quiet-Sun template on grid g (for R and L the quiet Sun is the same as for I, since V = 0 there)
 function qsCurve(c, g) { return V.quietTemplate(st.level2, c, { x: g.x, idx: g.idx }, g.step, st.qsMethod); }
-function qsNote() { return canQs() ? 'Пунктир — шаблон спокойного Солнца: ' + V.QUIET[st.qsMethod] + '.' : 'Для V и p шаблона нет: у спокойного Солнца V = 0.'; }
+function qsNote() { return canQs() ? 'Dashed: quiet Sun, ' + V.QUIET[st.qsMethod] + '.' : 'No template for V and p (quiet Sun V = 0).'; }
 function qsDetails() {
   if (!['model', 'touch', 'modeltq'].includes(st.qsMethod)) return '';
-  const d = el('details', {}, el('summary', { style: 'cursor:pointer;font-weight:600;font-size:14px', text: 'Подогнанная модель спокойного Солнца по всем каналам' }));
+  const d = el('details', {}, el('summary', { style: 'cursor:pointer;font-weight:600;font-size:14px', text: 'Quiet-Sun model, all channels' }));
   d.addEventListener('toggle', () => { if (d.open && d.children.length === 1) d.append(qsReport()); });
   return d;
 }
@@ -524,27 +524,27 @@ function drawSingle(g, sel, sunEl) {
   if (st.single === null || st.single >= sc.nChan) st.single = sel[0];
   const c = st.single, withQs = st.qsMode === 'show' && canQs();
   const y = ser(c, g);
-  const chSel = el('select', { id: 'single-ch', 'aria-label': 'Канал', style: 'font-family:var(--mono)' }, ...sc.freq.map((f, i) => el('option', { value: String(i), text: f.toFixed(3) + ' ГГц' })));
+  const chSel = el('select', { id: 'single-ch', 'aria-label': 'Channel', style: 'font-family:var(--mono)' }, ...sc.freq.map((f, i) => el('option', { value: String(i), text: f.toFixed(3) + ' GHz' })));
   chSel.value = String(c); chSel.onchange = () => { st.single = +chSel.value; draw(); };
-  const prev = el('button', { type: 'button', class: 'btn', 'aria-label': 'Предыдущий канал', text: '◀', onclick: () => { st.single = Math.max(0, c - 1); draw(); } });
-  const next = el('button', { type: 'button', class: 'btn', 'aria-label': 'Следующий канал', text: '▶', onclick: () => { st.single = Math.min(sc.nChan - 1, c + 1); draw(); } });
+  const prev = el('button', { type: 'button', class: 'btn', 'aria-label': 'Previous channel', text: '◀', onclick: () => { st.single = Math.max(0, c - 1); draw(); } });
+  const next = el('button', { type: 'button', class: 'btn', 'aria-label': 'Next channel', text: '▶', onclick: () => { st.single = Math.min(sc.nChan - 1, c + 1); draw(); } });
   for (const b of [prev, next]) b.style.cssText = 'min-height:32px;padding:0 10px';
-  const del = el('button', { type: 'button', class: 'mini-btn', title: 'Удалить этот канал из рассмотрения (вернуть — в панели «Каналы»)', text: '✕ удалить канал', onclick: () => excludeFreqs([sc.freq[c]]) });
+  const del = el('button', { type: 'button', class: 'mini-btn', title: 'Remove this channel (restore in Channels)', text: '✕ remove', onclick: () => excludeFreqs([sc.freq[c]]) });
   const tb = el('div', { class: 'toolbar' }, prev, chSel, next, del);
-  const sr = [{ name: sc.freq[c].toFixed(3) + ' ГГц, ' + pp() + (st.qsMode === 'sub' ? ' − спокойное Солнце' : ''), x: g.x, y, color: '#C2410C', width: 1.8 }];
+  const sr = [{ name: sc.freq[c].toFixed(3) + ' GHz, ' + pp() + (st.qsMode === 'sub' ? ' − quiet Sun' : ''), x: g.x, y, color: '#C2410C', width: 1.8 }];
   const y2 = second(c, g);
-  if (y2) sr.push({ name: comps()[1] + (st.param === 'IV' ? ' (шкала справа)' : ''), x: g.x, y: y2, color: '#1E4FB8', dash: '4 3', width: 1.5, axis: st.param === 'IV' ? 2 : 1 });
+  if (y2) sr.push({ name: comps()[1] + (st.param === 'IV' ? ' (right axis)' : ''), x: g.x, y: y2, color: '#1E4FB8', dash: '4 3', width: 1.5, axis: st.param === 'IV' ? 2 : 1 });
   let t = null;
-  if (withQs) { t = qsCurve(c, g); sr.push({ name: 'спокойное Солнце', x: g.x, y: t, color: '#0F1B2D', dash: '6 4', width: 1.5 }); }
-  const parts = [tb, V.chart(sr, { xLabel: 'угл. с от центра диска', yLabel: (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit(), guides: guides(), marks: marks(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, width: CW(), height: Math.max(440, Math.round(0.5 * CW())), yr: yr0(sr.filter(s => s.axis !== 2).map(s => s.y), g), y2: y2 ? y2opt([y2], g) : undefined }), legend(sr)];
+  if (withQs) { t = qsCurve(c, g); sr.push({ name: 'quiet Sun', x: g.x, y: t, color: '#0F1B2D', dash: '6 4', width: 1.5 }); }
+  const parts = [tb, V.chart(sr, { xLabel: 'arcsec from disk centre', yLabel: (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit(), guides: guides(), marks: marks(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, width: CW(), height: Math.max(440, Math.round(0.5 * CW())), yr: yr0(sr.filter(s => s.axis !== 2).map(s => s.y), g), y2: y2 ? y2opt([y2], g) : undefined }), legend(sr)];
   box.replaceChildren(...(sunEl ? [el('div', { class: 'with-sun' }, sunEl, el('div', { style: 'min-width:0' }, ...parts))] : parts));
   if (withQs) {
     const res = y.map((v, i) => v - t[i]);
-    extra.append(el('div', { class: 'plot' }, el('div', { style: 'font-size:13px;font-weight:600;margin-bottom:4px', text: 'Остаток: скан − шаблон (локальные источники)' }),
-      V.chart([{ x: g.x, y: res, color: '#1E4FB8', width: 1.5 }], { xLabel: 'угл. с от центра диска', yLabel: 'K', guides: guides(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, width: CW(), height: 260, yr: yr([res], g) })));
+    extra.append(el('div', { class: 'plot' }, el('div', { style: 'font-size:13px;font-weight:600;margin-bottom:4px', text: 'Residual: scan − template' }),
+      V.chart([{ x: g.x, y: res, color: '#1E4FB8', width: 1.5 }], { xLabel: 'arcsec from disk centre', yLabel: 'K', guides: guides(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, width: CW(), height: 260, yr: yr([res], g) })));
     if (['model', 'touch', 'modeltq'].includes(st.qsMethod)) {
       const q = fitQuietSun(sc).ch[c];
-      extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: `Модель канала: центр ${Math.round(q.A)} K (TQSUN ${Math.round(q.tq)} K, отношение ${(q.A / q.tq).toFixed(2)}), ρ = ${q.rho.toFixed(3)}, θгор = ${q.th.toFixed(0)}″, θверт = ${(q.tv / 60).toFixed(1)}′, сдвиг центра ${q.dx.toFixed(0)}″. ` + qsNote() }), qsDetails());
+      extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: `Model: centre ${Math.round(q.A)} K (TQSUN ${Math.round(q.tq)} K, ratio ${(q.A / q.tq).toFixed(2)}), ρ = ${q.rho.toFixed(3)}, θh = ${q.th.toFixed(0)}″, θv = ${(q.tv / 60).toFixed(1)}′, Δx ${q.dx.toFixed(0)}″. ` + qsNote() }), qsDetails());
     } else extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: qsNote() }));
   } else if (st.qsMode === 'show') extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: qsNote() }));
 }
@@ -585,11 +585,11 @@ function sunPanel(g, sel) {
     onPick: x => { st.pos = Math.round(x); draw(); } }, (state, url, log) => {
       clearInterval(timer);
       if (state === 'loading') {
-        const t0 = Date.now(); msg.textContent = 'Снимок Солнца: загрузка…';
-        timer = setInterval(() => { if (!msg.isConnected) return clearInterval(timer); msg.textContent = 'Снимок Солнца: загрузка с Helioviewer… ' + Math.round((Date.now() - t0) / 1000) + ' с'; }, 1000);
-      } else if (state === 'error') msg.replaceChildren('Снимок не загрузился — сканы нарисованы на диске с сеткой. ', el('a', { href: url.includes('helioviewer') ? url : sunUrls(sc)[1], text: 'Открыть запрос к Helioviewer' }), ' и прислать, что он показывает. ' + (log && log.length ? 'Попытки: ' + log.join('; ') : ''));
-      else if (state === 'none') msg.textContent = 'Без снимка: край диска, гелиографическая сетка и активные области; сканы — поверх диска' + (st.param === 'IV' ? ' (V — пунктир, своя шкала, ноль — точечная линия).' : '.');
-      else if (state === 'ok') msg.replaceChildren(`${V.SUN_LAYERS[st.sunLayer][0]} (${url.includes('helioviewer') ? 'Helioviewer.org' : 'копия на сайте'}, SDO/NASA), ${sc.obs.date} ${sc.obs.time.slice(0, 5)} UT; сканы — поверх диска, положительное x — запад; оранжевая полоса — диаграмма в точке ${st.pos}″. `, el('a', { href: url, text: 'исходный снимок' }));
+        const t0 = Date.now(); msg.textContent = 'Sun image: loading…';
+        timer = setInterval(() => { if (!msg.isConnected) return clearInterval(timer); msg.textContent = 'Sun image: Helioviewer… ' + Math.round((Date.now() - t0) / 1000) + ' s'; }, 1000);
+      } else if (state === 'error') msg.replaceChildren('Image failed — scans drawn on a grid disk. ', el('a', { href: url.includes('helioviewer') ? url : sunUrls(sc)[1], text: 'Open Helioviewer request' }), ' and send what it shows. ' + (log && log.length ? 'Tried: ' + log.join('; ') : ''));
+      else if (state === 'none') msg.textContent = 'No image: limb, grid, ARs; scans over disk' + (st.param === 'IV' ? ' (V dashed, own scale, zero dotted).' : '.');
+      else if (state === 'ok') msg.replaceChildren(`${V.SUN_LAYERS[st.sunLayer][0]} (${url.includes('helioviewer') ? 'Helioviewer.org' : 'local copy'}, SDO/NASA), ${sc.obs.date} ${sc.obs.time.slice(0, 5)} UT; +x = west; orange strip = beam at ${st.pos}″. `, el('a', { href: url, text: 'source image' }));
     });
   return el('div', { style: 'margin-bottom:10px' }, cv, msg);
 }
@@ -597,17 +597,17 @@ function sunPanel(g, sel) {
 function qsReport() {
   const q = fitQuietSun(st.level2), L = q.law, sel = new Set(selected());
   const box = el('div', { class: 'stack', style: 'gap:8px;margin-top:8px' });
-  box.append(el('p', { style: 'margin:0;font-size:14px' }, el('b', { text: 'Подогнанная модель: ' }),
-    el('span', { class: 'mono', text: `R/R☉ = ${L.a.toFixed(3)} + ${L.k.toFixed(3)}/ν; θгор = ${L.beta.toFixed(1)} + ${L.gamma.toFixed(3)}·λ[мм]″; сдвиг центра Δx = ${L.dx.toFixed(0)}″` })));
-  box.append(el('p', { class: 'muted', style: 'margin:0;font-size:13px', text: 'Диск радиуса ρR☉ с уярчением к краю 4% через вертикальную (по высоте Солнца ' + Math.round(st.level2.header.ALTITUDE || 0) + '°) и горизонтальную диаграммы; подгонка по нижней огибающей, точки выше модели (активные области) отбрасываются. Законы по частоте — по 12 опорным каналам, начальное приближение — физический шаблон WorkScanJ для комплекса 3–18 ГГц.' }));
-  const head = ['ν, ГГц', 'центр A, K', 'TQSUN, K', 'A / TQSUN', 'ρ', 'θгор, ″', 'θверт, ′', 'Δx, ″', 'на огибающей'];
+  box.append(el('p', { style: 'margin:0;font-size:14px' }, el('b', { text: 'Fitted model: ' }),
+    el('span', { class: 'mono', text: `R/R☉ = ${L.a.toFixed(3)} + ${L.k.toFixed(3)}/ν; θh = ${L.beta.toFixed(1)} + ${L.gamma.toFixed(3)}·λ[mm]″; Δx = ${L.dx.toFixed(0)}″` })));
+  box.append(el('p', { class: 'muted', style: 'margin:0;font-size:13px', text: 'Disk ρR☉, 4% limb brightening, convolved with vertical (Sun altitude ' + Math.round(st.level2.header.ALTITUDE || 0) + '°) and horizontal beams; lower-envelope fit, ARs rejected. Frequency laws from 12 ref. channels, start from WorkScanJ 3–18 GHz template.' }));
+  const head = ['ν, GHz', 'centre A, K', 'TQSUN, K', 'A / TQSUN', 'ρ', 'θh, ″', 'θv, ′', 'Δx, ″', 'on envelope'];
   const rows = q.ch.map((r, i) => ({ i, cells: [r.f.toFixed(3), Math.round(r.A), Math.round(r.tq), (r.A / r.tq).toFixed(2), r.rho.toFixed(3), r.th.toFixed(0), (r.tv / 60).toFixed(1), r.dx.toFixed(0), Math.round(100 * r.kept) + '%'] }));
   const shown = rows.filter(r => sel.has(r.i));
   box.append(el('div', { class: 'table-box' }, el('table', { style: 'min-width:720px' },
     el('thead', {}, el('tr', {}, ...head.map(h => el('th', { scope: 'col', class: 'num', text: h })))),
     el('tbody', {}, ...(shown.length ? shown : rows).map(r => el('tr', {}, ...r.cells.map(v => el('td', { class: 'mono num', text: String(v) }))))))));
-  const all = el('button', { type: 'button', class: 'btn', text: 'Копировать все каналы (TSV)', onclick: async () => {
-    try { await navigator.clipboard.writeText([head, ...rows.map(r => r.cells)].map(r => r.join('\t')).join('\n')); all.textContent = 'Скопировано'; } catch (e) { all.textContent = 'Нет доступа к буферу'; } } });
+  const all = el('button', { type: 'button', class: 'btn', text: 'Copy all (TSV)', onclick: async () => {
+    try { await navigator.clipboard.writeText([head, ...rows.map(r => r.cells)].map(r => r.join('\t')).join('\n')); all.textContent = 'Copied'; } catch (e) { all.textContent = 'No clipboard access'; } } });
   box.append(el('div', {}, all));
   return box;
 }
@@ -620,8 +620,8 @@ function drawPoint(g, sel) {
   st.pos = Math.min(xmax, Math.max(xmin, st.pos));
   $('pos').min = xmin; $('pos').max = xmax; $('pos').value = st.pos; $('pos-v').textContent = st.pos;
   // scan with the point marked
-  const ss = sel.slice(0, 6).map((c, k) => ({ name: sc.freq[c].toFixed(2) + ' ГГц', color: PALETTE[k % 10], x: g.x, y: ser(c, g) }));
-  const top = V.chart(ss, { xLabel: 'угл. с от центра диска', yLabel: pp() + ', ' + unit(), guides: guides(), mark: st.pos, onClick: x => { st.pos = Math.round(x); draw(); }, onZoom: zoom, xr: st.zoom || undefined, height: 260, yr: yr(ss.map(s => s.y), g) });
+  const ss = sel.slice(0, 6).map((c, k) => ({ name: sc.freq[c].toFixed(2) + ' GHz', color: PALETTE[k % 10], x: g.x, y: ser(c, g) }));
+  const top = V.chart(ss, { xLabel: 'arcsec from disk centre', yLabel: pp() + ', ' + unit(), guides: guides(), mark: st.pos, onClick: x => { st.pos = Math.round(x); draw(); }, onZoom: zoom, xr: st.zoom || undefined, height: 260, yr: yr(ss.map(s => s.y), g) });
   // spectra
   const j = g.x.reduce((b, x, i) => Math.abs(x - st.pos) < Math.abs(g.x[b] - st.pos) ? i : b, 0);
   const fr = sc.freq, I = [], Vv = [], dx = [], pk = [];
@@ -631,16 +631,16 @@ function drawPoint(g, sel) {
     const p = V.localPeak(g.x, yi, st.pos, V.beamArcsec(f) / 4 + g.step);
     dx.push(p ? p.dx : NaN); pk.push(p ? p.v : NaN);
   });
-  const qsNote = st.qsMode === 'sub' ? ' (спокойное Солнце вычтено)' : '';
-  const s1 = V.chart([{ x: fr, y: I, color: '#C2410C', width: 1.8 }, { x: fr, y: Vv, color: '#1E4FB8', dash: '5 4', width: 1.6 }], { xLabel: 'частота, ГГц', yLabel: 'K', width: 420, height: 260, yr: V.percentileRange([I, Vv], 0, 100) });
-  const s2 = V.chart([{ x: fr, y: dx, color: '#0F766E', width: 1.6 }], { xLabel: 'частота, ГГц', yLabel: 'Δx, угл. с', width: 420, height: 260, yr: V.percentileRange([dx], 0, 100) });
-  const s3 = V.chart([{ x: fr, y: pk, color: '#C2410C', width: 1.8 }], { xLabel: 'частота, ГГц', yLabel: 'I в максимуме, K', width: 420, height: 260, yr: V.percentileRange([pk], 0, 100) });
+  const qsNote = st.qsMode === 'sub' ? ' (quiet Sun removed)' : '';
+  const s1 = V.chart([{ x: fr, y: I, color: '#C2410C', width: 1.8 }, { x: fr, y: Vv, color: '#1E4FB8', dash: '5 4', width: 1.6 }], { xLabel: 'frequency, GHz', yLabel: 'K', width: 420, height: 260, yr: V.percentileRange([I, Vv], 0, 100) });
+  const s2 = V.chart([{ x: fr, y: dx, color: '#0F766E', width: 1.6 }], { xLabel: 'frequency, GHz', yLabel: 'Δx, arcsec', width: 420, height: 260, yr: V.percentileRange([dx], 0, 100) });
+  const s3 = V.chart([{ x: fr, y: pk, color: '#C2410C', width: 1.8 }], { xLabel: 'frequency, GHz', yLabel: 'peak I, K', width: 420, height: 260, yr: V.percentileRange([pk], 0, 100) });
   const cell = (t, n) => el('div', {}, el('div', { style: 'font-size:13px;font-weight:600;margin:4px 0', text: t }), n);
   box.replaceChildren(top, legend(ss));
   extra.append(el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:6px' },
-    cell('Спектр в точке ' + st.pos + '″: I (сплошная), V (пунктир)' + qsNote, s1),
-    cell('Сдвиг ближайшего максимума I (в пределах ¼ ДНА)', s2),
-    cell('Спектр в максимумах', s3)));
+    cell('Spectrum at ' + st.pos + '″: I solid, V dashed' + qsNote, s1),
+    cell('Nearest I peak shift (≤ ¼ beam)', s2),
+    cell('Peak spectrum', s3)));
 }
 
 function drawGauss(g, c) {
@@ -650,21 +650,21 @@ function drawGauss(g, c) {
   const theta = V.beamArcsec(sc.freq[c]);
   const src = V.gaussSources(g.x, y, yv, theta);
   const fits = src.map((s, k) => ({ x: g.x, y: g.x.map(x => s.A * Math.exp(-2.773 * (x - s.pos) ** 2 / (s.B * s.B))), color: PALETTE[(k + 1) % 10], dash: '5 3', width: 1.2 }));
-  box.replaceChildren(V.chart([{ x: g.x, y, color: '#0F1B2D', width: 1.6 }, ...fits], { xLabel: 'угл. с от центра диска', yLabel: 'I − спокойное Солнце, K', guides: guides(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, yr: yr([y], g) }));
+  box.replaceChildren(V.chart([{ x: g.x, y, color: '#0F1B2D', width: 1.6 }, ...fits], { xLabel: 'arcsec from disk centre', yLabel: 'I − quiet Sun, K', guides: guides(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, yr: yr([y], g) }));
   const head = ['№', 'x, ″', 'F⁰, K', 'B, ″', 'B₀, ″', 'p, %', '1,064·F⁰·B, K·″'];
   const rows = src.map((s, k) => [k + 1, s.pos.toFixed(0), Math.round(s.A), s.B.toFixed(0), Number.isFinite(s.B0) ? s.B0.toFixed(0) : '—', Number.isFinite(s.p) ? s.p.toFixed(1) : '—', Math.round(s.area)]);
   const table = el('table', { style: 'min-width:560px' }, el('thead', {}, el('tr', {}, ...head.map(h => el('th', { scope: 'col', class: 'num', text: h })))),
     el('tbody', {}, ...rows.map(r => el('tr', {}, ...r.map(v => el('td', { class: 'mono num', text: String(v) }))))));
-  const copy = el('button', { type: 'button', class: 'btn', text: 'Копировать таблицу (TSV)', onclick: async () => {
-    try { await navigator.clipboard.writeText([head, ...rows].map(r => r.join('\t')).join('\n')); copy.textContent = 'Скопировано'; } catch (e) { copy.textContent = 'Нет доступа к буферу'; } } });
-  extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Канал ' + sc.freq[c].toFixed(3) + ' ГГц, ДНА θ ≈ ' + theta.toFixed(0) + '″ (0,85·λ мм), спокойное Солнце — ' + V.QUIET[method] + '. B₀ = √(B² − θ²); p = V/I в максимуме. Перевод в с.е.п. — через kflux канала после калибровки.' }),
-    src.length ? el('div', { class: 'table-box' }, table) : el('div', { class: 'empty', text: 'Источников выше 8% максимума не найдено.' }), el('div', { style: 'margin-top:8px' }, copy));
+  const copy = el('button', { type: 'button', class: 'btn', text: 'Copy table (TSV)', onclick: async () => {
+    try { await navigator.clipboard.writeText([head, ...rows].map(r => r.join('\t')).join('\n')); copy.textContent = 'Copied'; } catch (e) { copy.textContent = 'No clipboard access'; } } });
+  extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: 'Channel ' + sc.freq[c].toFixed(3) + ' GHz, beam θ ≈ ' + theta.toFixed(0) + '″ (0.85·λ mm), quiet Sun: ' + V.QUIET[method] + '. B₀ = √(B² − θ²); p = V/I at peak. s.f.u. via channel kflux after calibration.' }),
+    src.length ? el('div', { class: 'table-box' }, table) : el('div', { class: 'empty', text: 'No sources above 8% of max.' }), el('div', { style: 'margin-top:8px' }, copy));
 }
 
 async function drawAzimuths(c) {
   const box = $('plot'), extra = $('extra'), sc = st.level2, f = sc.freq[c];
   const dir = st.path.split('/').slice(0, 2).join('/') + '/', day = st.path.split('/').pop().slice(0, 8);
-  box.replaceChildren(el('div', { class: 'empty', text: 'Загрузка наблюдений дня…' }));
+  box.replaceChildren(el('div', { class: 'empty', text: 'Loading the day…' }));
   let files;
   try { files = (await listLevel(st.arc.url, st.arc.url + dir)).files.filter(n => n.startsWith(day) && /_out\.fits$/i.test(n)); }
   catch (e) { box.replaceChildren(el('div', { class: 'empty', role: 'alert', text: e.message })); return; }
@@ -678,22 +678,22 @@ async function drawAzimuths(c) {
     series.push({ x: gi.x, y: y.map(v => off + 0.9 * (v - a) / (b - a)), color: n === st.path.split('/').pop() ? '#C2410C' : '#1E4FB8', width: 1.3 });
     labels.push({ y: off + 0.1, text: s.obs.time.slice(0, 5) + ' UT, az ' + Math.round(s.az) + '°' });
   });
-  box.replaceChildren(V.chart(series, { xLabel: 'угл. с от центра диска', yLabel: pp() + ' (своя шкала)', yr: [-0.2, k + 0.1], yTicks: false, labels, guides: guides(), height: Math.max(300, 46 * k + 60), xr: st.zoom || undefined, onZoom: zoom }));
-  extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: k + ' наблюдени' + (k === 1 ? 'е' : 'й') + ' за ' + fmtDate(sc.obs.date) + ' на ' + f.toFixed(3) + ' ГГц; текущее — оранжевым. Сдвиг источников между азимутами — вращение Солнца и смена позиционного угла.' }));
+  box.replaceChildren(V.chart(series, { xLabel: 'arcsec from disk centre', yLabel: pp() + ' (own scale)', yr: [-0.2, k + 0.1], yTicks: false, labels, guides: guides(), height: Math.max(300, 46 * k + 60), xr: st.zoom || undefined, onZoom: zoom }));
+  extra.append(el('p', { class: 'muted', style: 'font-size:13px', text: k + ' scan' + (k === 1 ? '' : 's') + ' on ' + fmtDate(sc.obs.date) + ' at ' + f.toFixed(3) + ' GHz; current in orange. Shifts = rotation and position angle.' }));
 }
 
 function selectTab(v) {
   st.tab = v;
   for (const b of document.querySelectorAll('#tabs button[role=tab], #an-pop button[role=tab]')) b.setAttribute('aria-selected', String(b.dataset.v === v));
   const ab = $('an-pop').querySelector('button[data-v="' + v + '"]');
-  $('an-cur').textContent = ab ? ab.textContent : 'выбрать…';
+  $('an-cur').textContent = ab ? ab.textContent : 'choose…';
   $('an-pop').classList.toggle('active', !!ab); $('an-pop').open = false;
   draw();
 }
 
 // ---------- events ----------
 for (const [k, v] of Object.entries(V.QUIET)) if (k !== 'none') $('qs').append(el('option', { value: k, text: v }));
-$('sun-layer').append(el('option', { value: 'none', text: 'без снимка — край, сетка, АО' }));
+$('sun-layer').append(el('option', { value: 'none', text: 'no image — limb, grid, ARs' }));
 for (const [k, v] of Object.entries(V.SUN_LAYERS)) $('sun-layer').append(el('option', { value: k, text: v[0] }));
 $('sun-layer').value = st.sunLayer;
 // palette chooser: gradient swatches; the choice is remembered in the browser
@@ -709,7 +709,7 @@ function arMsg(t, tip, bad) {
   const b = $('ar-msg'); b.hidden = !t; b.textContent = t; b.title = tip; b.classList.toggle('bad', !!bad);
 }
 function qsLabel() {
-  const m = { off: 'нет', show: 'шаблон', sub: 'вычесть' }[st.qsMode];
+  const m = { off: 'none', show: 'show', sub: 'subtract' }[st.qsMode];
   const sel = $('qs').selectedOptions[0];
   $('qs-cur').textContent = m; $('qs-pop').title = st.qsMode === 'off' || !sel ? '' : sel.textContent;
   $('qs-pop').classList.toggle('active', st.qsMode !== 'off');
@@ -755,14 +755,14 @@ $('reload').addEventListener('click', () => {
 });
 window.addEventListener('hashchange', () => { const p = wantedPath(); if (p && p !== st.path && st.arc) openFile(p); });
 $('copy-link').addEventListener('click', async () => {
-  try { await navigator.clipboard.writeText(location.href); $('msg').textContent = 'Ссылка скопирована.'; }
-  catch (e) { $('msg').textContent = 'Браузер не дал доступа к буферу обмена.'; }
+  try { await navigator.clipboard.writeText(location.href); $('msg').textContent = 'Link copied.'; }
+  catch (e) { $('msg').textContent = 'No clipboard access.'; }
 });
 
 document.addEventListener('click', e => { const path = e.composedPath(); for (const d of document.querySelectorAll('details.pop[open]')) if (!path.includes(d)) d.open = false; });
 $('fold').addEventListener('click', () => {
   const a = $('archive'), f = a.classList.toggle('folded');
-  $('fold').textContent = f ? '›' : '‹'; $('fold').setAttribute('aria-expanded', String(!f)); $('fold').title = f ? 'Развернуть архив' : 'Свернуть архив';
+  $('fold').textContent = f ? '›' : '‹'; $('fold').setAttribute('aria-expanded', String(!f)); $('fold').title = f ? 'Expand' : 'Collapse';
 });
 buildTree();
 </script>

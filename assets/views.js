@@ -11,14 +11,14 @@ import { palette } from './scanplot.js';
 // ---------- colour maps ----------
 // Std Gamma-II is the table of the forecast picture; the others are the usual perceptual maps (9 stops each).
 export const PALETTES = {
-  gamma: { name: 'Std Gamma-II (как в прогнозе)', f: t => palette(255 * t) },
+  gamma: { name: 'Std Gamma-II (forecast)', f: t => palette(255 * t) },
   viridis: { name: 'viridis', stops: ['#440154', '#472d7b', '#3b528b', '#2c728e', '#21918c', '#28ae80', '#5ec962', '#addc30', '#fde725'] },
   inferno: { name: 'inferno', stops: ['#000004', '#1b0c41', '#4a0c6b', '#781c6d', '#a52c60', '#cf4446', '#ed6925', '#fb9b06', '#fcffa4'] },
   plasma: { name: 'plasma', stops: ['#0d0887', '#4c02a1', '#7e03a8', '#a92395', '#cc4778', '#e66c5c', '#f89540', '#fdc527', '#f0f921'] },
-  cividis: { name: 'cividis (различима при нарушениях цветового зрения)', stops: ['#00224e', '#123570', '#3b496c', '#575d6d', '#707173', '#8a8678', '#a59c74', '#c3b369', '#fee838'] },
-  turbo: { name: 'turbo (радуга)', stops: ['#30123b', '#4662d7', '#36aaf9', '#1ae4b6', '#72fe5e', '#c8ef34', '#faba39', '#f66b19', '#7a0403'] },
-  coolwarm: { name: 'холодно–тепло (для V)', stops: ['#3b4cc0', '#6788ee', '#9abbff', '#c9d7f0', '#edd1c2', '#f7a889', '#e26952', '#b40426'] },
-  gray: { name: 'серая', stops: ['#000000', '#ffffff'] }
+  cividis: { name: 'cividis (colour-blind safe)', stops: ['#00224e', '#123570', '#3b496c', '#575d6d', '#707173', '#8a8678', '#a59c74', '#c3b369', '#fee838'] },
+  turbo: { name: 'turbo (rainbow)', stops: ['#30123b', '#4662d7', '#36aaf9', '#1ae4b6', '#72fe5e', '#c8ef34', '#faba39', '#f66b19', '#7a0403'] },
+  coolwarm: { name: 'cool–warm (for V)', stops: ['#3b4cc0', '#6788ee', '#9abbff', '#c9d7f0', '#edd1c2', '#f7a889', '#e26952', '#b40426'] },
+  gray: { name: 'gray', stops: ['#000000', '#ffffff'] }
 };
 let currentPal = 'gamma';
 export function setPalette(name) { if (PALETTES[name]) currentPal = name; }
@@ -106,12 +106,12 @@ function diskTemplate(x, R, tq, theta) {
 }
 
 export const QUIET = {
-  none: 'не вычитать',
-  model: 'модель диска, подгонка по огибающей',
-  touch: 'модель диска, касание снизу',
-  modeltq: 'модель диска, уровень TQSUN',
-  env: 'скользящая нижняя огибающая',
-  median: 'медианный фильтр'
+  none: 'none',
+  model: 'disk model, envelope fit',
+  touch: 'disk model, touch from below',
+  modeltq: 'disk model, TQSUN level',
+  env: 'running lower envelope',
+  median: 'median filter'
 };
 
 export function quietTemplate(s, c, x, step, method) {
@@ -178,7 +178,7 @@ function finiteRange(rows) {
 
 // ---------- 2D views ----------
 // rows: channels (low freq at bottom), columns: x. kind: 'map' | 'contour'
-export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'частота, ГГц', guides = []) {
+export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'frequency, GHz', guides = []) {
   const W = 900, H = 460, pad = { l: 64, r: 70, t: 20, b: 40 };
   const A = axesCanvas(W, H, pad), g = A.g;
   const [lo, hi] = finiteRange(rows);
@@ -220,7 +220,7 @@ export function map2d(x, freqs, rows, kind, label, onPick, yAxis = 'частот
       g.stroke();
     });
   }
-  drawAxes(A, x[0], x[nc - 1], freqs[0], freqs[nr - 1], 'угл. с от центра диска', yAxis);
+  drawAxes(A, x[0], x[nc - 1], freqs[0], freqs[nr - 1], 'arcsec from disk centre', yAxis);
   for (const gd of guides) {
     if (gd.x < x[0] || gd.x > x[nc - 1]) continue;
     const px = pad.l + (gd.x - x[0]) / (x[nc - 1] - x[0]) * pw;
@@ -269,9 +269,9 @@ export function waterfall(x, freqs, rows, label, guides = []) {
     g.fillStyle = '#8A5A00'; g.font = '600 12px Inter, sans-serif'; g.textAlign = 'center'; g.fillText(gd.label, x0, y0 + 16); g.textAlign = 'start';
   }
   g.fillStyle = '#4A5668'; g.font = '12px "JetBrains Mono", monospace';
-  g.fillText(freqs[0].toFixed(2) + ' ГГц', pad.l + pw + 6, H - pad.b);
-  g.fillText(freqs[n - 1].toFixed(2) + ' ГГц', pad.l + (n - 1) * dx + pw + 6, H - pad.b - (n - 1) * dy);
-  g.textAlign = 'center'; g.fillText('угл. с: ' + Math.round(x[0]) + ' … ' + Math.round(x[x.length - 1]) + ' · по вертикали — ' + label, W / 2, H - 10);
+  g.fillText(freqs[0].toFixed(2) + ' GHz', pad.l + pw + 6, H - pad.b);
+  g.fillText(freqs[n - 1].toFixed(2) + ' GHz', pad.l + (n - 1) * dx + pw + 6, H - pad.b - (n - 1) * dy);
+  g.textAlign = 'center'; g.fillText('arcsec: ' + Math.round(x[0]) + ' … ' + Math.round(x[x.length - 1]) + ' · Y: ' + label, W / 2, H - 10);
   return A.cv;
 }
 
@@ -384,7 +384,7 @@ export function chart(series, opts = {}) {
   const X = v => P.l + (tx(v) - tx(x0)) / (tx(x1) - tx(x0)) * (W - P.l - P.r);
   const Y = v => H - P.b - (v - y0) / (y1 - y0) * (H - P.t - P.b);
   const Y2 = v => H - P.b - (v - v0) / (v1 - v0) * (H - P.t - P.b);
-  const svg = se('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': (opts.yLabel || '') + ' от ' + (opts.xLabel || ''), style: 'width:100%;height:auto;display:block;touch-action:pan-y' });
+  const svg = se('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': (opts.yLabel || '') + ' vs ' + (opts.xLabel || ''), style: 'width:100%;height:auto;display:block;touch-action:pan-y' });
   const clip = 'c' + Math.random().toString(36).slice(2);
   const d = se('defs', {}); const cp = se('clipPath', { id: clip }); cp.append(se('rect', { x: P.l, y: P.t, width: W - P.l - P.r, height: H - P.t - P.b })); d.append(cp); svg.append(d);
   const t = (x, y, s, a = {}) => { const e = se('text', { x, y, 'font-size': 12, fill: '#4A5668', 'font-family': 'JetBrains Mono, monospace', ...a }); e.textContent = s; svg.append(e); };
@@ -452,10 +452,10 @@ export function sunImage(urls) {
   const pr = new Promise((resolve, reject) => {
     const log = [];
     const tryNext = k => {
-      if (k >= urls.length) { reject(Object.assign(new Error('снимок не загрузился'), { log, url: urls[0] })); return; }
+      if (k >= urls.length) { reject(Object.assign(new Error('image failed'), { log, url: urls[0] })); return; }
       const img = new Image(), t0 = Date.now();
       img.onload = () => resolve({ img, url: urls[k], log });
-      img.onerror = () => { log.push(urls[k] + ' — ошибка (' + Math.round((Date.now() - t0) / 1000) + ' с)'); tryNext(k + 1); };
+      img.onerror = () => { log.push(urls[k] + ' — error (' + Math.round((Date.now() - t0) / 1000) + ' s)'); tryNext(k + 1); };
       img.src = urls[k];
     };
     tryNext(0);
@@ -528,13 +528,13 @@ export function localPeak(x, y, xc, half) {
 // q = arctan(sin(dec) * tan(t)); points of equal x lie on u - v*tan(q) = x (u west, v north). The Helioviewer image
 // has solar north up, so it is turned by P + q to bring the scan axis horizontal.
 export const SUN_LAYERS = {
-  aia193: ['SDO AIA 193 Å (корона)', '[SDO,AIA,AIA,193,1,100]'],
+  aia193: ['SDO AIA 193 Å (corona)', '[SDO,AIA,AIA,193,1,100]'],
   aia171: ['SDO AIA 171 Å', '[SDO,AIA,AIA,171,1,100]'],
-  aia304: ['SDO AIA 304 Å (хромосфера)', '[SDO,AIA,AIA,304,1,100]'],
+  aia304: ['SDO AIA 304 Å (chromosphere)', '[SDO,AIA,AIA,304,1,100]'],
   aia1600: ['SDO AIA 1600 Å', '[SDO,AIA,AIA,1600,1,100]'],
-  aia94: ['SDO AIA 94 Å (горячая плазма)', '[SDO,AIA,AIA,94,1,100]'],
-  hmimag: ['SDO HMI магнитограмма', '[SDO,HMI,HMI,magnetogram,1,100]'],
-  hmicont: ['SDO HMI континуум', '[SDO,HMI,HMI,continuum,1,100]']
+  aia94: ['SDO AIA 94 Å (hot plasma)', '[SDO,AIA,AIA,94,1,100]'],
+  hmimag: ['SDO HMI magnetogram', '[SDO,HMI,HMI,magnetogram,1,100]'],
+  hmicont: ['SDO HMI continuum', '[SDO,HMI,HMI,continuum,1,100]']
 };
 
 export function transitAngle(s) {
@@ -645,8 +645,8 @@ export function sunOverlay(s, opts, done) {
     }
     if (shared.length) { g.strokeStyle = 'rgba(255,255,255,0.45)'; g.beginPath(); g.moveTo(X(opts.x[0]), base); g.lineTo(X(opts.x[opts.x.length - 1]), base); g.stroke(); }
     g.fillStyle = '#fff'; g.font = '22px Inter, sans-serif';
-    g.fillText(sgn > 0 ? 'В ← скан → З' : 'З ← скан → В', 16, S - 18);
-    g.fillText(`P = ${P.toFixed(1)}°, q = ${q.toFixed(1)}°${opts.rot ? ', поправка ' + opts.rot + '°' : ''}`, 16, 32);
+    g.fillText(sgn > 0 ? 'E ← scan → W' : 'W ← scan → E', 16, S - 18);
+    g.fillText(`P = ${P.toFixed(1)}°, q = ${q.toFixed(1)}°${opts.rot ? ', corr. ' + opts.rot + '°' : ''}`, 16, 32);
     if (img) g.fillText(SUN_LAYERS[opts.layer][0], 16, 60);
   };
   draw(null);

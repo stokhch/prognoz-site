@@ -93,7 +93,7 @@ function obsTime(h) {
 // -> {obs:{date,time}, header, nChan, nX, data:Float32Array (chan, 2, x), freq[], tqsun[], crpix1, cdelt1, solarR, az}
 export function readLevel2(buf) {
   let { h, pos } = readHeader(buf, 0);
-  if (h.NAXIS !== 3 || h.NAXIS2 !== 2) throw new Error('FITS: это не скан level2 (ожидается массив каналы × 2 × точки)');
+  if (h.NAXIS !== 3 || h.NAXIS2 !== 2) throw new Error('FITS: not a level2 scan (expected channels × 2 × points)');
   const data = readImage(buf, pos, h);
   const head = h;
   pos += pad(dataBytes(h));
@@ -103,9 +103,9 @@ export function readLevel2(buf) {
     if (String(x.h.EXTNAME || '').trim().toLowerCase() === 'scan_params') { table = readTable(buf, x.pos, x.h); break; }
     pos = x.pos + pad(dataBytes(x.h));
   }
-  if (!table || !table.freq) throw new Error('FITS: нет таблицы Scan_params');
+  if (!table || !table.freq) throw new Error('FITS: no Scan_params table');
   const nChan = head.NAXIS3, nX = head.NAXIS1;
-  if (table.freq.length !== nChan) throw new Error('FITS: строк в Scan_params ' + table.freq.length + ', каналов ' + nChan);
+  if (table.freq.length !== nChan) throw new Error('FITS: Scan_params rows ' + table.freq.length + ', channels ' + nChan);
   return {
     obs: obsTime(head), header: head, nChan, nX, data,
     freq: table.freq.map(Number), tqsun: (table.tqsun || table.freq.map(() => 0)).map(Number),

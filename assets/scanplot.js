@@ -29,7 +29,7 @@ const PT = 100 / 72;      // matplotlib points -> pixels at dpi 100
 export function render(scan, { big = true, robust = false, guides = false, lineScale = 1 } = {}) {
   const [W, H] = big ? [663, 450] : [221, 150];
   const sel = scan.freq.map((f, i) => f >= 3.0 ? i : -1).filter(i => i >= 0);
-  if (!sel.length) throw new Error('нет каналов от 3 ГГц');
+  if (!sel.length) throw new Error('no channels ≥3 GHz');
   const freq = sel.map(i => scan.freq[i]), tq = sel.map(i => scan.tqsun[i]);
   const rx = Math.round(scan.solarR / scan.cdelt1);
   const x1 = Math.max(Math.round(scan.crpix1 - 2 * rx), 0);
@@ -80,7 +80,7 @@ export function render(scan, { big = true, robust = false, guides = false, lineS
   // optional: limbs and centre of the disk (not on the forecast picture itself)
   if (guides) {
     g.save(); g.lineWidth = 1.2;
-    for (const [v, lab] of [[-scan.solarR, '−R☉'], [0, 'центр'], [scan.solarR, '+R☉']]) {
+    for (const [v, lab] of [[-scan.solarR, '−R☉'], [0, 'centre'], [scan.solarR, '+R☉']]) {
       if (v < x[0] || v > x[n - 1]) continue;
       g.setLineDash(v === 0 ? [7, 4] : [4, 4]); g.strokeStyle = 'rgba(125,211,252,0.85)';
       g.beginPath(); g.moveTo(X(v), T); g.lineTo(X(v), B); g.stroke();

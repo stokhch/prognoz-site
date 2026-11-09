@@ -13,8 +13,8 @@ export function parseLocation(loc) {
 
 async function fromLocal(date) {
   const r = await fetch('data/regions/' + date + '.json', { cache: 'no-cache' });
-  if (!r.ok) throw new Error('нет файла');
-  return { list: await r.json(), source: 'сводка NOAA (копия на сайте)' };
+  if (!r.ok) throw new Error('no file');
+  return { list: await r.json(), source: 'NOAA (local copy)' };
 }
 
 async function fromSwpc(date) {
@@ -24,10 +24,10 @@ async function fromSwpc(date) {
   // the day of the scan, else the closest earlier day within 2 days
   const days = [...new Set(all.map(x => String(x.observed_date || '').slice(0, 10)))].filter(d => d && d <= date).sort();
   const day = days.reverse().find(d => (new Date(date) - new Date(d)) / 864e5 <= 2);
-  if (!day) throw new Error('в списке SWPC нет сводки за ' + date);
+  if (!day) throw new Error('no SWPC report for ' + date);
   const list = all.filter(x => String(x.observed_date || '').slice(0, 10) === day)
     .map(x => ({ noaa: x.region, location: x.location, area: x.area, mag: x.mag_class, day }));
-  return { list, source: 'NOAA SWPC, сводка ' + day };
+  return { list, source: 'NOAA SWPC, ' + day };
 }
 
 // -> {regions: [{noaa, lat, lon, area, mag}], source} with longitudes rotated to the observation time
@@ -39,7 +39,7 @@ export function regionsFor(date, timeUT) {
     for (const f of [fromLocal, fromSwpc]) {
       try { got = await f(date); break; } catch (e) { errs.push(e.message || String(e)); }
     }
-    if (!got) throw new Error('активные области не найдены: ' + errs.join('; '));
+    if (!got) throw new Error('no ARs: ' + errs.join('; '));
     const [h, m] = timeUT.split(':').map(Number);
     return {
       source: got.source,
