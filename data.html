@@ -167,7 +167,7 @@ import * as V from './assets/views.js';
 import { fitQuietSun } from './assets/quietsun.js';
 import { regionsFor, projectHelio, scanX } from './assets/regions.js';
 import { openArchive, listLevel, parseName } from './assets/archive.js';
-import { readLevel2, clean, subset, badChannels } from './assets/fits.js';
+import { readLevel2, clean, subset, badChannels, value } from './assets/fits.js';
 import { render } from './assets/scanplot.js';
 
 const TABS = {
@@ -523,6 +523,36 @@ function qsDetails() {
   return d;
 }
 
+// Noise rank of channels, as WorkScanJ "Next noisy": scan minus its running median over 0.2 beam,
+// mean |residual| over the whole record; I and V, the larger one. Sorted noisiest first; cached per scan.
+function noiseRank() {
+  const sc = st.level2; if (sc._noise) return sc._noise;
+  const n = sc.nX, res = [];
+  for (let c = 0; c < sc.nChan; c++) {
+    const w = Math.max(1, Math.round(0.1 * V.beamArcsec(sc.freq[c]) / Math.abs(sc.cdelt1 || 1)));
+    let worst = 0;
+    for (const iv of [0, 1]) {
+      const y = new Float64Array(n); for (let i = 0; i < n; i++) y[i] = value(sc, c, iv, i);
+      let sum = 0, cnt = 0; const buf = [];
+      for (let i = w; i < n - w; i++) {
+        buf.length = 0; for (let j = i - w; j <= i + w; j++) buf.push(y[j]);
+        buf.sort((a, b) => a - b); sum += Math.abs(y[i] - buf[w]); cnt++;
+      }
+      if (cnt) worst = Math.max(worst, sum / cnt);
+    }
+    res.push({ c, noise: worst });
+  }
+  res.sort((a, b) => b.noise - a.noise);
+  sc._noise = res; return res;
+}
+function stepNoisy(dir) {
+  const order = noiseRank(), n = order.length; if (!n) return;
+  let pos = st.noisyPos;
+  if (pos === null || pos === undefined || order[pos].c !== st.single) pos = dir > 0 ? 0 : n - 1;
+  else pos = (pos + dir + n) % n;
+  st.noisyPos = pos; st.single = order[pos].c; st.tab === 'single' ? draw() : selectTab('single');
+  $('msg').textContent = 'Noise rank ' + (pos + 1) + '/' + n + ': ' + st.level2.freq[order[pos].c].toFixed(3) + ' GHz, mean |scan − median| = ' + order[pos].noise.toFixed(1) + ' K';
+}
 function drawSingle(g, sel, sunEl) {
   const sc = st.level2, box = $('plot'), extra = $('extra');
   if (st.single === null || st.single >= sc.nChan) st.single = sel[0];
@@ -534,7 +564,8 @@ function drawSingle(g, sel, sunEl) {
   const next = el('button', { type: 'button', class: 'btn', 'aria-label': 'Next channel', text: '▶', onclick: () => { st.single = Math.min(sc.nChan - 1, c + 1); draw(); } });
   for (const b of [prev, next]) b.style.cssText = 'min-height:32px;padding:0 10px';
   const del = el('button', { type: 'button', class: 'mini-btn', title: 'Remove this channel (restore in Channels)', text: '✕ remove', onclick: () => excludeFreqs([sc.freq[c]]) });
-  const tb = el('div', { class: 'toolbar' }, prev, chSel, next, del);
+  const noisy = el('button', { type: 'button', class: 'mini-btn noisy-btn', title: 'Next noisy: channels by noise level, the first press goes to the noisiest (scan minus running median over 0.2 beam, mean |residual|, I and V). Shift+click — backwards. Key N / Shift+N.', text: 'Noisy ▶', onclick: e => stepNoisy(e.shiftKey ? -1 : 1) });
+  const tb = el('div', { class: 'toolbar' }, prev, chSel, next, noisy, del);
   const sr = [{ name: sc.freq[c].toFixed(3) + ' GHz, ' + pp() + (st.qsMode === 'sub' ? ' − quiet Sun' : ''), x: g.x, y, color: '#C2410C', width: 1.8 }];
   const y2 = second(c, g);
   if (y2) sr.push({ name: comps()[1] + (st.param === 'IV' ? ' (right axis)' : ''), x: g.x, y: y2, color: '#1E4FB8', dash: '4 3', width: 1.5, axis: st.param === 'IV' ? 2 : 1 });
@@ -742,6 +773,9 @@ $('png').addEventListener('click', async () => {
   const sc = st.level2, stem = st.path ? st.path.split('/').pop().replace(/\.fits$/i, '') : 'ratan';
   try { await V.exportPng($('plot'), stem + '_' + st.tab + (sc ? '_' + st.param : '') + '.png'); }
   catch (e) { $('msg').textContent = 'PNG export failed: ' + e.message; }
+});
+document.addEventListener('keydown', e => {
+  if ((e.key === 'n' || e.key === 'N') && !e.ctrlKey && !e.metaKey && !e.altKey && st.level2 && !/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName)) { e.preventDefault(); stepNoisy(e.shiftKey ? -1 : 1); }
 });
 $('qs').addEventListener('change', e => { st.qsMethod = e.target.value; qsLabel(); draw(); });
 $('sun-on').addEventListener('change', e => { st.sunOn = e.target.checked; $('sun-dot').classList.toggle('on', st.sunOn); draw(); });

@@ -333,3 +333,4 @@ section.main > #plot { margin-top: 0; padding-top: 0; }
 .seg.iseg button { display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; }
 .seg.iseg button svg { flex: none; }
 .seg.iseg button[aria-pressed="true"] { box-shadow: 0 0 0 2px rgba(249,115,22,.35); }
+.noisy-btn { font-weight: 700; color: #B45309; border-color: #FDBA74; background: #FFF7ED; }
