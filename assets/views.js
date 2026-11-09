@@ -411,6 +411,7 @@ export function chart(series, opts = {}) {
   svg.append(se('rect', { x: 0, y: 0, width: W, height: H, fill: TH.bg }));
   const d = se('defs', {}); const cp = se('clipPath', { id: clip }); cp.append(se('rect', { x: P.l, y: P.t, width: W - P.l - P.r, height: H - P.t - P.b })); d.append(cp); svg.append(d);
   const t = (x, y, s, a = {}) => { const e = se('text', { x, y, 'font-size': 12, fill: TH.text, 'font-family': 'JetBrains Mono, monospace', ...a }); e.textContent = s; svg.append(e); };
+  if (opts.helio) helioGrid(svg, opts.helio, X, (W - P.l - P.r) / (x1 - x0), (P.t + H - P.b) / 2, clip);
   const bgCanvas = opts.bg ? sunBackground(svg, opts.bg, X, kxBg, (P.t + H - P.b) / 2, clip, P.t, H - P.b, W, H, P.l, W - P.r) : null;
   for (const v of niceTicks(y0, y1, 6)) { svg.append(se('line', { x1: P.l, x2: W - P.r, y1: Y(v), y2: Y(v), stroke: TH.grid })); if (opts.yTicks !== false) t(P.l - 6, Y(v) + 4, fmt(v), { 'text-anchor': 'end' }); }
   const xt = opts.logX ? [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000].filter(v => v >= x0 && v <= x1) : niceTicks(x0, x1, 8);
@@ -776,4 +777,32 @@ export async function exportPng(box, name) {
   const blob = await new Promise(ok => out.toBlob(ok, 'image/png'));
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+// Heliographic grid (every 15 deg, B0 from the header) and the limb behind a scan chart with no Sun picture:
+// one arcsec takes the same number of pixels in x and y, so the disk stays round; centre of the disk in the
+// middle of the plot height. h = {R, B0, turn, sgn, tq} as in sunOverlay.
+function helioGrid(svg, h, X, kx, cy, clip) {
+  const gr = se('g', { 'clip-path': `url(#${clip})`, fill: 'none' });
+  const col = TH.dark ? 'rgba(125,211,252,' : 'rgba(14,116,144,';
+  const B0 = h.B0 * Math.PI / 180, t = -h.turn * Math.PI / 180, ct = Math.cos(t), st = Math.sin(t);
+  // solar frame (arcsec, y up) -> screen frame (y down) turned exactly as the grid of the Sun disk picture
+  const toScreen = (x, y) => { const yd = -y, xr = x * ct - yd * st, yr = x * st + yd * ct; return [X(xr), cy + yr * kx]; };
+  const proj = (lat, lon) => {
+    const z = Math.sin(lat) * Math.sin(B0) + Math.cos(lat) * Math.cos(B0) * Math.cos(lon);
+    return { x: h.R * Math.cos(lat) * Math.sin(lon), y: h.R * (Math.sin(lat) * Math.cos(B0) - Math.cos(lat) * Math.sin(B0) * Math.cos(lon)), z };
+  };
+  const path = (pts, a, w) => {
+    let d = '', pen = false;
+    for (const p of pts) { if (p.z < 0) { pen = false; continue; } const [u, v] = toScreen(p.x, p.y); d += (pen ? 'L' : 'M') + u.toFixed(1) + ',' + v.toFixed(1); pen = true; }
+    if (d) gr.append(se('path', { d, stroke: col + a + ')', 'stroke-width': w }));
+  };
+  const dg = Math.PI / 180;
+  for (let lat = -75; lat <= 75; lat += 15) { const pts = []; for (let lon = -90; lon <= 90; lon += 3) pts.push(proj(lat * dg, lon * dg)); path(pts, lat ? 0.35 : 0.6, lat ? 0.8 : 1.1); }
+  for (let lon = -90; lon <= 90; lon += 15) { const pts = []; for (let lat = -90; lat <= 90; lat += 3) pts.push(proj(lat * dg, lon * dg)); path(pts, lon ? 0.35 : 0.6, lon ? 0.8 : 1.1); }
+  const limb = []; for (let a = 0; a <= 360; a += 3) limb.push({ x: h.R * Math.cos(a * dg), y: h.R * Math.sin(a * dg), z: 1 });
+  path(limb, 0.7, 1.3);
+  const np = proj(Math.PI / 2, 0);
+  if (np.z >= 0) { const [u, v] = toScreen(np.x, np.y); const tx = se('text', { x: u, y: v - 5, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 700, fill: col + '0.9)', 'font-family': 'Inter, sans-serif' }); tx.textContent = 'N'; gr.append(tx); }
+  svg.append(gr);
 }

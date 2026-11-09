@@ -396,6 +396,12 @@ function yr(rows, g) {
   const R = st.level2.solarR, disk = rows.map(r => r.filter((_, i) => Math.abs(g.x[i]) <= 1.1 * R));
   return V.percentileRange(disk.some(r => r.length) ? disk : rows);
 }
+// heliographic grid behind the scan charts when the Sun disk picture is off
+function helio() {
+  if (!st.sunGrid || !st.level2) return null;
+  const sc = st.level2, q = V.transitAngle(sc);
+  return { R: sc.solarR, B0: sc.header.SOLAR_B || 0, turn: (sc.header.SOLAR_P || 0) + q + st.sunRot, sgn: st.sunFlip ? -1 : 1, tq: Math.tan(q * Math.PI / 180) };
+}
 function colorOf(c) { const f = st.level2.freq; return V.freqColor(f[c], f[0], f[f.length - 1]); }
 const pick = x => { st.pos = Math.round(x); if (st.sunOn && ['single', 'group', 'vertical', 'grid'].includes(st.tab)) draw(); else if (st.tab !== 'point') selectTab('point'); else draw(); };
 const zoom = (a, b) => { st.zoom = [a, b]; draw(); };
@@ -410,7 +416,7 @@ function draw() {
   extra.replaceChildren();
   const g = G(), sel = selected(), xl = 'arcsec from disk centre', yl = (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit();
   loadRegions();
-  const common = { xLabel: xl, guides: guides(), marks: marks(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined };
+  const common = { xLabel: xl, guides: guides(), marks: marks(), helio: st.tab === 'vertical' ? null : helio(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined };
   if (st.tab === 'plot') {
     const cv = render(sc, { big: true, guides: st.guides, lineScale: V.getLineScale() });
     cv.className = 'scan-canvas'; cv.setAttribute('role', 'img');
@@ -585,7 +591,7 @@ function drawSingle(g, sel, sunEl) {
   if (y2) sr.push({ name: comps()[1] + (st.param === 'IV' ? ' (right axis)' : ''), x: g.x, y: y2, color: '#1E4FB8', dash: '4 3', width: 1.5, axis: st.param === 'IV' ? 2 : 1 });
   let t = null;
   if (withQs) { t = qsCurve(c, g); sr.push({ name: 'quiet Sun', x: g.x, y: t, color: '#0F1B2D', dash: '6 4', width: 1.5 }); }
-  const parts = [tb, V.chart(sr, { xLabel: 'arcsec from disk centre', yLabel: (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit(), guides: guides(), marks: marks(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, width: CW(), height: CW(), yr: yr0(sr.filter(s => s.axis !== 2).map(s => s.y), g), y2: y2 ? y2opt([y2], g) : undefined }), legend(sr)];
+  const parts = [tb, V.chart(sr, { xLabel: 'arcsec from disk centre', yLabel: (st.param === 'RL' ? 'R, L' : pp()) + ', ' + unit(), guides: guides(), marks: marks(), helio: helio(), onClick: pick, onZoom: zoom, xr: st.zoom || undefined, width: CW(), height: CW(), yr: yr0(sr.filter(s => s.axis !== 2).map(s => s.y), g), y2: y2 ? y2opt([y2], g) : undefined }), legend(sr)];
   box.replaceChildren(...(sunEl ? [tb, sunEl] : parts));
   if (withQs) {
     const res = y.map((v, i) => v - t[i]);
