@@ -19,6 +19,26 @@
 
 Ссылка на наблюдение: `data.html#2026/11/20261106_115716_sun0_out.fits`.
 
+## Разработка
+
+Сайт не требует сборки для посетителей, но общие части страниц (шапка, подвал, метаданные для поисковиков и соцсетей, `sitemap.xml`) хранятся в одном месте и вставляются в страницы скриптом:
+
+```sh
+python3 tools/build_pages.py            # после правки partials/ или словаря PAGES в скрипте
+python3 tools/build_pages.py --check    # то же, но только проверка (её запускает CI)
+python3 tools/validate_site.py          # форматы data/*.json, локальные ссылки и якоря, h1/lang/title
+node --test tests/*.test.mjs            # модульные тесты геометрии, шкал и предупреждения об устаревшем прогнозе
+python3 -m http.server                  # посмотреть сайт локально
+```
+
+Новая страница: создайте `имя.html` с `<html lang>`, `<title>` и одним `<h1>`, добавьте её описание в `PAGES` в `tools/build_pages.py` и запустите скрипт.
+
+CI (`.github/workflows/checks.yml`) повторяет эти проверки при каждом push и pull request, а раз в неделю проверяет внешние ссылки (lychee). Публикация на Pages — `pages.yml`.
+
+Если прогноз не обновлялся больше 36 часов (`generated_at` в `data/forecast.json`), сайт показывает красную плашку «Прогноз устарел» (`assets/app.js`, `warnIfStale`). У демонстрационного прогноза (`"demo": true`) плашки нет.
+
+Шрифты (Manrope, Inter, JetBrains Mono, лицензия SIL OFL) лежат в `assets/fonts/`, внешних запросов к Google Fonts нет.
+
 ## Формат данных
 
 `data/forecast.json` — выдача `ratan-forecast forecast --json` плюс строки расчёта:

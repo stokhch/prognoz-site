@@ -4,27 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Data analysis · RATAN-600</title>
+<!-- partial:meta -->
+<meta name="description" content="Просмотр и анализ сканов Солнца РАТАН-600 из архива level2 прямо в браузере: графики, карты, спектры, Фурье и вейвлеты.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Data analysis · RATAN-600">
+<meta property="og:description" content="Просмотр и анализ сканов Солнца РАТАН-600 из архива level2 прямо в браузере: графики, карты, спектры, Фурье и вейвлеты.">
+<meta property="og:url" content="https://stokhch.github.io/prognoz-site/data.html">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary">
+<!-- /partial:meta -->
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="preload" href="assets/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/fonts.css">
 <link rel="stylesheet" href="assets/site.css">
-<style>
-.tree { display: flex; flex-direction: column; gap: 2px; font-size: 14px; max-height: 560px; overflow: auto; }
-.tree details > summary { cursor: pointer; padding: 8px 6px; border-radius: 8px; font-weight: 600; list-style-position: inside; min-height: 36px; }
-.tree details > summary:hover { background: var(--ground); }
-.tree .kids { margin-left: 14px; padding-left: 8px; border-left: 2px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
-.tree .file { display: flex; justify-content: space-between; gap: 8px; width: 100%; text-align: left; min-height: 36px; padding: 6px 8px; border: 0; border-radius: 8px; background: transparent; font: inherit; color: var(--ink); cursor: pointer; }
-.tree .file:hover { background: var(--ground); }
-.tree .file[aria-current="true"] { background: var(--ink); color: #fff; }
-.tree .file small { color: inherit; opacity: .7; font-family: var(--mono); }
-.tree .note { padding: 6px 8px; color: var(--muted); font-size: 13px; }
-.scan-canvas { display: block; width: 100%; max-width: 663px; height: auto; margin: 0 auto; background: #000; }
-</style>
 </head>
 <body>
-<a class="skip" href="#content">К содержанию</a>
-<header class="site-header">
+<!-- partial:header -->
+<a class="skip" href="#content" lang="ru">К содержанию</a>
+<header class="site-header" lang="ru">
   <div class="wrap">
     <a class="brand" href="index.html">
       <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="7" fill="#F97316"/><circle cx="16" cy="16" r="12" fill="none" stroke="#F97316" stroke-opacity=".45" stroke-width="1.5"/><circle cx="16" cy="16" r="15" fill="none" stroke="#F97316" stroke-opacity=".2"/></svg>
@@ -42,7 +39,8 @@
     </nav>
   </div>
 </header>
-
+<noscript><div class="notice" role="alert"><div class="wrap"><b>Нужен JavaScript.</b> Прогноз, таблицы и графики строятся в браузере; без JavaScript страница показывает только статический текст.</div></div></noscript>
+<!-- /partial:header -->
 <main class="wrap stack" id="content" style="gap: 10px; padding: 14px 12px 32px; max-width: none">
   <h1 class="sr-only">RATAN-600 data analysis</h1>
 
@@ -186,14 +184,15 @@
   </div>
 </main>
 
-<footer class="site-footer">
+<!-- partial:footer -->
+<footer class="site-footer" lang="ru">
   <div class="wrap">
     <span>Санкт-Петербургский филиал САО РАН · лаборатория солнечных исследований</span>
     <span>Преемник сайта «Прогноз» (<a href="http://spbf.sao.ru/prognoz/">spbf.sao.ru/prognoz</a>, 2006–2026), переведённого в архив · <a href="about.html#history">подробнее</a></span>
     <span>Вопросы и предложения: <a href="mailto:susan@sao.ru">susan@sao.ru</a></span>
   </div>
 </footer>
-
+<!-- /partial:footer -->
 <script type="module">
 import { fmtDate, el } from './assets/app.js';
 import { legend, PALETTE } from './assets/plot.js';
