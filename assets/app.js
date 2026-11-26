@@ -13,7 +13,26 @@ export async function getJSON(path) {
   if (!r.ok) throw new Error(path + ': HTTP ' + r.status);
   const j = await r.json();
   if (j && j.demo) document.body.classList.add('is-demo');
+  if (j && j.generated_at && !j.demo) warnIfStale(j);
   return j;
+}
+
+// A forecast older than STALE_HOURS is shown with a warning: the site must never present an old result as current.
+export const STALE_HOURS = 36;
+
+export function warnIfStale(f, now = Date.now()) {
+  const t = Date.parse(f.generated_at);
+  if (!Number.isFinite(t) || document.querySelector('.notice.stale')) return false;
+  const hours = (now - t) / 36e5;
+  if (hours <= STALE_HOURS) return false;
+  const days = Math.floor(hours / 24);
+  const banner = el('div', { class: 'notice stale', role: 'alert' },
+    el('div', { class: 'wrap' },
+      el('b', { text: 'Прогноз устарел. ' }),
+      'Последнее обновление: ' + fmtDate(f.generated_at) + ' (' + days + ' сут назад). Данные могли не прийти или обработка остановилась; пользуйтесь итогом с осторожностью.'));
+  const hdr = document.querySelector('header.site-header');
+  (hdr || document.body).after(banner);
+  return true;
 }
 
 export function fmtDate(iso) {

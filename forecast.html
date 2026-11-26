@@ -4,13 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Прогноз и методика · РАТАН-600</title>
+<!-- partial:meta -->
+<meta name="description" content="Итог дня, таблица критерия Танаки–Эноме по активным областям и методика прогноза мощных вспышек по наблюдениям РАТАН-600.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Прогноз и методика · РАТАН-600">
+<meta property="og:description" content="Итог дня, таблица критерия Танаки–Эноме по активным областям и методика прогноза мощных вспышек по наблюдениям РАТАН-600.">
+<meta property="og:url" content="https://stokhch.github.io/prognoz-site/forecast.html">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary">
+<!-- /partial:meta -->
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="preload" href="assets/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/fonts.css">
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
+<!-- partial:header -->
 <a class="skip" href="#content">К содержанию</a>
 <header class="site-header">
   <div class="wrap">
@@ -30,6 +39,8 @@
     </nav>
   </div>
 </header>
+<noscript><div class="notice" role="alert"><div class="wrap"><b>Нужен JavaScript.</b> Прогноз, таблицы и графики строятся в браузере; без JavaScript страница показывает только статический текст.</div></div></noscript>
+<!-- /partial:header -->
 <div class="demo-banner" role="note"><div class="wrap"><b>Прогноз демонстрационный.</b> Итог и таблица условные (формат совпадает с выдачей новой системы прогноза); скан — настоящее наблюдение РАТАН-600.</div></div>
 
 <main class="wrap stack" id="content" style="gap: 36px">
@@ -113,6 +124,7 @@
   </section>
 </main>
 
+<!-- partial:footer -->
 <footer class="site-footer">
   <div class="wrap">
     <span>Санкт-Петербургский филиал САО РАН · лаборатория солнечных исследований</span>
@@ -120,7 +132,7 @@
     <span>Вопросы и предложения: <a href="mailto:susan@sao.ru">susan@sao.ru</a></span>
   </div>
 </footer>
-
+<!-- /partial:footer -->
 <script type="module">
 import { getJSON, fmtDate, fmtAz, renderState, el, num, obsHref, showError } from './assets/app.js';
 
