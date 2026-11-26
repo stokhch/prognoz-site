@@ -12,6 +12,7 @@
 <meta property="og:url" content="https://stokhch.github.io/prognoz-site/forecast.html">
 <meta property="og:locale" content="ru_RU">
 <meta name="twitter:card" content="summary">
+<link rel="alternate" type="application/rss+xml" title="Прогноз · РАТАН-600" href="feed.xml">
 <!-- /partial:meta -->
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -29,7 +30,9 @@
     </a>
     <nav class="nav" aria-label="Основное меню">
       <a href="forecast.html" aria-current="page">Прогноз</a>
+      <a href="archive.html">Архив</a>
       <a href="data.html">Анализ данных</a>
+      <a href="summary.html">Сводки</a>
       <a href="search.html">Поиск</a>
       <a href="observations.html">Наблюдения</a>
       <a href="instrument.html">Инструмент</a>
@@ -73,12 +76,16 @@
         </ul>
         <p class="muted mono" style="margin: 0; font-size: 12px">Правила: <span id="fc-rules">—</span> · расчёт: <span id="fc-gen">—</span></p>
       </div>
+      <div class="card stack" style="gap: 8px">
+        <h2 style="font-size: 18px">Прошлые дни</h2>
+        <p style="margin: 0; font-size: 14px; color: var(--ink-2)"><a href="archive.html">Архив прогнозов</a> — итог каждого дня, вспышки после него и оправдываемость. Новый прогноз каждый день — в <a href="feed.xml">RSS-ленте</a> (подписка в любом читателе RSS).</p>
+      </div>
     </div>
   </div>
 
   <section class="card stack" id="regions" aria-labelledby="te-h" style="gap: 18px; padding: 28px">
     <div class="section-head" style="margin: 0">
-      <div><h2 id="te-h" style="font-size: 26px">Таблица Танаки–Эноме по источникам</h2><p class="muted" style="margin: 6px 0 0">Потоки в с.е.п.; k — поправка на диаграмму направленности по ординате источника y; F3/k — исправленный поток на 3 см</p></div>
+      <div><h2 id="te-h" style="font-size: 26px">Таблица Танаки–Эноме по источникам</h2><p class="muted" style="margin: 6px 0 0">Номер области ведёт к её истории. Потоки в с.е.п.; k — поправка на диаграмму направленности по ординате источника y; F3/k — исправленный поток на 3 см</p></div>
       <button class="btn" type="button" id="copy-csv">Скопировать CSV</button>
     </div>
     <div class="table-box">
@@ -103,7 +110,7 @@
         <li><b>Когда обновляется.</b> После каждого нового скана (наблюдения Солнца идут около местного полудня). Если за день наблюдений нет, прогноз строится по последнему дню наблюдений, но не старше 3 суток; иначе он не меняется.</li>
         <li><b>Исправленный поток.</b> F3/k — поток источника на 3 см, делённый на поправку диаграммы направленности k, которая зависит от ординаты источника y (ДН РАТАН-600 вытянута по вертикали). Критерий выполнен, если F3/k ≥ 10 с.е.п. и F3/k ≥ F10 &gt; 0.</li>
         <li><b>Номер NOAA.</b> Источник на скане сопоставляется с активной областью из сводок SRS NOAA по положению; запись вида «14268_14269» означает, что источник попал сразу на несколько областей (итог — positive?).</li>
-        <li><b>Проверка задним числом.</b> В таблице Танаки–Эноме старого сайта рядом с каждой областью приводились вспышки за 3 суток после наблюдения (класс M и X выделялись цветом), чтобы оценивать оправдываемость критерия.</li>
+        <li><b>Проверка задним числом.</b> В таблице Танаки–Эноме старого сайта рядом с каждой областью приводились вспышки за 3 суток после наблюдения (класс M и X выделялись цветом), чтобы оценивать оправдываемость критерия. Теперь это <a href="archive.html">архив прогнозов</a>: вспышки через 12–84 ч после каждого дня и показатели TSS, HSS, POD, FAR за год.</li>
       </ul>
     </div>
     <div class="card prose" id="basis" style="padding: 22px 26px">
@@ -147,7 +154,7 @@ try {
   csv = 'noaa;location;flux2;flux3;flux10;beam;flux3_corr;label\n';
   for (const r of f.rows || []) {
     tb.append(el('tr', {},
-      el('td', { class: 'mono', text: r.noaa ? r.noaa.replace('_', ' + ') : '—' }),
+      el('td', { class: 'mono' }, ...(r.noaa ? r.noaa.split('_').flatMap((n, i) => [i ? ' + ' : '', el('a', { href: 'region.html#' + n, title: 'История области', text: n })]) : ['—'])),
       el('td', { class: 'mono', text: r.location || '—' }),
       el('td', { class: 'mono num', text: num(r.flux2) }),
       el('td', { class: 'mono num', text: num(r.flux3) }),

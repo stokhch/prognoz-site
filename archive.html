@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Архив прогнозов · РАТАН-600</title>
+<!-- partial:meta -->
+<meta name="description" content="Архив трёхсуточных прогнозов мощных солнечных вспышек РАТАН-600: итог каждого дня, вспышки после прогноза, оправдываемость (TSS, HSS).">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Архив прогнозов · РАТАН-600">
+<meta property="og:description" content="Архив трёхсуточных прогнозов мощных солнечных вспышек РАТАН-600: итог каждого дня, вспышки после прогноза, оправдываемость (TSS, HSS).">
+<meta property="og:url" content="https://stokhch.github.io/prognoz-site/archive.html">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary">
+<link rel="alternate" type="application/rss+xml" title="Прогноз · РАТАН-600" href="feed.xml">
+<!-- /partial:meta -->
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<!-- partial:header -->
+<a class="skip" href="#content">К содержанию</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="7" fill="#F97316"/><circle cx="16" cy="16" r="12" fill="none" stroke="#F97316" stroke-opacity=".45" stroke-width="1.5"/><circle cx="16" cy="16" r="15" fill="none" stroke="#F97316" stroke-opacity=".2"/></svg>
+      <span><b>Прогноз · РАТАН-600</b><small>Радиоастрономический центр прогноза солнечной активности</small></span>
+    </a>
+    <nav class="nav" aria-label="Основное меню">
+      <a href="forecast.html">Прогноз</a>
+      <a href="archive.html" aria-current="page">Архив</a>
+      <a href="data.html">Анализ данных</a>
+      <a href="summary.html">Сводки</a>
+      <a href="search.html">Поиск</a>
+      <a href="observations.html">Наблюдения</a>
+      <a href="instrument.html">Инструмент</a>
+      <a href="tools.html">Вычисления</a>
+      <a href="activity.html">Активность</a>
+      <a href="about.html">О проекте</a>
+    </nav>
+  </div>
+</header>
+<noscript><div class="notice" role="alert"><div class="wrap"><b>Нужен JavaScript.</b> Прогноз, таблицы и графики строятся в браузере; без JavaScript страница показывает только статический текст.</div></div></noscript>
+<!-- /partial:header -->
+<div class="demo-banner" role="note"><div class="wrap"><b>Демонстрационные данные.</b> Архив, вспышки и статистика условные (синтетическое Солнце, <span class="mono">tools/make_demo_data.py</span>); формат совпадает с выгрузкой системы прогноза.</div></div>
+
+<main class="wrap stack" id="content" style="gap: 28px">
+  <div class="stack" style="gap: 10px">
+    <p class="eyebrow">Прогноз задним числом</p>
+    <h1 class="page-title">Архив прогнозов</h1>
+    <p class="lead">Итог каждого дня, таблица Танаки–Эноме по активным областям и вспышки, которые произошли после прогноза. Внизу — оправдываемость: насколько чаще мощные вспышки случались после positive, чем после negative.</p>
+  </div>
+
+  <form class="card toolbar-row" id="ctl" aria-label="Параметры" onsubmit="return false">
+    <div class="field"><label for="year">Год</label><select id="year"></select></div>
+    <div class="field"><label for="thr">Событие — вспышка не слабее</label><select id="thr"><option value="M1">M1</option><option value="M5">M5</option><option value="X1">X1</option></select></div>
+    <label class="switch" style="min-height: 44px; display: inline-flex; align-items: center; gap: 8px"><input type="checkbox" id="unsure"><span></span> positive? считать положительным</label>
+    <span style="flex: 1"></span>
+    <button class="btn" type="button" id="dl">Скачать год (CSV)</button>
+  </form>
+
+  <div class="row">
+    <section class="card main stack" aria-labelledby="cal-h" style="gap: 16px">
+      <div class="section-head" style="margin: 0"><h2 id="cal-h" style="font-size: 22px">Календарь</h2><span class="muted" id="cal-sum" role="status"></span></div>
+      <div class="cal-key">
+        <span><i style="background: var(--pos-bg); border: 1px solid var(--pos)"></i>positive</span>
+        <span><i style="background: var(--unsure-bg); border: 1px solid var(--unsure)"></i>positive?</span>
+        <span><i style="background: var(--neg-bg); border: 1px solid var(--neg)"></i>negative</span>
+        <span><i style="background: var(--nodata-bg)"></i>no data</span>
+        <span><i style="background: repeating-linear-gradient(135deg, var(--neg-bg) 0 4px, #fff 4px 6px)"></i>нет наблюдений, итог по прошлому дню</span>
+        <span><i style="background: #B45309; border-radius: 50%; width: 8px; height: 8px"></i>после дня — вспышка M</span>
+        <span><i style="background: #B91C1C; border-radius: 50%; width: 9px; height: 9px"></i>X</span>
+      </div>
+      <div class="cal" id="cal"></div>
+    </section>
+    <aside class="side card stack" id="day" aria-live="polite" style="gap: 14px; align-self: flex-start; position: sticky; top: 16px">
+      <p class="muted" style="margin: 0">Выберите день в календаре.</p>
+    </aside>
+  </div>
+
+  <section class="card stack" aria-labelledby="v-h" style="gap: 18px">
+    <div class="section-head" style="margin: 0"><div><h2 id="v-h" style="font-size: 22px">Оправдываемость за <span id="v-year">—</span></h2><p class="muted" style="margin: 6px 0 0" id="v-def"></p></div></div>
+    <div class="row" style="gap: 28px; align-items: flex-start">
+      <div class="stack" style="gap: 8px; flex: 0 1 auto; min-width: 0; max-width: 100%">
+        <table class="ct" aria-label="Таблица сопряжённости">
+          <thead><tr><th></th><th scope="col">Вспышка была</th><th scope="col">Вспышки не было</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Прогноз «да»</th><td class="hit" id="ct-a">—</td><td id="ct-b">—</td></tr>
+            <tr><th scope="row">Прогноз «нет»</th><td id="ct-c">—</td><td class="cn" id="ct-d">—</td></tr>
+          </tbody>
+        </table>
+        <span class="muted" style="font-size: 13px" id="ct-n"></span>
+      </div>
+      <div class="kpis" id="kpis" style="flex: 1 1 420px"></div>
+    </div>
+    <div id="monthly"></div>
+    <details class="help-box">
+      <summary>Как считаются показатели</summary>
+      <div class="prose" style="padding-top: 8px">
+        <p>Прогноз дня считается прогнозом «да», если итог — positive (с переключателем — и positive?). Событие — вспышка GOES не слабее выбранного класса в окне от 12 до 84 часов после начала дня прогноза, как в статье о модернизации; дни «no data» в счёт не идут.</p>
+        <ul>
+          <li><b>POD</b> — доля вспышечных дней, для которых был прогноз «да»; <b>FAR</b> — доля прогнозов «да», после которых вспышки не было.</li>
+          <li><b>TSS</b> = POD − POFD (POFD — доля спокойных дней с прогнозом «да»): 0 — не лучше случайного, 1 — без ошибок; не зависит от частоты вспышек, поэтому годы можно сравнивать. Погрешность — по Hanssen &amp; Kuipers.</li>
+          <li><b>HSS</b> — доля верных прогнозов сверх случайного угадывания с той же частотой ответов «да».</li>
+          <li><b>P(вспышка | да)</b> и <b>P(вспышка | нет)</b> — как часто вспышка случалась после каждого ответа; разница между ними и есть польза прогноза.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+</main>
+
+<!-- partial:footer -->
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Санкт-Петербургский филиал САО РАН · лаборатория солнечных исследований</span>
+    <span>Преемник сайта «Прогноз» (<a href="http://spbf.sao.ru/prognoz/">spbf.sao.ru/prognoz</a>, 2006–2026), переведённого в архив · <a href="about.html#history">подробнее</a></span>
+    <span>Вопросы и предложения: <a href="mailto:susan@sao.ru">susan@sao.ru</a></span>
+  </div>
+</footer>
+<!-- /partial:footer -->
+<script type="module">
+import { el, fmtDate, num, showError, obsHref, getJSON } from './assets/app.js';
+import { historyIndex, historyYear, download, csv, noaaList, MONTHS, dayMs } from './assets/history.js';
+import { contingency, scores, tssError, maxFlare, byMonth, hadEvent, isYes } from './assets/verify.js';
+import { timeChart } from './assets/charts.js';
+
+const $ = id => document.getElementById(id);
+let year = null, data = null, picked = null, obs = [];
+const WD = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+
+const flareTag = f => el('span', { class: 'flare' + (f.class[0] === 'X' ? ' x' : ''), title: (f.peak || '').replace('T', ' ') + ' UT' + (f.noaa ? ', NOAA ' + f.noaa : '') }, f.class);
+const opts = () => ({ threshold: $('thr').value, withUnsure: $('unsure').checked });
+
+function drawCalendar() {
+  const box = $('cal'), byDay = new Map(data.days.map(d => [d.day, d]));
+  box.replaceChildren();
+  for (let m = 0; m < 12; m++) {
+    const first = new Date(Date.UTC(year, m, 1)), n = new Date(Date.UTC(year, m + 1, 0)).getUTCDate();
+    const grid = el('div', { class: 'cal-grid' }, ...WD.map(w => el('span', { class: 'wd', text: w })));
+    for (let i = 0; i < (first.getUTCDay() + 6) % 7; i++) grid.append(el('span'));
+    let any = false;
+    for (let d = 1; d <= n; d++) {
+      const iso = `${year}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`, r = byDay.get(iso);
+      if (r) any = true;
+      const mf = r && maxFlare(r);
+      grid.append(el('button', {
+        type: 'button', class: 'cal-day', 'data-day': iso, disabled: r ? null : '', 'data-label': r ? r.label : null,
+        'data-obs': r ? String(r.observed) : null, 'data-ev': mf ? mf.class[0] : null, 'aria-pressed': String(iso === picked),
+        title: r ? `${fmtDate(iso)}: ${r.label}${r.observed ? '' : ' (нет наблюдений)'}${mf ? ', затем ' + mf.class : ''}` : null,
+        onclick: () => pick(iso, true),
+      }, String(d)));
+    }
+    if (any) box.append(el('div', { class: 'cal-month' }, el('h3', { text: MONTHS[m] }), grid));
+  }
+  const c = {};
+  for (const d of data.days) c[d.label] = (c[d.label] || 0) + 1;
+  $('cal-sum').textContent = Object.entries(c).map(([k, v]) => k + ' ' + v).join(' · ');
+}
+
+function pick(iso, push) {
+  picked = iso;
+  for (const b of document.querySelectorAll('.cal-day')) b.setAttribute('aria-pressed', String(b.dataset.day === iso));
+  if (push) {
+    history.replaceState(null, '', '#' + iso);
+    // on a phone the day card is below the whole year: bring it into view
+    if (matchMedia('(max-width: 940px)').matches) setTimeout(() => $('day').scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
+  }
+  const r = data.days.find(d => d.day === iso), box = $('day');
+  if (!r) { box.replaceChildren(el('p', { class: 'muted', text: 'За ' + fmtDate(iso) + ' записи нет.' })); return; }
+  const scans = obs.filter(o => o.date === r.data_day);
+  const rows = r.rows.length ? r.rows : [];
+  const ev = hadEvent(r, $('thr').value), yes = isYes(r.label, $('unsure').checked);
+  const verdict = r.label === 'no data' ? 'не прогноз' : yes ? (ev ? 'оправдался' : 'ложная тревога') : (ev ? 'пропуск вспышки' : 'оправдался');
+  box.replaceChildren(
+    el('div', { class: 'state', 'data-label': r.label, style: 'padding: 18px' },
+      el('span', { class: 'k', text: 'Прогноз на ' + fmtDate(r.day) }),
+      el('span', { class: 'v', style: 'font-size: 32px', text: r.label }),
+      el('span', { class: 't', style: 'font-size: 13px; color: var(--ink-2)', text: (r.observed ? 'По наблюдениям этого дня' : r.data_day ? 'Наблюдений нет — по дню ' + fmtDate(r.data_day) : 'Наблюдений нет больше 3 суток') + ' · качество ' + r.quality })),
+    el('div', {}, el('b', { text: 'Вспышки через 12–84 ч: ' }), r.flares.length ? el('span', { class: 'chips', style: 'display:inline-flex;gap:4px' }, ...r.flares.map(flareTag)) : el('span', { class: 'muted', text: 'не было (≥M1)' }),
+      el('div', { class: 'muted', style: 'font-size: 13px; margin-top: 4px', text: 'Итог для события ≥' + $('thr').value + ': ' + verdict })),
+    rows.length ? el('div', { class: 'table-box' }, el('table', { style: 'font-size: 13px' },
+      el('thead', {}, el('tr', {}, ...['NOAA', 'F3/k', 'F10', 'Признак'].map((t, i) => el('th', { class: i && i < 3 ? 'num' : null, style: 'padding: 8px 10px', text: t })))),
+      el('tbody', {}, ...rows.map(w => el('tr', {},
+        el('td', { class: 'mono', style: 'padding: 6px 10px' }, ...noaaList(w.noaa).flatMap((n, i) => [i ? '_' : '', el('a', { href: 'region.html#' + n, text: n })])),
+        el('td', { class: 'mono num', style: 'padding: 6px 10px', text: num(w.flux3_corr, 1) }),
+        el('td', { class: 'mono num', style: 'padding: 6px 10px', text: num(w.flux10, 1) }),
+        el('td', { style: 'padding: 6px 10px' }, el('span', { class: 'pill', 'data-label': w.label, text: w.label }))))))) :
+      el('p', { class: 'muted', style: 'margin: 0', text: r.label === 'no data' ? 'Таблицы нет.' : 'Таблица — в записи дня ' + fmtDate(r.data_day) + '.' }),
+    el('div', { class: 'chips' },
+      r.data_day && r.data_day !== r.day ? el('a', { class: 'btn', href: '#' + r.data_day, onclick: e => { e.preventDefault(); pick(r.data_day, true); }, text: '← ' + fmtDate(r.data_day) }) : null,
+      el('a', { class: 'btn', href: 'summary.html#week=' + r.day, text: 'Неделя' }),
+      scans.length ? el('a', { class: 'btn', href: obsHref(scans[scans.length - 1]), text: 'Скан' }) : null));
+}
+
+function drawScores() {
+  const o = opts(), t = contingency(data.days, o), sc = scores(t), e = tssError(t);
+  $('v-year').textContent = year;
+  $('v-def').textContent = `Событие — вспышка ≥${o.threshold} через 12–84 ч; «да» — ${o.withUnsure ? 'positive и positive?' : 'positive'}.`;
+  $('ct-a').textContent = t.a; $('ct-b').textContent = t.b; $('ct-c').textContent = t.c; $('ct-d').textContent = t.d;
+  $('ct-n').textContent = `${t.n} дней с прогнозом, ${t.skipped} без данных`;
+  const pct = v => Number.isFinite(v) ? Math.round(v * 100) + '%' : '—', f2 = v => Number.isFinite(v) ? v.toFixed(2) : '—';
+  $('kpis').replaceChildren(...[
+    [f2(sc.tss) + (Number.isFinite(e) ? ' ± ' + e.toFixed(2) : ''), 'TSS'], [f2(sc.hss), 'HSS'], [pct(sc.pod), 'POD — вспышки предсказаны'],
+    [pct(sc.far), 'FAR — ложные тревоги'], [pct(sc.pYes), 'P(вспышка | да)'], [pct(sc.pNo), 'P(вспышка | нет)'], [pct(sc.base), 'частота вспышечных дней'],
+  ].map(([v, k]) => el('div', { class: 'kpi' }, el('b', { text: v }), el('span', { text: k }))));
+  // monthly: share of "yes" days and of event days, TSS of the month
+  const pts = { yes: [], ev: [], tss: [] };
+  for (const [m, days] of Object.entries(byMonth(data.days))) {
+    const c = contingency(days, o), s2 = scores(c), t0 = dayMs(m + '-15');
+    if (!c.n) continue;
+    pts.yes.push([t0, (c.a + c.b) / c.n * 100]); pts.ev.push([t0, (c.a + c.c) / c.n * 100]); pts.tss.push([t0, s2.tss]);
+  }
+  $('monthly').replaceChildren(el('h3', { style: 'font-size: 16px; margin-bottom: 8px', text: 'По месяцам' }), timeChart([
+    { name: 'дни с прогнозом «да», %', color: '#C2410C', points: pts.yes, kind: 'bars', barDays: 22, opacity: 0.45 },
+    { name: 'дни со вспышкой ≥' + o.threshold + ', %', color: '#1E4FB8', points: pts.ev, maxGapDays: 40 },
+    { name: 'TSS месяца', color: '#0F766E', points: pts.tss, axis: 'right', dash: true, maxGapDays: 40 },
+  ], { from: Date.UTC(year, 0, 1), to: Date.UTC(year, 11, 31), height: 260, yLabel: '% дней', y2Label: 'TSS', zero: true }));
+}
+
+function downloadYear() {
+  const rows = data.days.map(d => {
+    const mf = maxFlare(d);
+    return [d.day, d.label, d.data_day, d.quality, d.observed ? 1 : 0, d.rows.length, d.rows.filter(w => w.label === 'positive').map(w => w.noaa).join(' '),
+      d.flares.map(f => f.class).join(' '), mf ? mf.class : ''];
+  });
+  download(`prognoz-archive-${year}.csv`, csv(['day', 'label', 'data_day', 'quality', 'observed', 'n_sources', 'positive_noaa', 'flares_12_84h', 'max_flare'], rows));
+}
+
+async function load(y, day) {
+  year = y;
+  try {
+    data = await historyYear(y);
+    drawCalendar(); drawScores();
+    const last = data.days[data.days.length - 1];
+    pick(day && data.days.some(d => d.day === day) ? day : last.day, false);
+  } catch (e) { showError($('cal'), e); }
+}
+
+try {
+  const [ix, o] = await Promise.all([historyIndex(), getJSON('data/observations.json').catch(() => ({ observations: [] }))]);
+  obs = o.observations || [];
+  for (const y of [...ix.years].reverse()) $('year').append(el('option', { value: String(y), text: String(y) }));
+  const want = location.hash.slice(1);
+  const y0 = /^\d{4}-\d\d-\d\d$/.test(want) && ix.years.includes(+want.slice(0, 4)) ? +want.slice(0, 4) : ix.years[ix.years.length - 1];
+  $('year').value = String(y0);
+  await load(y0, want);
+} catch (e) { showError($('cal'), e); }
+
+$('year').addEventListener('change', () => load(+$('year').value));
+for (const id of ['thr', 'unsure']) $(id).addEventListener('change', () => { drawScores(); if (picked) pick(picked, false); });
+$('dl').addEventListener('click', downloadYear);
+addEventListener('hashchange', () => {
+  const d = location.hash.slice(1);
+  if (!/^\d{4}-\d\d-\d\d$/.test(d)) return;
+  if (+d.slice(0, 4) !== year) { $('year').value = d.slice(0, 4); load(+d.slice(0, 4), d); } else pick(d, false);
+});
+</script>
+</body>
+</html>

@@ -58,6 +58,47 @@ if c:
         if not str(a.get("url", "")).endswith("/"):
             err(f"data/config.json: archive url must end with '/': {a}")
 
+# archive: data/history, data/indices, data/journal (README, «Архив и сводки»)
+hi = load("data/history/index.json")
+if hi:
+    for y in hi.get("years", []):
+        h = load(f"data/history/{y}.json")
+        if h:
+            prev = ""
+            for d in h.get("days", []):
+                for k in ("day", "label", "rows", "flares", "observed"):
+                    if k not in d:
+                        err(f"data/history/{y}.json: day without '{k}': {d.get('day')}")
+                if d.get("label") not in LABELS:
+                    err(f"data/history/{y}.json: bad label {d.get('label')!r} on {d.get('day')}")
+                if d.get("day", "") <= prev:
+                    err(f"data/history/{y}.json: days not in order at {d.get('day')}")
+                prev = d.get("day", "")
+                for r in d.get("rows", []):
+                    for k in ("noaa", "flux3", "flux3_corr", "flux10", "label"):
+                        if k not in r:
+                            err(f"data/history/{y}.json: row without '{k}' on {d['day']}")
+                for fl in d.get("flares", []):
+                    if not re.match(r"^[CMX]\d+(\.\d+)?$", str(fl.get("class", ""))) or "peak" not in fl:
+                        err(f"data/history/{y}.json: bad flare {fl} on {d['day']}")
+        ix = load(f"data/indices/{y}.json")
+        if ix:
+            for d in ix.get("days", []):
+                if "date" not in d or "norp" not in d:
+                    err(f"data/indices/{y}.json: day without date or norp: {d}")
+        j = load(f"data/journal/{y}.json")
+        if j:
+            for e in j.get("entries", []):
+                for k in ("date", "n_scans", "az", "first_ut"):
+                    if k not in e:
+                        err(f"data/journal/{y}.json: entry without '{k}': {e}")
+si = SITE / "data/sources/index.json"
+if si.exists():
+    listed = set(load("data/sources/index.json").get("dates", []))
+    files = {p.stem for p in (SITE / "data/sources").glob("????-??-??.json")}
+    if listed != files:
+        err("data/sources/index.json does not match the files in data/sources/ (run tools/sources_to_json.py)")
+
 # ---- pages ----
 class Page(HTMLParser):
     def __init__(self):

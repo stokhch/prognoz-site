@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Таблицы и журнал · РАТАН-600</title>
+<!-- partial:meta -->
+<meta name="description" content="Журнал наблюдений Солнца на РАТАН-600, таблица источников по дням, файлы JSON и CSV для скачивания.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Таблицы и журнал · РАТАН-600">
+<meta property="og:description" content="Журнал наблюдений Солнца на РАТАН-600, таблица источников по дням, файлы JSON и CSV для скачивания.">
+<meta property="og:url" content="https://stokhch.github.io/prognoz-site/tables.html">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary">
+<link rel="alternate" type="application/rss+xml" title="Прогноз · РАТАН-600" href="feed.xml">
+<!-- /partial:meta -->
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<!-- partial:header -->
+<a class="skip" href="#content">К содержанию</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="7" fill="#F97316"/><circle cx="16" cy="16" r="12" fill="none" stroke="#F97316" stroke-opacity=".45" stroke-width="1.5"/><circle cx="16" cy="16" r="15" fill="none" stroke="#F97316" stroke-opacity=".2"/></svg>
+      <span><b>Прогноз · РАТАН-600</b><small>Радиоастрономический центр прогноза солнечной активности</small></span>
+    </a>
+    <nav class="nav" aria-label="Основное меню">
+      <a href="forecast.html">Прогноз</a>
+      <a href="archive.html">Архив</a>
+      <a href="data.html">Анализ данных</a>
+      <a href="summary.html">Сводки</a>
+      <a href="search.html">Поиск</a>
+      <a href="observations.html">Наблюдения</a>
+      <a href="instrument.html">Инструмент</a>
+      <a href="tools.html">Вычисления</a>
+      <a href="activity.html">Активность</a>
+      <a href="about.html">О проекте</a>
+    </nav>
+  </div>
+</header>
+<noscript><div class="notice" role="alert"><div class="wrap"><b>Нужен JavaScript.</b> Прогноз, таблицы и графики строятся в браузере; без JavaScript страница показывает только статический текст.</div></div></noscript>
+<!-- /partial:header -->
+<div class="demo-banner" role="note"><div class="wrap"><b>Демонстрационные данные.</b> Журнал и таблицы условные; формат совпадает с выгрузкой из базы.</div></div>
+
+<main class="wrap stack" id="content" style="gap: 28px">
+  <div class="stack" style="gap: 10px">
+    <p class="eyebrow">Только чтение</p>
+    <h1 class="page-title">Таблицы и журнал</h1>
+    <p class="lead">Журнал наблюдений Солнца на РАТАН-600, таблица источников по дням (как «Database tables» старого сайта) и файлы для скачивания. Всё, что показано, можно забрать в CSV или в JSON.</p>
+  </div>
+
+  <nav class="chips" aria-label="Разделы страницы">
+    <a class="chip" style="display:inline-flex;align-items:center;text-decoration:none" href="#journal">Журнал наблюдений</a>
+    <a class="chip" style="display:inline-flex;align-items:center;text-decoration:none" href="#sources">Источники</a>
+    <a class="chip" style="display:inline-flex;align-items:center;text-decoration:none" href="#files">Файлы и API</a>
+  </nav>
+
+  <section class="card stack" id="journal" aria-labelledby="j-h" style="gap: 14px">
+    <div class="section-head" style="margin: 0"><h2 id="j-h" style="font-size: 22px">Журнал наблюдений</h2><button class="btn" type="button" id="j-dl">Скачать CSV</button></div>
+    <form class="toolbar-row" onsubmit="return false">
+      <div class="field"><label for="j-year">Год</label><select id="j-year"></select></div>
+      <div class="field"><label for="j-month">Месяц</label><select id="j-month"><option value="">все</option></select></div>
+      <div class="field"><label for="j-mode">Режим</label><select id="j-mode"><option value="">любой</option><option value="многоазимутальный">многоазимутальный</option><option value="az 0">az 0</option></select></div>
+      <span class="muted" id="j-sum" role="status"></span>
+    </form>
+    <div id="j-chart"></div>
+    <div class="table-box scroll-box"><table class="sticky-head" style="min-width: 760px; font-size: 13px"><thead><tr>
+      <th scope="col">Дата</th><th scope="col">Режим</th><th scope="col" class="num">Сканов</th><th scope="col">Азимуты</th><th scope="col">Первый — последний, UT</th><th scope="col">Примечание</th><th scope="col">Прогноз</th>
+    </tr></thead><tbody id="j-rows"></tbody></table></div>
+  </section>
+
+  <section class="card stack" id="sources" aria-labelledby="s-h" style="gap: 14px">
+    <div class="section-head" style="margin: 0"><h2 id="s-h" style="font-size: 22px">Источники по дням</h2><button class="btn" type="button" id="s-dl">Скачать CSV</button></div>
+    <p class="muted" style="margin: 0; font-size: 14px">Локальные источники на сканах дня, отождествлённые с областями NOAA: потоки на 2, 3 и 10 см, поправка на диаграмму k и признак критерия. Для отдельных сканов дня — панель «DB sources» на странице анализа.</p>
+    <form class="toolbar-row" onsubmit="return false">
+      <div class="field"><label for="s-from">С</label><input id="s-from" type="date"></div>
+      <div class="field"><label for="s-to">По</label><input id="s-to" type="date"></div>
+      <div class="field"><label for="s-noaa">NOAA</label><input id="s-noaa" inputmode="numeric" placeholder="любая"></div>
+      <div class="field"><label for="s-label">Признак</label><select id="s-label"><option value="">любой</option><option>positive</option><option>positive?</option><option>negative</option></select></div>
+      <div class="field"><label for="s-min">F3/k не меньше</label><input id="s-min" type="number" min="0" step="1" value="0"></div>
+      <span class="muted" id="s-sum" role="status"></span>
+    </form>
+    <div class="table-box scroll-box"><table class="sticky-head" style="min-width: 900px; font-size: 13px"><thead><tr>
+      <th scope="col">День</th><th scope="col">NOAA</th><th scope="col">Положение</th><th scope="col" class="num">x, ″</th><th scope="col" class="num">y, ″</th><th scope="col" class="num">F 2 см</th><th scope="col" class="num">F 3 см</th><th scope="col" class="num">F 10 см</th><th scope="col" class="num">k</th><th scope="col" class="num">F3/k</th><th scope="col">Признак</th>
+    </tr></thead><tbody id="s-rows"></tbody></table></div>
+  </section>
+
+  <section class="card stack prose" id="files" aria-labelledby="f-h" style="gap: 10px">
+    <h2 id="f-h" style="font-size: 22px">Файлы и API</h2>
+    <p>Сайт статический: всё, что он показывает, лежит в открытых JSON-файлах, и их можно читать программой. Форматы описаны в README репозитория сайта.</p>
+    <div class="table-box"><table style="font-size: 14px"><thead><tr><th scope="col">Файл</th><th scope="col">Что в нём</th></tr></thead><tbody id="f-rows">
+      <tr><td class="mono"><a href="data/forecast.json">data/forecast.json</a></td><td>прогноз на сегодня: итог, таблица Танаки–Эноме, последний скан</td></tr>
+      <tr><td class="mono"><a href="feed.xml">feed.xml</a></td><td>RSS-лента прогноза: одна запись в день; подписка в любом читателе RSS</td></tr>
+      <tr><td class="mono"><a href="data/history/index.json">data/history/index.json</a></td><td>годы архива</td></tr>
+      <tr><td class="mono">data/history/ГГГГ.json</td><td>прогноз каждого дня года, таблица источников и вспышки через 12–84 ч</td></tr>
+      <tr><td class="mono">data/indices/ГГГГ.json</td><td>полный поток Солнца за день: РАТАН-600, NoRP (1–17 ГГц), F10.7</td></tr>
+      <tr><td class="mono">data/journal/ГГГГ.json</td><td>журнал наблюдений: режим, число сканов, азимуты, время</td></tr>
+      <tr><td class="mono"><a href="data/observations.json">data/observations.json</a></td><td>сканы, выложенные на сайт, со ссылками на страницу анализа</td></tr>
+      <tr><td class="mono">data/sources/ГГГГ-ММ-ДД.json</td><td>источники каждого скана дня из базы (V_RAT_AR_NOAA)</td></tr>
+    </tbody></table></div>
+    <p class="muted" style="font-size: 14px">Пример: <code class="mono">curl -s https://stokhch.github.io/prognoz-site/data/forecast.json | jq .label</code></p>
+  </section>
+</main>
+
+<!-- partial:footer -->
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Санкт-Петербургский филиал САО РАН · лаборатория солнечных исследований</span>
+    <span>Преемник сайта «Прогноз» (<a href="http://spbf.sao.ru/prognoz/">spbf.sao.ru/prognoz</a>, 2006–2026), переведённого в архив · <a href="about.html#history">подробнее</a></span>
+    <span>Вопросы и предложения: <a href="mailto:susan@sao.ru">susan@sao.ru</a></span>
+  </div>
+</footer>
+<!-- /partial:footer -->
+<script type="module">
+import { el, fmtDate, num, showError, fmtAz } from './assets/app.js';
+import { historyIndex, historyYear, journalYear, range, download, csv, noaaList, addDays, dayMs, MONTHS } from './assets/history.js';
+import { timeChart } from './assets/charts.js';
+
+const $ = id => document.getElementById(id);
+let ix, jShown = [], sShown = [], jForecast = new Map();
+
+const azRange = a => a.length === 1 ? fmtAz(a[0]) : fmtAz(a[0]) + ' … ' + fmtAz(a[a.length - 1]) + ' (' + a.length + ')';
+
+async function drawJournal() {
+  const y = $('j-year').value, m = $('j-month').value, mode = $('j-mode').value;
+  try {
+    const [j, h] = await Promise.all([journalYear(y), historyYear(y).catch(() => ({ days: [] }))]);
+    jForecast = new Map(h.days.map(d => [d.day, d.label]));
+    jShown = j.entries.filter(e => (!m || e.date.slice(5, 7) === m) && (!mode || e.mode === mode));
+    $('j-rows').replaceChildren(...jShown.map(e => el('tr', {},
+      el('td', { class: 'mono' }, el('a', { href: 'archive.html#' + e.date, text: fmtDate(e.date) })),
+      el('td', { text: e.mode }), el('td', { class: 'mono num', text: String(e.n_scans) }),
+      el('td', { class: 'mono', text: azRange(e.az) }), el('td', { class: 'mono', text: e.first_ut + (e.n_scans > 1 ? ' — ' + e.last_ut : '') }),
+      el('td', { class: 'muted', text: e.note || '' }),
+      el('td', {}, jForecast.has(e.date) ? el('span', { class: 'pill', 'data-label': jForecast.get(e.date), text: jForecast.get(e.date) }) : ''))));
+    if (!jShown.length) $('j-rows').append(el('tr', {}, el('td', { colspan: '7', class: 'muted', text: 'Записей нет.' })));
+    const multi = jShown.filter(e => e.n_scans > 1).length;
+    $('j-sum').textContent = `${jShown.length} дней с наблюдениями, из них многоазимутальных ${multi}, сканов ${jShown.reduce((s, e) => s + e.n_scans, 0)}`;
+    // days observed per month of the year
+    const per = new Map();
+    for (const e of j.entries) { const k = e.date.slice(0, 7), a = per.get(k) || [0, 0]; a[0]++; if (e.n_scans > 1) a[1]++; per.set(k, a); }
+    $('j-chart').replaceChildren(timeChart([
+      { name: 'дней с наблюдениями', color: '#F97316', points: [...per].map(([k, a]) => [dayMs(k + '-15') - 4 * 864e5, a[0]]), kind: 'bars', barDays: 9 },
+      { name: 'из них многоазимутальных', color: '#1E4FB8', points: [...per].map(([k, a]) => [dayMs(k + '-15') + 4 * 864e5, a[1]]), kind: 'bars', barDays: 9 },
+    ], { from: Date.UTC(+y, 0, 1), to: Date.UTC(+y, 11, 31), height: 200, zero: true, yLabel: 'дней' }));
+  } catch (e) { showError($('j-rows'), e); }
+}
+
+async function drawSources() {
+  const from = $('s-from').value, to = $('s-to').value, noaa = $('s-noaa').value.trim(), lab = $('s-label').value, min = +$('s-min').value || 0;
+  try {
+    const days = await range('history', from, to);
+    sShown = [];
+    for (const d of days) if (d.observed) for (const w of d.rows)
+      if ((!noaa || noaaList(w.noaa).includes(noaa)) && (!lab || w.label === lab) && w.flux3_corr >= min) sShown.push({ day: d.day, ...w });
+    const LIMIT = 600;
+    $('s-rows').replaceChildren(...sShown.slice(-LIMIT).reverse().map(w => el('tr', {},
+      el('td', { class: 'mono' }, el('a', { href: 'archive.html#' + w.day, text: fmtDate(w.day) })),
+      el('td', { class: 'mono' }, ...noaaList(w.noaa).flatMap((n, i) => [i ? '_' : '', el('a', { href: 'region.html#' + n, text: n })])),
+      el('td', { class: 'mono', text: w.location }),
+      ...[[w.x, 0], [w.y, 0], [w.flux2, 2], [w.flux3, 2], [w.flux10, 2], [w.beam, 3], [w.flux3_corr, 2]].map(([v, k]) => el('td', { class: 'mono num', text: num(v, k) })),
+      el('td', {}, el('span', { class: 'pill', 'data-label': w.label, text: w.label })))));
+    if (!sShown.length) $('s-rows').append(el('tr', {}, el('td', { colspan: '11', class: 'muted', text: 'Ничего не найдено — измените фильтры.' })));
+    $('s-sum').textContent = 'Строк: ' + sShown.length + (sShown.length > LIMIT ? ` (показаны последние ${LIMIT}; в CSV — все)` : '');
+  } catch (e) { showError($('s-rows'), e); }
+}
+
+try {
+  ix = await historyIndex();
+  for (const y of [...ix.years].reverse()) $('j-year').append(el('option', { value: String(y), text: String(y) }));
+  MONTHS.forEach((m, i) => $('j-month').append(el('option', { value: String(i + 1).padStart(2, '0'), text: m })));
+  for (const id of ['s-from', 's-to']) { $(id).min = ix.first; $(id).max = ix.last; }
+  $('s-to').value = ix.last; $('s-from').value = addDays(ix.last, -30);
+  const q = new URLSearchParams(location.search);
+  if (q.get('noaa')) { $('s-noaa').value = q.get('noaa'); $('s-from').value = ix.first; }
+  await Promise.all([drawJournal(), drawSources()]);
+} catch (e) { showError($('j-rows'), e); }
+
+for (const id of ['j-year', 'j-month', 'j-mode']) $(id).addEventListener('change', drawJournal);
+for (const id of ['s-from', 's-to', 's-noaa', 's-label', 's-min']) $(id).addEventListener('change', drawSources);
+$('j-dl').addEventListener('click', () => download(`journal-${$('j-year').value}.csv`, csv(['date', 'mode', 'n_scans', 'azimuths', 'first_ut', 'last_ut', 'note', 'forecast'],
+  jShown.map(e => [e.date, e.mode, e.n_scans, e.az.join(' '), e.first_ut, e.last_ut, e.note, jForecast.get(e.date) || '']))));
+$('s-dl').addEventListener('click', () => download(`sources-${$('s-from').value}-${$('s-to').value}.csv`, csv(['day', 'noaa', 'location', 'x_arcsec', 'y_arcsec', 'flux2', 'flux3', 'flux10', 'beam_k', 'flux3_corr', 'pol', 'label'],
+  sShown.map(w => [w.day, w.noaa, w.location, w.x, w.y, w.flux2, w.flux3, w.flux10, w.beam, w.flux3_corr, w.pol, w.label]))));
+</script>
+</body>
+</html>

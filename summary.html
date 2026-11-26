@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сводки · РАТАН-600</title>
+<!-- partial:meta -->
+<meta name="description" content="Сводки наблюдений РАТАН-600 за неделю, месяц и цикл активности; сравнение полного потока Солнца с NoRP и F10.7.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Сводки · РАТАН-600">
+<meta property="og:description" content="Сводки наблюдений РАТАН-600 за неделю, месяц и цикл активности; сравнение полного потока Солнца с NoRP и F10.7.">
+<meta property="og:url" content="https://stokhch.github.io/prognoz-site/summary.html">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary">
+<link rel="alternate" type="application/rss+xml" title="Прогноз · РАТАН-600" href="feed.xml">
+<!-- /partial:meta -->
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<!-- partial:header -->
+<a class="skip" href="#content">К содержанию</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="7" fill="#F97316"/><circle cx="16" cy="16" r="12" fill="none" stroke="#F97316" stroke-opacity=".45" stroke-width="1.5"/><circle cx="16" cy="16" r="15" fill="none" stroke="#F97316" stroke-opacity=".2"/></svg>
+      <span><b>Прогноз · РАТАН-600</b><small>Радиоастрономический центр прогноза солнечной активности</small></span>
+    </a>
+    <nav class="nav" aria-label="Основное меню">
+      <a href="forecast.html">Прогноз</a>
+      <a href="archive.html">Архив</a>
+      <a href="data.html">Анализ данных</a>
+      <a href="summary.html" aria-current="page">Сводки</a>
+      <a href="search.html">Поиск</a>
+      <a href="observations.html">Наблюдения</a>
+      <a href="instrument.html">Инструмент</a>
+      <a href="tools.html">Вычисления</a>
+      <a href="activity.html">Активность</a>
+      <a href="about.html">О проекте</a>
+    </nav>
+  </div>
+</header>
+<noscript><div class="notice" role="alert"><div class="wrap"><b>Нужен JavaScript.</b> Прогноз, таблицы и графики строятся в браузере; без JavaScript страница показывает только статический текст.</div></div></noscript>
+<!-- /partial:header -->
+<div class="demo-banner" role="note"><div class="wrap"><b>Демонстрационные данные.</b> Потоки, области и вспышки условные (синтетическое Солнце); картинки сканов есть только для настоящих наблюдений.</div></div>
+
+<main class="wrap stack" id="content" style="gap: 28px">
+  <div class="stack" style="gap: 10px">
+    <p class="eyebrow">Много дней сразу</p>
+    <h1 class="page-title">Сводки</h1>
+    <p class="lead">Неделя и месяц наблюдений, ход активности за весь архив и сравнение полного потока Солнца по РАТАН-600 с радиополяриметрами Нобеямы (NoRP) и потоком F10.7 из Пентиктона.</p>
+  </div>
+
+  <div class="chips" role="tablist" aria-label="Сводка">
+    <button class="chip" role="tab" id="tab-week" data-tab="week">Неделя</button>
+    <button class="chip" role="tab" id="tab-month" data-tab="month">Месяц</button>
+    <button class="chip" role="tab" id="tab-cycle" data-tab="cycle">Цикл</button>
+    <button class="chip" role="tab" id="tab-compare" data-tab="compare">Сравнение с NoRP и F10.7</button>
+  </div>
+
+  <section class="stack" id="p-week" role="tabpanel" aria-labelledby="tab-week" hidden style="gap: 18px">
+    <form class="card toolbar-row" onsubmit="return false">
+      <div class="field"><label for="w-end">Неделя по</label><input id="w-end" type="date"></div>
+      <button class="btn" type="button" id="w-prev">← неделя</button>
+      <button class="btn" type="button" id="w-next">неделя →</button>
+      <span class="muted" id="w-sum" role="status"></span>
+    </form>
+    <div class="week" id="w-days"></div>
+    <div class="card stack" style="gap: 10px">
+      <h2 style="font-size: 20px">Поток на 3 см по активным областям</h2>
+      <p class="muted" style="margin: 0; font-size: 14px">F3/k, с.е.п.; пунктир — порог критерия 10 с.е.п.; ▼ — вспышки M и X из этих областей.</p>
+      <div id="w-chart"></div>
+    </div>
+  </section>
+
+  <section class="stack" id="p-month" role="tabpanel" aria-labelledby="tab-month" hidden style="gap: 18px">
+    <form class="card toolbar-row" onsubmit="return false">
+      <div class="field"><label for="m-month">Месяц</label><input id="m-month" type="month"></div>
+      <button class="btn" type="button" id="m-prev">← месяц</button>
+      <button class="btn" type="button" id="m-next">месяц →</button>
+      <span class="muted" id="m-sum" role="status"></span>
+    </form>
+    <div class="row">
+      <div class="card main stack" style="gap: 10px">
+        <h2 style="font-size: 20px">Источники на диске по дням</h2>
+        <p class="muted" style="margin: 0; font-size: 14px">По горизонтали — положение вдоль скана (восток слева), по вертикали — день; размер — поток на 3 см, цвет — признак. Область, ползущая слева направо, — это вращение Солнца. Нажмите на кружок — история области.</p>
+        <div id="m-map"></div>
+      </div>
+      <div class="side card stack" style="gap: 10px">
+        <h2 style="font-size: 20px">Области месяца</h2>
+        <div class="table-box scroll-box"><table class="sticky-head" style="font-size: 13px"><thead><tr><th scope="col">NOAA</th><th scope="col">Дни</th><th scope="col" class="num">max F3/k</th><th scope="col">Вспышки</th></tr></thead><tbody id="m-regions"></tbody></table></div>
+      </div>
+    </div>
+    <div class="card stack" style="gap: 10px">
+      <h2 style="font-size: 20px">Полный поток и число областей</h2>
+      <div id="m-flux"></div>
+    </div>
+  </section>
+
+  <section class="stack" id="p-cycle" role="tabpanel" aria-labelledby="tab-cycle" hidden style="gap: 18px">
+    <div class="card stack" style="gap: 10px">
+      <h2 style="font-size: 20px">Радиопотоки, среднемесячные</h2>
+      <p class="muted" style="margin: 0; font-size: 14px">Полный поток Солнца, с.е.п.: F10.7 (Пентиктон), NoRP 3,75 ГГц и РАТАН-600 на той же частоте.</p>
+      <div id="c-flux"></div>
+    </div>
+    <div class="card stack" style="gap: 10px">
+      <h2 style="font-size: 20px">Вспышки и прогноз по месяцам</h2>
+      <p class="muted" style="margin: 0; font-size: 14px">Число вспышек M и X (столбики) и доля дней с итогом positive (линия, правая шкала).</p>
+      <div id="c-flares"></div>
+    </div>
+  </section>
+
+  <section class="stack" id="p-compare" role="tabpanel" aria-labelledby="tab-compare" hidden style="gap: 18px">
+    <form class="card toolbar-row" onsubmit="return false">
+      <div class="field"><label for="x-from">С</label><input id="x-from" type="date"></div>
+      <div class="field"><label for="x-to">По</label><input id="x-to" type="date"></div>
+      <div class="field"><label for="x-f">Частота</label><select id="x-f"><option value="2">2 ГГц</option><option value="3.75" selected>3,75 ГГц</option><option value="9.4">9,4 ГГц</option><option value="17">17 ГГц</option></select></div>
+      <label class="switch" style="min-height: 44px; display: inline-flex; align-items: center; gap: 8px"><input type="checkbox" id="x-f107" checked><span></span> F10.7</label>
+      <span style="flex: 1"></span>
+      <button class="btn" type="button" id="x-dl">Скачать CSV</button>
+    </form>
+    <div class="card stack" style="gap: 10px">
+      <h2 style="font-size: 20px" id="x-h">Полный поток по дням</h2>
+      <div id="x-series"></div>
+    </div>
+    <div class="row">
+      <div class="card main stack" style="gap: 10px">
+        <h2 style="font-size: 20px">РАТАН-600 против NoRP</h2>
+        <p class="muted" style="margin: 0; font-size: 14px">Каждая точка — день; пунктир — равенство. Наклон и разброс показывают, как держится калибровка РАТАН-600.</p>
+        <div id="x-scatter"></div>
+      </div>
+      <div class="side card stack" style="gap: 10px">
+        <h2 style="font-size: 20px">Отношение РАТАН / NoRP</h2>
+        <div class="kpis" id="x-kpis"></div>
+        <p class="muted" style="margin: 0; font-size: 13px">Отношение выше 1 на высоких частотах обычно значит переоценку потока спокойного Солнца или ошибку калибровки по Луне; ступенька в ряду — смену шкалы.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- partial:footer -->
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Санкт-Петербургский филиал САО РАН · лаборатория солнечных исследований</span>
+    <span>Преемник сайта «Прогноз» (<a href="http://spbf.sao.ru/prognoz/">spbf.sao.ru/prognoz</a>, 2006–2026), переведённого в архив · <a href="about.html#history">подробнее</a></span>
+    <span>Вопросы и предложения: <a href="mailto:susan@sao.ru">susan@sao.ru</a></span>
+  </div>
+</footer>
+<!-- /partial:footer -->
+<script type="module">
+import { el, fmtDate, num, showError, getJSON } from './assets/app.js';
+import { historyIndex, range, regionIndex, noaaList, download, csv, addDays, dayMs, LABEL_COLOR } from './assets/history.js';
+import { timeChart, scatterChart } from './assets/charts.js';
+
+const $ = id => document.getElementById(id);
+const COLORS = ['#C2410C', '#1E4FB8', '#0F766E', '#7C3AED', '#B45309', '#BE185D', '#15803D', '#0369A1', '#9A3412', '#4338CA'];
+let ix, obs = [], tab = 'week';
+const lastDay = () => ix.last;
+
+function setHash(h) { history.replaceState(null, '', '#' + h); }
+
+function select(t, h) {
+  tab = t;
+  for (const b of document.querySelectorAll('[role=tab]')) b.setAttribute('aria-selected', String(b.dataset.tab === t));
+  for (const p of document.querySelectorAll('[role=tabpanel]')) p.hidden = p.id !== 'p-' + t;
+  ({ week: drawWeek, month: drawMonth, cycle: drawCycle, compare: drawCompare })[t](h);
+}
+
+// ---------- week ----------
+async function drawWeek(h) {
+  if (h) $('w-end').value = h;
+  const end = $('w-end').value || lastDay(), start = addDays(end, -6);
+  setHash('week=' + end);
+  try {
+    const days = await range('history', addDays(start, -1), end), week = days.filter(d => d.day >= start);
+    $('w-sum').textContent = fmtDate(start) + ' — ' + fmtDate(end) + ' · наблюдений: ' + week.filter(d => d.observed).length + ' из 7';
+    $('w-days').replaceChildren(...week.map(d => {
+      const scans = obs.filter(o => o.date === d.day), sc = scans[scans.length - 1];
+      const pic = sc ? el('a', { href: 'data.html#' + (sc.path || ''), title: 'Открыть скан' }, el('img', { src: 'data/scans/' + sc.id + '-small.jpg', alt: 'Скан ' + fmtDate(d.day), loading: 'lazy', width: '221', height: '150' }))
+        : el('div', { class: 'noimg', text: d.observed ? 'картинки скана нет на сайте' : 'наблюдений не было' });
+      const rows = [...(d.observed ? d.rows : [])].sort((a, b) => b.flux3_corr - a.flux3_corr).slice(0, 5);
+      return el('div', { class: 'day-card' },
+        el('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:6px' }, el('a', { href: 'archive.html#' + d.day, style: 'font-weight:700;text-decoration:none', text: fmtDate(d.day) }), el('span', { class: 'pill', 'data-label': d.label, text: d.label })),
+        pic,
+        rows.length ? el('ul', {}, ...rows.map(w => el('li', { class: w.label === 'positive' ? 'pos' : null }, el('a', { href: 'region.html#' + noaaList(w.noaa)[0], text: w.noaa }), el('span', { text: num(w.flux3_corr, 1) })))) : null,
+        d.flares.length ? el('div', { style: 'font-size:12px', class: 'muted' }, 'дальше: ', ...d.flares.slice(0, 4).map(f => el('span', { class: 'flare' + (f.class[0] === 'X' ? ' x' : ''), style: 'margin-right:3px', text: f.class }))) : null);
+    }));
+    // F3/k of the regions of the week
+    const reg = regionIndex(week), series = [], markers = [];
+    let i = 0;
+    for (const r of [...reg.values()].sort((a, b) => b.maxF3 - a.maxF3).slice(0, 10)) {
+      const color = COLORS[i++ % COLORS.length], pts = [];
+      for (const d of week) if (d.observed) { const w = d.rows.find(x => noaaList(x.noaa).includes(r.noaa)); if (w) pts.push([dayMs(d.day) + 9 * 36e5, w.flux3_corr]); }
+      series.push({ name: r.noaa, color, points: pts, maxGapDays: 3 });
+      for (const f of r.flares) if (f.peak.slice(0, 10) >= start && f.peak.slice(0, 10) <= end) markers.push({ t: Date.parse(f.peak + 'Z'), label: f.class + ' · NOAA ' + f.noaa + ' · ' + f.peak.replace('T', ' '), color });
+    }
+    const t0 = dayMs(start), t1 = dayMs(end) + 864e5;
+    series.push({ name: '10 с.е.п.', color: '#9AA6B5', points: [[t0, 10], [t1, 10]], dash: true, width: 1, maxGapDays: 99 });
+    $('w-chart').replaceChildren(series.length > 1 ? timeChart(series, { from: t0, to: t1, height: 300, log: true, yLabel: 'F3/k, с.е.п.', markers, onClick: t => location.href = 'archive.html#' + new Date(t).toISOString().slice(0, 10) }) : el('p', { class: 'muted', text: 'Областей за неделю нет.' }));
+  } catch (e) { showError($('w-days'), e); }
+}
+
+// ---------- month ----------
+async function drawMonth(h) {
+  if (h) $('m-month').value = h;
+  const m = $('m-month').value || lastDay().slice(0, 7), from = m + '-01', to = addDays(addDays(from, 32).slice(0, 7) + '-01', -1);
+  setHash('month=' + m);
+  try {
+    const [days, idx] = await Promise.all([range('history', from, to), range('indices', from, to)]);
+    const pts = [];
+    for (const d of days) if (d.observed) for (const w of d.rows) pts.push({ x: w.x, y: +d.day.slice(8), r: 3 + 2.2 * Math.sqrt(Math.max(w.flux3_corr, 0)), color: LABEL_COLOR[w.label], noaa: noaaList(w.noaa)[0], title: `${fmtDate(d.day)} · NOAA ${w.noaa} · ${w.location} · F3/k ${num(w.flux3_corr, 1)} · ${w.label}` });
+    const nd = +to.slice(8);
+    $('m-map').replaceChildren(scatterChart(pts, {
+      width: 760, height: 620, xDomain: [-1000, 1000], yDomain: [nd + 0.7, 0.3], xLabel: 'положение вдоль скана, ″ (восток ← → запад)', yLabel: 'день месяца',
+      xTicks: [-960, -500, 0, 500, 960].map(v => [v, String(v)]), yTicks: Array.from({ length: Math.ceil(nd / 2) }, (_, i) => [1 + 2 * i, String(1 + 2 * i)]),
+      guides: [{ x0: -960, x1: -960 }, { x0: 960, x1: 960 }], onClick: p => { location.href = 'region.html#' + p.noaa; },
+      legend: ['positive', 'positive?', 'negative'].map(k => ({ name: k, color: LABEL_COLOR[k], kind: 'dots' })),
+    }));
+    const reg = [...regionIndex(days).values()].sort((a, b) => a.noaa.localeCompare(b.noaa));
+    $('m-regions').replaceChildren(...reg.map(r => el('tr', {},
+      el('td', { class: 'mono' }, el('a', { href: 'region.html#' + r.noaa, text: r.noaa })),
+      el('td', { class: 'mono', style: 'white-space:nowrap', text: r.first.slice(8) + '–' + r.last.slice(8) }),
+      el('td', { class: 'mono num', style: r.positive ? 'color:var(--pos);font-weight:600' : null, text: num(r.maxF3, 1) }),
+      el('td', {}, ...r.flares.filter(f => f.peak >= from && f.peak <= to + 'T24').map(f => el('span', { class: 'flare' + (f.class[0] === 'X' ? ' x' : ''), style: 'margin-right:3px', text: f.class }))))));
+    $('m-sum').textContent = `${days.filter(d => d.observed).length} дней с наблюдениями · ${reg.length} областей · ${days.filter(d => d.label === 'positive').length} дней positive`;
+    const t0 = dayMs(from), t1 = dayMs(to) + 864e5;
+    $('m-flux').replaceChildren(timeChart([
+      { name: 'РАТАН-600, 3,75 ГГц', color: '#C2410C', points: idx.filter(r => r.ratan).map(r => [dayMs(r.date), r.ratan['3.75']]), kind: 'dots', r: 3.5 },
+      { name: 'NoRP, 3,75 ГГц', color: '#1E4FB8', points: idx.map(r => [dayMs(r.date), r.norp['3.75']]) },
+      { name: 'F10.7', color: '#0F766E', points: idx.map(r => [dayMs(r.date), r.f107]) },
+      { name: 'число источников', color: '#9AA6B5', points: days.filter(d => d.observed).map(d => [dayMs(d.day), d.rows.length]), kind: 'bars', axis: 'right', opacity: 0.45 },
+    ], { from: t0, to: t1, height: 280, yLabel: 'с.е.п.', y2Label: 'источников', y2Zero: true }));
+  } catch (e) { showError($('m-map'), e); }
+}
+
+// ---------- cycle ----------
+let cycleDone = false;
+async function drawCycle() {
+  setHash('cycle');
+  if (cycleDone) return;
+  try {
+    const [days, idx] = await Promise.all([range('history', ix.first, ix.last), range('indices', ix.first, ix.last)]);
+    const mean = (rows, f) => { const acc = new Map(); for (const r of rows) { const v = f(r); if (!Number.isFinite(v)) continue; const k = r.date.slice(0, 7); const a = acc.get(k) || [0, 0]; a[0] += v; a[1]++; acc.set(k, a); } return [...acc].map(([k, [s, n]]) => [dayMs(k + '-15'), s / n]); };
+    $('c-flux').replaceChildren(timeChart([
+      { name: 'F10.7', color: '#0F766E', points: mean(idx, r => r.f107), maxGapDays: 45 },
+      { name: 'NoRP 3,75 ГГц', color: '#1E4FB8', points: mean(idx, r => r.norp['3.75']), maxGapDays: 45 },
+      { name: 'РАТАН-600 3,75 ГГц', color: '#C2410C', points: mean(idx, r => r.ratan ? r.ratan['3.75'] : NaN), maxGapDays: 45 },
+    ], { height: 300, yLabel: 'с.е.п.' }));
+    // flares: every flare once (a flare is listed in up to 3 forecast windows)
+    const seen = new Map();
+    for (const d of days) for (const f of d.flares) seen.set(f.peak + f.class, f);
+    const cnt = new Map(), cx = new Map(), pos = new Map();
+    for (const f of seen.values()) { const k = f.peak.slice(0, 7); (f.class[0] === 'X' ? cx : cnt).set(k, ((f.class[0] === 'X' ? cx : cnt).get(k) || 0) + 1); }
+    for (const d of days) { if (d.label === 'no data') continue; const k = d.day.slice(0, 7), a = pos.get(k) || [0, 0]; a[0] += d.label === 'positive'; a[1]++; pos.set(k, a); }
+    const months = [...pos.keys()];
+    $('c-flares').replaceChildren(timeChart([
+      { name: 'вспышки M', color: '#D97706', points: months.map(k => [dayMs(k + '-15') - 4 * 864e5, cnt.get(k) || 0]), kind: 'bars', barDays: 10 },
+      { name: 'вспышки X', color: '#B91C1C', points: months.map(k => [dayMs(k + '-15') + 6 * 864e5, cx.get(k) || 0]), kind: 'bars', barDays: 10 },
+      { name: 'дни positive, %', color: '#1E4FB8', points: months.map(k => [dayMs(k + '-15'), pos.get(k)[0] / pos.get(k)[1] * 100]), axis: 'right', maxGapDays: 45 },
+    ], { height: 280, yLabel: 'вспышек за месяц', y2Label: '% дней', zero: true, y2Zero: true }));
+    cycleDone = true;
+  } catch (e) { showError($('c-flux'), e); }
+}
+
+// ---------- comparison ----------
+let cmpRows = [];
+async function drawCompare() {
+  setHash('compare');
+  const to = $('x-to').value || lastDay(), from = $('x-from').value || addDays(to, -120), f = $('x-f').value;
+  $('x-from').value = from; $('x-to').value = to;
+  try {
+    const idx = await range('indices', from, to);
+    cmpRows = idx;
+    const fl = f.replace('.', ',');
+    $('x-h').textContent = 'Полный поток по дням, ' + fl + ' ГГц';
+    const series = [
+      { name: 'РАТАН-600, ' + fl + ' ГГц', color: '#C2410C', points: idx.filter(r => r.ratan && r.ratan[f]).map(r => [dayMs(r.date), r.ratan[f]]), kind: 'dots', r: 3.2 },
+      { name: 'NoRP, ' + fl + ' ГГц', color: '#1E4FB8', points: idx.map(r => [dayMs(r.date), r.norp[f]]) },
+    ];
+    if ($('x-f107').checked) series.push({ name: 'F10.7 (2,8 ГГц)', color: '#0F766E', points: idx.map(r => [dayMs(r.date), r.f107]), axis: f === '2' || f === '3.75' ? 'left' : 'right' });
+    $('x-series').replaceChildren(timeChart(series, { from: dayMs(from), to: dayMs(to) + 864e5, height: 300, yLabel: 'с.е.п.', y2Label: 'F10.7, с.е.п.' }));
+    const pairs = idx.filter(r => r.ratan && r.ratan[f] && r.norp[f]);
+    const lo = Math.min(...pairs.flatMap(r => [r.ratan[f], r.norp[f]])), hi = Math.max(...pairs.flatMap(r => [r.ratan[f], r.norp[f]]));
+    const padv = (hi - lo) * 0.05 || 1;
+    $('x-scatter').replaceChildren(pairs.length ? scatterChart(pairs.map(r => ({ x: r.norp[f], y: r.ratan[f], color: '#C2410C', title: fmtDate(r.date) + `: РАТАН ${r.ratan[f]}, NoRP ${r.norp[f]}` })), {
+      square: true, width: 560, xDomain: [lo - padv, hi + padv], yDomain: [lo - padv, hi + padv], xLabel: 'NoRP, с.е.п.', yLabel: 'РАТАН-600, с.е.п.', fit: true,
+      guides: [{ x0: lo - padv, y0: lo - padv, x1: hi + padv, y1: hi + padv }],
+    }) : el('p', { class: 'muted', text: 'Нет дней с обоими измерениями.' }));
+    const ratio = pairs.map(r => r.ratan[f] / r.norp[f]), m = ratio.reduce((a, b) => a + b, 0) / ratio.length;
+    const sd = Math.sqrt(ratio.reduce((a, b) => a + (b - m) ** 2, 0) / Math.max(1, ratio.length - 1));
+    const sorted = [...ratio].sort((a, b) => a - b), med = sorted[Math.floor(sorted.length / 2)];
+    $('x-kpis').replaceChildren(...[[ratio.length ? m.toFixed(3) : '—', 'среднее'], [ratio.length ? med.toFixed(3) : '—', 'медиана'], [ratio.length ? sd.toFixed(3) : '—', 'разброс (σ)'], [String(ratio.length), 'дней']].map(([v, k]) => el('div', { class: 'kpi' }, el('b', { text: v }), el('span', { text: k }))));
+  } catch (e) { showError($('x-series'), e); }
+}
+
+try {
+  ix = await historyIndex();
+  obs = (await getJSON('data/observations.json').catch(() => ({ observations: [] }))).observations || [];
+  for (const id of ['w-end', 'x-from', 'x-to']) { $(id).min = ix.first; $(id).max = ix.last; }
+  $('m-month').min = ix.first.slice(0, 7); $('m-month').max = ix.last.slice(0, 7);
+  $('w-end').value = ix.last; $('m-month').value = ix.last.slice(0, 7);
+  const [k, v] = location.hash.slice(1).split('=');
+  select(['week', 'month', 'cycle', 'compare'].includes(k) ? k : 'week', v);
+} catch (e) { showError($('w-days'), e); }
+
+for (const b of document.querySelectorAll('[role=tab]')) b.addEventListener('click', () => select(b.dataset.tab));
+addEventListener('hashchange', () => { const [k, v] = location.hash.slice(1).split('='); if (['week', 'month', 'cycle', 'compare'].includes(k)) select(k, v); });
+$('w-end').addEventListener('change', () => drawWeek());
+$('w-prev').addEventListener('click', () => { $('w-end').value = addDays($('w-end').value, -7); drawWeek(); });
+$('w-next').addEventListener('click', () => { $('w-end').value = addDays($('w-end').value, 7); drawWeek(); });
+const shiftMonth = n => { const [y, m] = $('m-month').value.split('-').map(Number), d = new Date(Date.UTC(y, m - 1 + n, 1)); $('m-month').value = d.toISOString().slice(0, 7); drawMonth(); };
+$('m-month').addEventListener('change', () => drawMonth());
+$('m-prev').addEventListener('click', () => shiftMonth(-1));
+$('m-next').addEventListener('click', () => shiftMonth(1));
+for (const id of ['x-from', 'x-to', 'x-f', 'x-f107']) $(id).addEventListener('change', () => drawCompare());
+$('x-dl').addEventListener('click', () => download(`flux-${$('x-from').value}-${$('x-to').value}.csv`,
+  csv(['date', 'f107', ...['1', '2', '3.75', '9.4', '17'].map(f => 'norp_' + f), ...['2', '3.75', '9.4', '17'].map(f => 'ratan_' + f)],
+    cmpRows.map(r => [r.date, r.f107, ...['1', '2', '3.75', '9.4', '17'].map(f => r.norp[f]), ...['2', '3.75', '9.4', '17'].map(f => r.ratan ? r.ratan[f] : '')]))));
+</script>
+</body>
+</html>

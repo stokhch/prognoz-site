@@ -43,6 +43,8 @@ def main() -> int:
     for d, rows in sorted(days.items()):
         (out / f"{d}.json").write_text(json.dumps({"source": "prognoz DB, V_RAT_AR_NOAA", "rows": rows}, ensure_ascii=False, indent=0))
         print(f"{d}: {len(rows)} rows -> data/sources/{d}.json")
+    dates = sorted(p.stem for p in out.glob("????-??-??.json"))
+    (out / "index.json").write_text(json.dumps({"dates": dates}, separators=(",", ":")) + "\n", encoding="utf-8")
     return 0
 
 

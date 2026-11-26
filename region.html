@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Активная область · РАТАН-600</title>
+<!-- partial:meta -->
+<meta name="description" content="История активной области по наблюдениям РАТАН-600: потоки на 2, 3 и 10 см, спектр, признак прогноза и вспышки.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Активная область · РАТАН-600">
+<meta property="og:description" content="История активной области по наблюдениям РАТАН-600: потоки на 2, 3 и 10 см, спектр, признак прогноза и вспышки.">
+<meta property="og:url" content="https://stokhch.github.io/prognoz-site/region.html">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary">
+<link rel="alternate" type="application/rss+xml" title="Прогноз · РАТАН-600" href="feed.xml">
+<!-- /partial:meta -->
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<!-- partial:header -->
+<a class="skip" href="#content">К содержанию</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="7" fill="#F97316"/><circle cx="16" cy="16" r="12" fill="none" stroke="#F97316" stroke-opacity=".45" stroke-width="1.5"/><circle cx="16" cy="16" r="15" fill="none" stroke="#F97316" stroke-opacity=".2"/></svg>
+      <span><b>Прогноз · РАТАН-600</b><small>Радиоастрономический центр прогноза солнечной активности</small></span>
+    </a>
+    <nav class="nav" aria-label="Основное меню">
+      <a href="forecast.html">Прогноз</a>
+      <a href="archive.html">Архив</a>
+      <a href="data.html">Анализ данных</a>
+      <a href="summary.html">Сводки</a>
+      <a href="search.html">Поиск</a>
+      <a href="observations.html">Наблюдения</a>
+      <a href="instrument.html">Инструмент</a>
+      <a href="tools.html">Вычисления</a>
+      <a href="activity.html">Активность</a>
+      <a href="about.html">О проекте</a>
+    </nav>
+  </div>
+</header>
+<noscript><div class="notice" role="alert"><div class="wrap"><b>Нужен JavaScript.</b> Прогноз, таблицы и графики строятся в браузере; без JavaScript страница показывает только статический текст.</div></div></noscript>
+<!-- /partial:header -->
+<div class="demo-banner" role="note"><div class="wrap"><b>Демонстрационные данные.</b> Области, потоки и вспышки условные (синтетическое Солнце).</div></div>
+
+<main class="wrap stack" id="content" style="gap: 28px">
+  <div class="stack" style="gap: 10px">
+    <p class="eyebrow">История одной области</p>
+    <h1 class="page-title">Активная область <span id="title-noaa" class="mono"></span></h1>
+    <p class="lead">Потоки на 2, 3 и 10 см день за днём, спектр, положение на диске, признак прогноза и вспышки из этой области. Для дней с многоазимутальными наблюдениями — ход потока в течение дня.</p>
+  </div>
+
+  <form class="card toolbar-row" id="find" aria-label="Выбор области">
+    <div class="field"><label for="noaa">Номер NOAA</label><input id="noaa" list="noaa-list" inputmode="numeric" autocomplete="off" placeholder="например, 14280"><datalist id="noaa-list"></datalist></div>
+    <button class="btn btn-primary" type="submit">Показать</button>
+    <button class="btn" type="button" id="prev">← предыдущая</button>
+    <button class="btn" type="button" id="next">следующая →</button>
+    <span class="muted" id="find-msg" role="status"></span>
+  </form>
+
+  <div id="body" class="stack" style="gap: 24px" hidden>
+    <div class="kpis" id="kpis"></div>
+
+    <section class="card stack" aria-labelledby="f-h" style="gap: 10px">
+      <div class="section-head" style="margin: 0"><h2 id="f-h" style="font-size: 20px">Потоки по дням</h2><button class="btn" type="button" id="dl">Скачать CSV</button></div>
+      <p class="muted" style="margin: 0; font-size: 14px">с.е.п., логарифмическая шкала; пунктир — порог критерия 10 с.е.п. для F3/k; ▼ — вспышки из этой области; заливка — дни с итогом positive по этой области.</p>
+      <div id="flux"></div>
+    </section>
+
+    <div class="row">
+      <section class="card main stack" aria-labelledby="s-h" style="gap: 10px">
+        <h2 id="s-h" style="font-size: 20px">Спектр</h2>
+        <p class="muted" style="margin: 0; font-size: 14px">Поток на 10, 3 и 2 см (≈ 3, 10 и 15 ГГц); светлее — раньше, темнее — позже. Рост на коротких волнах при неизменном потоке на 10 см — признак, на котором стоит критерий Танаки–Эноме.</p>
+        <div id="spec"></div>
+      </section>
+      <section class="side card stack" aria-labelledby="d-h" style="gap: 10px">
+        <h2 id="d-h" style="font-size: 20px">Вспышки</h2>
+        <div id="flares"></div>
+      </section>
+    </div>
+
+    <section class="card stack" aria-labelledby="t-h" style="gap: 10px" id="intraday">
+      <h2 id="t-h" style="font-size: 20px">В течение дня</h2>
+      <p class="muted" style="margin: 0; font-size: 14px">Многоазимутальные серии: скан каждые ~4 минуты. Поток источника на 3 и 10 см по таблице источников базы (V_RAT_AR_NOAA).</p>
+      <div class="chips" id="t-days"></div>
+      <div id="t-chart"></div>
+    </section>
+
+    <section class="card stack" aria-labelledby="tab-h" style="gap: 10px">
+      <h2 id="tab-h" style="font-size: 20px">Таблица</h2>
+      <div class="table-box"><table style="min-width: 820px; font-size: 13px"><thead><tr>
+        <th scope="col">День</th><th scope="col">Положение</th><th scope="col" class="num">x, ″</th><th scope="col" class="num">F 2 см</th><th scope="col" class="num">F 3 см</th><th scope="col" class="num">F 10 см</th><th scope="col" class="num">k</th><th scope="col" class="num">F3/k</th><th scope="col" class="num">V/I</th><th scope="col">Признак</th>
+      </tr></thead><tbody id="rows"></tbody></table></div>
+    </section>
+  </div>
+</main>
+
+<!-- partial:footer -->
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Санкт-Петербургский филиал САО РАН · лаборатория солнечных исследований</span>
+    <span>Преемник сайта «Прогноз» (<a href="http://spbf.sao.ru/prognoz/">spbf.sao.ru/prognoz</a>, 2006–2026), переведённого в архив · <a href="about.html#history">подробнее</a></span>
+    <span>Вопросы и предложения: <a href="mailto:susan@sao.ru">susan@sao.ru</a></span>
+  </div>
+</footer>
+<!-- /partial:footer -->
+<script type="module">
+import { el, fmtDate, num, showError } from './assets/app.js';
+import { historyIndex, range, regionIndex, regionDays, noaaList, download, csv, dayMs, addDays, journalYear } from './assets/history.js';
+import { timeChart, scatterChart } from './assets/charts.js';
+
+const $ = id => document.getElementById(id);
+let ix, all = [], regions = new Map(), order = [], cur = null;
+
+const mix = (a, b, t) => '#' + [0, 2, 4].map(i => Math.round(parseInt(a.slice(1 + i, 3 + i), 16) * (1 - t) + parseInt(b.slice(1 + i, 3 + i), 16) * t).toString(16).padStart(2, '0')).join('');
+
+async function show(noaa) {
+  noaa = String(noaa || '').trim();
+  const r = regions.get(noaa);
+  $('noaa').value = noaa;
+  if (!r) {
+    $('body').hidden = true;
+    $('title-noaa').textContent = noaa;
+    $('find-msg').textContent = noaa ? `Области ${noaa} в архиве нет (${order[0]}–${order[order.length - 1]}).` : '';
+    return;
+  }
+  cur = noaa;
+  history.replaceState(null, '', '#' + noaa);
+  $('title-noaa').textContent = noaa;
+  document.title = 'NOAA ' + noaa + ' · РАТАН-600';
+  $('find-msg').textContent = '';
+  $('body').hidden = false;
+  const days = regionDays(all, noaa);
+  const pos = days.filter(d => d.label === 'positive').length;
+  const maxF = r.flares.reduce((m, f) => (!m || f.class[0] > m.class[0] || (f.class[0] === m.class[0] && +f.class.slice(1) > +m.class.slice(1))) ? f : m, null);
+  $('kpis').replaceChildren(...[
+    [fmtDate(r.first).slice(0, 5) + ' – ' + fmtDate(r.last).slice(0, 5), 'на диске ' + r.last.slice(0, 4)], [String(days.length), 'дней с наблюдениями'],
+    [num(r.maxF3, 1), 'max F3/k, с.е.п.'], [String(pos), 'дней positive'], [String(r.flares.length), 'вспышек ≥M1'], [maxF ? maxF.class : '—', 'сильнейшая'],
+  ].map(([v, k]) => el('div', { class: 'kpi' }, el('b', { text: v }), el('span', { text: k }))));
+
+  // fluxes by day
+  const t = d => dayMs(d.day) + 9 * 36e5, t0 = dayMs(r.first) - 864e5, t1 = dayMs(r.last) + 3 * 864e5;
+  $('flux').replaceChildren(timeChart([
+    { name: 'F 2 см', color: '#7C3AED', points: days.map(d => [t(d), d.flux2]), maxGapDays: 3 },
+    { name: 'F 3 см', color: '#C2410C', points: days.map(d => [t(d), d.flux3]), maxGapDays: 3 },
+    { name: 'F3/k', color: '#C2410C', points: days.map(d => [t(d), d.flux3_corr]), dash: true, maxGapDays: 3 },
+    { name: 'F 10 см', color: '#1E4FB8', points: days.map(d => [t(d), d.flux10]), maxGapDays: 3 },
+    { name: 'порог 10 с.е.п.', color: '#9AA6B5', points: [[t0, 10], [t1, 10]], width: 1, maxGapDays: 999 },
+  ], {
+    from: t0, to: t1, height: 320, log: true, yLabel: 'с.е.п.',
+    markers: r.flares.map(f => ({ t: Date.parse(f.peak + 'Z'), label: f.class + ' · ' + f.peak.replace('T', ' ') + ' UT', color: f.class[0] === 'X' ? '#B91C1C' : '#D97706' })),
+    bands: days.filter(d => d.label === 'positive').map(d => ({ t0: dayMs(d.day), t1: dayMs(d.day) + 864e5, color: 'rgba(249,115,22,.12)' })),
+    onClick: tt => { location.href = 'archive.html#' + new Date(tt).toISOString().slice(0, 10); },
+  }));
+
+  // spectrum: 3 points a day
+  const F = [3, 10, 15], lines = days.map((d, i) => ({ points: [[3, d.flux10], [10, d.flux3], [15, d.flux2]], color: mix('#FDBA74', '#7C2D12', days.length > 1 ? i / (days.length - 1) : 1), title: fmtDate(d.day) }));
+  const vals = days.flatMap(d => [d.flux10, d.flux3, d.flux2]).filter(v => v > 0);
+  $('spec').replaceChildren(scatterChart(days.flatMap((d, i) => [[3, d.flux10], [10, d.flux3], [15, d.flux2]].map(([x, y]) => ({ x, y, r: 3, color: lines[i].color, title: fmtDate(d.day) + `: ${x} ГГц — ${num(y, 1)} с.е.п.` }))), {
+    width: 640, height: 360, xLog: true, yLog: true, xDomain: [2.5, 18], yDomain: [Math.min(...vals) * 0.8, Math.max(...vals) * 1.25], lines,
+    xTicks: F.map(f => [f, f + ' ГГц']), xLabel: 'частота', yLabel: 'с.е.п.',
+  }));
+
+  // flares
+  $('flares').replaceChildren(r.flares.length ? el('ul', { style: 'margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px' }, ...r.flares.map(f => {
+    const before = days.filter(d => d.day < f.peak.slice(0, 10)).pop();
+    return el('li', { style: 'display:flex;justify-content:space-between;gap:8px;align-items:baseline' },
+      el('span', { class: 'flare' + (f.class[0] === 'X' ? ' x' : ''), text: f.class }),
+      el('span', { class: 'mono', style: 'font-size:13px', text: f.peak.replace('T', ' ') }),
+      el('span', { class: 'muted', style: 'font-size:12px' }, before ? el('a', { href: 'archive.html#' + before.day, text: 'накануне: ' + before.label }) : 'до первого скана'));
+  })) : el('p', { class: 'muted', style: 'margin:0', text: 'Вспышек ≥M1 из этой области не было.' }));
+
+  // table
+  $('rows').replaceChildren(...days.map(d => el('tr', {},
+    el('td', { class: 'mono' }, el('a', { href: 'archive.html#' + d.day, text: fmtDate(d.day) })),
+    el('td', { class: 'mono', text: d.location + (d.merged ? ' · ' + d.noaa : '') }),
+    ...[[d.x, 0], [d.flux2, 2], [d.flux3, 2], [d.flux10, 2], [d.beam, 3], [d.flux3_corr, 2], [d.pol, 2]].map(([v, k]) => el('td', { class: 'mono num', text: num(v, k) })),
+    el('td', {}, el('span', { class: 'pill', 'data-label': d.label, text: d.label })))));
+  $('dl').onclick = () => download(`noaa-${noaa}.csv`, csv(['day', 'noaa', 'location', 'x_arcsec', 'y_arcsec', 'flux2', 'flux3', 'flux10', 'beam_k', 'flux3_corr', 'pol', 'label'],
+    days.map(d => [d.day, d.noaa, d.location, d.x, d.y, d.flux2, d.flux3, d.flux10, d.beam, d.flux3_corr, d.pol, d.label])));
+  intraday(noaa, days);
+}
+
+// multi-azimuth days: data/sources/<date>.json; only days that the journal marks as series and that
+// data/sources/index.json lists are requested
+let srcIndex = null;
+async function intraday(noaa, days) {
+  const box = $('t-days'), chart = $('t-chart');
+  box.replaceChildren(); chart.replaceChildren(el('p', { class: 'muted', text: 'Ищу многоазимутальные серии…' }));
+  const years = [...new Set(days.map(d => d.day.slice(0, 4)))];
+  const journ = (await Promise.all(years.map(y => journalYear(y).then(j => j.entries, () => [])))).flat();
+  srcIndex ||= fetch('data/sources/index.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : { dates: [] }).then(j => new Set(j.dates), () => new Set());
+  const have = await srcIndex;
+  const multi = new Set(journ.filter(e => e.n_scans > 1).map(e => e.date));
+  const cand = days.filter(d => multi.has(d.day));
+  const avail = cand.filter(d => have.has(d.day));
+  const found = [];
+  await Promise.all(avail.map(d => fetch('data/sources/' + d.day + '.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(j => {
+    if (!j) return;
+    const rows = j.rows.filter(w => noaaList(w.noaa).includes(noaa));
+    if (rows.length > 1) found.push([d.day, rows]);
+  }).catch(() => {})));
+  if (cur !== noaa) return;
+  found.sort((a, b) => a[0] < b[0] ? -1 : 1);
+  if (!found.length) { chart.replaceChildren(el('p', { class: 'muted', style: 'margin:0', text: cand.length ? 'Таблицы источников для многоазимутальных дней этой области на сайт не выгружены.' : 'Многоазимутальных серий в дни этой области не было.' })); return; }
+  const draw = i => {
+    for (const [j, b] of [...box.children].entries()) b.setAttribute('aria-pressed', String(j === i));
+    const [day, rows] = found[i], tt = w => Date.parse(w.dateobs.replace(' ', 'T') + 'Z');
+    chart.replaceChildren(timeChart([
+      { name: 'F 3 см', color: '#C2410C', points: rows.map(w => [tt(w), w.flux_i]), maxGapDays: 1 },
+      { name: 'F3/k', color: '#C2410C', dash: true, points: rows.map(w => [tt(w), w.posykoeff ? w.flux_i / w.posykoeff : NaN]), maxGapDays: 1 },
+      { name: 'F 10 см', color: '#1E4FB8', points: rows.map(w => [tt(w), w.flux_i10]), maxGapDays: 1 },
+      { name: 'F 2 см', color: '#7C3AED', points: rows.map(w => [tt(w), w.flux_i2]), maxGapDays: 1 },
+      { name: 'V 3 см', color: '#0F766E', points: rows.map(w => [tt(w), w.flux_v]), axis: 'right', maxGapDays: 1 },
+    ], { height: 280, yLabel: 'с.е.п.', y2Label: 'V, с.е.п.', minSpan: 30 * 6e4, fmtT: x => new Date(x).toISOString().slice(11, 16) + ' UT · ' + fmtDate(day) }));
+  };
+  box.replaceChildren(...found.map(([day, rows], i) => el('button', { type: 'button', class: 'chip', onclick: () => draw(i) }, fmtDate(day) + ' · ' + rows.length + ' сканов')));
+  draw(found.length - 1);
+}
+
+try {
+  ix = await historyIndex();
+  all = await range('history', ix.first, ix.last);
+  regions = regionIndex(all);
+  order = [...regions.keys()].sort((a, b) => +a - +b);
+  $('noaa-list').replaceChildren(...order.map(n => el('option', { value: n, label: fmtDate(regions.get(n).first) })));
+  const want = decodeURIComponent(location.hash.slice(1));
+  if (want) show(want);
+  else {
+    // default: the most active region of the last two months (long on the disk, strong, with flares)
+    const score = r => r.days * Math.log1p(r.maxF3) * (1 + r.flares.length);
+    const recent = [...regions.values()].filter(r => r.last >= addDays(ix.last, -60)).sort((a, b) => score(b) - score(a));
+    show((recent[0] || regions.get(order[order.length - 1])).noaa);
+  }
+} catch (e) { showError($('find-msg').parentElement, e); }
+
+$('find').addEventListener('submit', e => { e.preventDefault(); show($('noaa').value); });
+$('prev').addEventListener('click', () => { const i = order.indexOf(cur); if (i > 0) show(order[i - 1]); });
+$('next').addEventListener('click', () => { const i = order.indexOf(cur); if (i >= 0 && i < order.length - 1) show(order[i + 1]); });
+addEventListener('hashchange', () => { const n = decodeURIComponent(location.hash.slice(1)); if (n && n !== cur) show(n); });
+</script>
+</body>
+</html>
