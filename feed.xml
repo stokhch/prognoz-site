@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>Прогноз солнечных вспышек · РАТАН-600</title>
+  <link>https://stokhch.github.io/prognoz-site/</link>
+  <atom:link href="https://stokhch.github.io/prognoz-site/feed.xml" rel="self" type="application/rss+xml"/>
+  <description>Трёхсуточный прогноз мощных солнечных вспышек по наблюдениям РАТАН-600 (СПбФ САО РАН)</description>
+  <language>ru</language>
+  <lastBuildDate>Mon, 09 Nov 2026 13:00:00 +0000</lastBuildDate>
+  <ttl>360</ttl>
+  <item>
+    <title>09.11.2026: positive?</title>
+    <link>https://stokhch.github.io/prognoz-site/forecast.html</link>
+    <guid isPermaLink="false">prognoz-2026-11-09</guid>
+    <pubDate>Mon, 09 Nov 2026 13:00:00 +0000</pubDate>
+    <category>positive?</category>
+    <description>Вероятность выше средней: признак есть, но сомнительный. По наблюдениям 06.11.2026. Области с признаком: 14268_14269. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>08.11.2026: positive?</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-11-08</link>
+    <guid isPermaLink="false">prognoz-2026-11-08</guid>
+    <pubDate>Sun, 08 Nov 2026 13:00:00 +0000</pubDate>
+    <category>positive?</category>
+    <description>Вероятность выше средней: признак есть, но сомнительный. Области с признаком: 14345_14341. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>07.11.2026: negative</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-11-07</link>
+    <guid isPermaLink="false">prognoz-2026-11-07</guid>
+    <pubDate>Sat, 07 Nov 2026 13:00:00 +0000</pubDate>
+    <category>negative</category>
+    <description>Мощных вспышек в ближайшие 3 суток не ожидается. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>06.11.2026: positive</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-11-06</link>
+    <guid isPermaLink="false">prognoz-2026-11-06</guid>
+    <pubDate>Fri, 06 Nov 2026 13:00:00 +0000</pubDate>
+    <category>positive</category>
+    <description>Хотя бы в одной активной области вероятна мощная вспышка. Области с признаком: 14344_14343, 14342. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>05.11.2026: positive</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-11-05</link>
+    <guid isPermaLink="false">prognoz-2026-11-05</guid>
+    <pubDate>Thu, 05 Nov 2026 13:00:00 +0000</pubDate>
+    <category>positive</category>
+    <description>Хотя бы в одной активной области вероятна мощная вспышка. Области с признаком: 14342. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>04.11.2026: no data</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-11-04</link>
+    <guid isPermaLink="false">prognoz-2026-11-04</guid>
+    <pubDate>Wed, 04 Nov 2026 13:00:00 +0000</pubDate>
+    <category>no data</category>
+    <description>Нет наблюдений за последние 3 суток — прогноз не строится. По наблюдениям 28.10.2026. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>03.11.2026: no data</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-11-03</link>
+    <guid isPermaLink="false">prognoz-2026-11-03</guid>
+    <pubDate>Tue, 03 Nov 2026 13:00:00 +0000</pubDate>
+    <category>no data</category>
+    <description>Нет наблюдений за последние 3 суток — прогноз не строится. По наблюдениям 28.10.2026. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>02.11.2026: no data</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-11-02</link>
+    <guid isPermaLink="false">prognoz-2026-11-02</guid>
+    <pubDate>Mon, 02 Nov 2026 13:00:00 +0000</pubDate>
+    <category>no data</category>
+    <description>Нет наблюдений за последние 3 суток — прогноз не строится. По наблюдениям 28.10.2026. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>01.11.2026: no data</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-11-01</link>
+    <guid isPermaLink="false">prognoz-2026-11-01</guid>
+    <pubDate>Sun, 01 Nov 2026 13:00:00 +0000</pubDate>
+    <category>no data</category>
+    <description>Нет наблюдений за последние 3 суток — прогноз не строится. По наблюдениям 28.10.2026. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>31.10.2026: negative</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-31</link>
+    <guid isPermaLink="false">prognoz-2026-10-31</guid>
+    <pubDate>Sat, 31 Oct 2026 13:00:00 +0000</pubDate>
+    <category>negative</category>
+    <description>Мощных вспышек в ближайшие 3 суток не ожидается. По наблюдениям 28.10.2026. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>30.10.2026: negative</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-30</link>
+    <guid isPermaLink="false">prognoz-2026-10-30</guid>
+    <pubDate>Fri, 30 Oct 2026 13:00:00 +0000</pubDate>
+    <category>negative</category>
+    <description>Мощных вспышек в ближайшие 3 суток не ожидается. По наблюдениям 28.10.2026. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>29.10.2026: negative</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-29</link>
+    <guid isPermaLink="false">prognoz-2026-10-29</guid>
+    <pubDate>Thu, 29 Oct 2026 13:00:00 +0000</pubDate>
+    <category>negative</category>
+    <description>Мощных вспышек в ближайшие 3 суток не ожидается. По наблюдениям 28.10.2026. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>28.10.2026: negative</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-28</link>
+    <guid isPermaLink="false">prognoz-2026-10-28</guid>
+    <pubDate>Wed, 28 Oct 2026 13:00:00 +0000</pubDate>
+    <category>negative</category>
+    <description>Мощных вспышек в ближайшие 3 суток не ожидается. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>27.10.2026: negative</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-27</link>
+    <guid isPermaLink="false">prognoz-2026-10-27</guid>
+    <pubDate>Tue, 27 Oct 2026 13:00:00 +0000</pubDate>
+    <category>negative</category>
+    <description>Мощных вспышек в ближайшие 3 суток не ожидается. По наблюдениям 26.10.2026. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>26.10.2026: negative</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-26</link>
+    <guid isPermaLink="false">prognoz-2026-10-26</guid>
+    <pubDate>Mon, 26 Oct 2026 13:00:00 +0000</pubDate>
+    <category>negative</category>
+    <description>Мощных вспышек в ближайшие 3 суток не ожидается. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>25.10.2026: negative</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-25</link>
+    <guid isPermaLink="false">prognoz-2026-10-25</guid>
+    <pubDate>Sun, 25 Oct 2026 13:00:00 +0000</pubDate>
+    <category>negative</category>
+    <description>Мощных вспышек в ближайшие 3 суток не ожидается. По наблюдениям 22.10.2026. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>24.10.2026: negative</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-24</link>
+    <guid isPermaLink="false">prognoz-2026-10-24</guid>
+    <pubDate>Sat, 24 Oct 2026 13:00:00 +0000</pubDate>
+    <category>negative</category>
+    <description>Мощных вспышек в ближайшие 3 суток не ожидается. По наблюдениям 22.10.2026. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>23.10.2026: negative</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-23</link>
+    <guid isPermaLink="false">prognoz-2026-10-23</guid>
+    <pubDate>Fri, 23 Oct 2026 13:00:00 +0000</pubDate>
+    <category>negative</category>
+    <description>Мощных вспышек в ближайшие 3 суток не ожидается. По наблюдениям 22.10.2026. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>22.10.2026: negative</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-22</link>
+    <guid isPermaLink="false">prognoz-2026-10-22</guid>
+    <pubDate>Thu, 22 Oct 2026 13:00:00 +0000</pubDate>
+    <category>negative</category>
+    <description>Мощных вспышек в ближайшие 3 суток не ожидается. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>21.10.2026: negative</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-21</link>
+    <guid isPermaLink="false">prognoz-2026-10-21</guid>
+    <pubDate>Wed, 21 Oct 2026 13:00:00 +0000</pubDate>
+    <category>negative</category>
+    <description>Мощных вспышек в ближайшие 3 суток не ожидается. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>20.10.2026: positive?</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-20</link>
+    <guid isPermaLink="false">prognoz-2026-10-20</guid>
+    <pubDate>Tue, 20 Oct 2026 13:00:00 +0000</pubDate>
+    <category>positive?</category>
+    <description>Вероятность выше средней: признак есть, но сомнительный. Области с признаком: 14338_14337. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>19.10.2026: positive?</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-19</link>
+    <guid isPermaLink="false">prognoz-2026-10-19</guid>
+    <pubDate>Mon, 19 Oct 2026 13:00:00 +0000</pubDate>
+    <category>positive?</category>
+    <description>Вероятность выше средней: признак есть, но сомнительный. Области с признаком: 14338_14337. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>18.10.2026: positive?</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-18</link>
+    <guid isPermaLink="false">prognoz-2026-10-18</guid>
+    <pubDate>Sun, 18 Oct 2026 13:00:00 +0000</pubDate>
+    <category>positive?</category>
+    <description>Вероятность выше средней: признак есть, но сомнительный. По наблюдениям 15.10.2026. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>17.10.2026: positive?</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-17</link>
+    <guid isPermaLink="false">prognoz-2026-10-17</guid>
+    <pubDate>Sat, 17 Oct 2026 13:00:00 +0000</pubDate>
+    <category>positive?</category>
+    <description>Вероятность выше средней: признак есть, но сомнительный. По наблюдениям 15.10.2026. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>16.10.2026: positive?</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-16</link>
+    <guid isPermaLink="false">prognoz-2026-10-16</guid>
+    <pubDate>Fri, 16 Oct 2026 13:00:00 +0000</pubDate>
+    <category>positive?</category>
+    <description>Вероятность выше средней: признак есть, но сомнительный. По наблюдениям 15.10.2026. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>15.10.2026: positive?</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-15</link>
+    <guid isPermaLink="false">prognoz-2026-10-15</guid>
+    <pubDate>Thu, 15 Oct 2026 13:00:00 +0000</pubDate>
+    <category>positive?</category>
+    <description>Вероятность выше средней: признак есть, но сомнительный. Области с признаком: 14335_14334. Вспышки за 12–84 ч после дня: X2.1. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>14.10.2026: positive</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-14</link>
+    <guid isPermaLink="false">prognoz-2026-10-14</guid>
+    <pubDate>Wed, 14 Oct 2026 13:00:00 +0000</pubDate>
+    <category>positive</category>
+    <description>Хотя бы в одной активной области вероятна мощная вспышка. По наблюдениям 11.10.2026. Вспышки за 12–84 ч после дня: X2.1. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>13.10.2026: positive</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-13</link>
+    <guid isPermaLink="false">prognoz-2026-10-13</guid>
+    <pubDate>Tue, 13 Oct 2026 13:00:00 +0000</pubDate>
+    <category>positive</category>
+    <description>Хотя бы в одной активной области вероятна мощная вспышка. По наблюдениям 11.10.2026. Вспышки за 12–84 ч после дня: X2.1, X2.1. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>12.10.2026: positive</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-12</link>
+    <guid isPermaLink="false">prognoz-2026-10-12</guid>
+    <pubDate>Mon, 12 Oct 2026 13:00:00 +0000</pubDate>
+    <category>positive</category>
+    <description>Хотя бы в одной активной области вероятна мощная вспышка. По наблюдениям 11.10.2026. Вспышки за 12–84 ч после дня: X2.1. Демонстрационные данные.</description>
+  </item>
+  <item>
+    <title>11.10.2026: positive</title>
+    <link>https://stokhch.github.io/prognoz-site/archive.html#2026-10-11</link>
+    <guid isPermaLink="false">prognoz-2026-10-11</guid>
+    <pubDate>Sun, 11 Oct 2026 13:00:00 +0000</pubDate>
+    <category>positive</category>
+    <description>Хотя бы в одной активной области вероятна мощная вспышка. Области с признаком: 14330. Вспышки за 12–84 ч после дня: X1.9, M9.1, M1.7, X2.1. Демонстрационные данные.</description>
+  </item>
+</channel>
+</rss>

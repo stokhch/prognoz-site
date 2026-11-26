@@ -20,6 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: RSS feed from the current forecast and the archive
+        run: python3 tools/make_feed.py
       - name: Cache busting (version in script and style URLs)
         run: python3 tools/stamp_version.py ${{ github.sha }}
       - uses: actions/upload-pages-artifact@v3

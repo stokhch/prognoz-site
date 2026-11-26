@@ -14,6 +14,11 @@
 | `forecast.html` | итог дня, таблица Танаки–Эноме, методика | `inf_method.html`, `rat2_tanaka.ion` |
 | `data.html` | архив level2 по HTTP (год → месяц → день → файл) и режимы просмотра (`assets/views.js`): картинка прогноза, скан, наложение, разнесение, сетка, цветная и контурная карта, 3D; спектр в точке, соседние волны, гаусс-анализ, Фурье, вейвлет, азимуты дня. В режимах «Скан», «Наложение», «Разнесение», «Сетка» — опции: шаблон спокойного Солнца (показать или вычесть) и снимок Солнца SDO с Helioviewer, повёрнутый как в sunview. Параметры I, V, R, L, p и пары I+V (V — своя шкала справа), R+L, участок (диск, ±2R, вся запись, увеличение протягиванием), вычитание спокойного Солнца (подгонка физической модели диска по нижней огибающей — `assets/quietsun.js`, по WorkScanJ; скользящая огибающая; медиана), масштаб без выбросов | `rat1_top.ion`, `rat2_plot.ion` и `rat2_*`, `rat3_*`, `rat4_*` |
 | `search.html` | поиск наблюдений по дате, азимуту, числу наблюдений в день | `rat_search`, `db.html` |
+| `archive.html` | архив прогнозов: календарь итогов, таблица дня, вспышки через 12–84 ч, оправдываемость (TSS, HSS, POD, FAR) за год и по месяцам | `rat_prognoz`, `rat2_tanaka`, `tanaka/ГГГГ.html`, `tanaka_stat_plot` |
+| `summary.html` | сводки: неделя (сканы и F3/k областей), месяц (источники на диске по дням), цикл (среднемесячные потоки, вспышки), сравнение с NoRP и F10.7 | `rat1_weekly`, `rat2_weekly`, `rat2_monthly`, `rat2_cycle`, `rat2_norp`, `rat2_rstn`, `rat_penticton` |
+| `region.html` | история области NOAA: потоки 2/3/10 см по дням, спектр, вспышки, ход потока в многоазимутальной серии | `rat2_tanaka_dia`, `rat2_tanaka_t`, `rat3_azim_timeser` |
+| `tables.html` | журнал наблюдений, таблица источников по дням, список файлов JSON (API) | `j20ГГ.txt`, `journal.html`, `rat_dbtables` |
+| `feed.xml` | RSS-лента прогноза (пишет `tools/make_feed.py`, в Pages — при каждой публикации) | рассылка `rat_alert`/`sendnotice1.pl` |
 | `assets/` | стили, общие функции, построение графиков | |
 | `data/` | JSON с прогнозом, списком наблюдений и сканами | Oracle (`RAT_*`) |
 
@@ -100,9 +105,36 @@ python3 -m http.server 8000
 
 При каждом push в `main` GitHub Actions (`.github/workflows/pages.yml`) выкладывает сайт на GitHub Pages: https://stokhch.github.io/prognoz-site/
 
+## Архив и сводки
+
+Страницы `archive.html`, `summary.html`, `region.html`, `tables.html` и лента `feed.xml` читают файлы ниже. Пока это демонстрационные данные (`"demo": true`): их пишет `python3 tools/make_demo_data.py` — синтетическое Солнце с фиксированным зерном, архив кончается днём перед `data/forecast.json`. Настоящая выгрузка из `ratan-forecast` заменяет файлы один к одному, страницы менять не нужно; после неё — `python3 tools/make_feed.py` (в Pages это делает workflow) и `python3 tools/validate_site.py`.
+
+`data/history/index.json` — `{"years": [2025, 2026], "first": "2025-01-01", "last": "2026-11-08"}`.
+
+`data/history/<год>.json` — прогноз каждого дня:
+
+```json
+{"year": 2026, "rule_version": "idl-2026-10", "window_h": [12, 84], "flare_min": "M1.0",
+ "days": [{"day": "2026-11-05", "data_day": "2026-11-05", "age_days": 0, "label": "positive", "quality": "A",
+           "observed": true,
+           "rows": [{"noaa": "14342", "location": "N22W29", "x": 426, "y": 360, "flux2": 17.38, "flux3": 24.88,
+                     "flux10": 11.6, "beam": 0.951, "flux3_corr": 26.17, "pol": -0.56, "area": 420, "label": "positive"}],
+           "flares": [{"class": "M2.6", "peak": "2026-11-06T14:22", "noaa": "14342"}]}]}
+```
+
+`rows` — таблица Танаки–Эноме дня (как в `forecast.json`, плюс положение `x`, `y` в угловых секундах от центра диска и `pol` = V/I на 3 см); в дни без наблюдений `rows` пуст, а `rows_from` указывает день, по которому взят итог. `flares` — вспышки GOES не слабее `flare_min` с пиком в окне `window_h` часов от начала дня (одна вспышка попадает в окна трёх соседних дней) и с номером области по сводке NOAA. Из этого считается оправдываемость (`assets/verify.js`).
+
+`data/indices/<год>.json` — полный поток Солнца, с.е.п.: `{"days": [{"date", "f107", "norp": {"1", "2", "3.75", "9.4", "17"}, "ratan": {"2", "3.75", "9.4", "17"}}]}`; `ratan` есть только в дни наблюдений (интеграл скана level2 по диску на ближайшей частоте).
+
+`data/journal/<год>.json` — журнал: `{"entries": [{"date", "n_scans", "az": [-24, …, 24], "first_ut", "last_ut", "mode", "note"}]}`.
+
+`data/sources/<дата>.json` — источники каждого скана дня (формат `tools/sources_to_json.py`, см. ниже); `data/sources/index.json` — `{"dates": [...]}`, список выгруженных дней, его обновляет `sources_to_json.py`. Страница области строит по ним ход потока в многоазимутальной серии.
+
+Общий код: `assets/history.js` (загрузка по годам, области, CSV), `assets/verify.js` (таблица сопряжённости, TSS, HSS — с тестами), `assets/charts.js` (ряды по датам, точечные графики, без библиотек).
+
 ## Что дальше
 
-- Экспорт настоящих данных из `ratan-forecast` (PostgreSQL) в `data/`.
+- Экспорт настоящих данных из `ratan-forecast` (PostgreSQL) в `data/`, включая архив (`data/history`, `indices`, `journal`, `sources`).
 - Английская версия.
 - Перенос вычислений (EFRAT, ДНА, моделирование) — пока ссылки ведут на старый сайт.
 
